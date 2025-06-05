@@ -20,7 +20,7 @@ class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-    return isWindows
+    return isWindows 
       ? path.join(this.venvPath, 'Scripts', 'python.exe')
       : path.join(this.venvPath, 'bin', 'python');
   }
@@ -59,15 +59,16 @@ class PythonManager {
 
   async checkPythonInstallation() {
     return new Promise((resolve, reject) => {
+      const pythonCommand = os.platform() === 'win32' ? 'python.exe' : 'python';
       if (this.currentProgressCallback) {
         this.currentProgressCallback({
           step: 'python-check',
           message: 'Verifica installazione Python...',
-          logs: 'Running: python --version'
+          logs: `Running: ${pythonCommand} --version`
         });
       }
 
-      exec('python --version', (error, stdout, stderr) => {
+      exec(`${pythonCommand} --version`, (error, stdout, stderr) => {
         if (error) {
           this.logger.error('Python non trovato in PATH');
           if (this.currentProgressCallback) {
@@ -133,16 +134,18 @@ class PythonManager {
 
   async createVirtualEnvironment() {
     return new Promise((resolve, reject) => {
-      const pythonPath = this.pythonExecutable; // Use the correct python path
+      // Use system Python to create venv, not the venv Python itself
+      const systemPython = os.platform() === 'win32' ? 'python.exe' : 'python';
+      
       if (this.currentProgressCallback) {
         this.currentProgressCallback({
           step: 'venv-setup',
           message: 'Creating virtual environment...',
-          logs: `Running: python -m venv ${this.venvPath}`
+          logs: `Running: ${systemPython} -m venv ${this.venvPath}`
         });
       }
 
-      const process = spawn('python', ['-m', 'venv', this.venvPath]);
+      const process = spawn(systemPython, ['-m', 'venv', this.venvPath]);
       
       process.stdout.on('data', (data) => {
         const output = data.toString().trim();
@@ -338,8 +341,8 @@ class PythonManager {
               step: 'deps-install',
               message: 'Installing Python packages...',
               logs: line.trim()
-            });
-          });
+      });
+      });
         }
       });
 
@@ -354,8 +357,8 @@ class PythonManager {
               step: 'deps-install',
               message: 'Installing Python packages...',
               logs: line.trim()
-            });
-          });
+      });
+      });
         }
       });
 

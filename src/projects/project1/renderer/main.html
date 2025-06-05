@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progetto 1 - Correzione Microrotazioni</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        .image-container {
+            max-height: 400px;
+            overflow: hidden;
+            border: 2px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        .drop-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.375rem;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .drop-zone.dragover {
+            border-color: #0d6efd;
+            background-color: #e3f2fd;
+        }
+        .processing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container-fluid mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1>Correzione Microrotazioni</h1>
+                            <p class="text-muted">Corregge automaticamente le microrotazioni e ritaglia le scansioni di documenti</p>
+                        </div>
+                        <button @click="goBack" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Indietro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Input Section -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Carica Immagine</h5>
+                        </div>
+                        <div class="card-body">
+                            <div v-if="!imageLoaded" 
+                                 class="drop-zone"
+                                 @click="$refs.fileInput.click()"
+                                 @dragover.prevent="onDragOver"
+                                 @dragleave.prevent="onDragLeave"
+                                 @drop.prevent="onDrop">
+                                <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                                <h5 class="mt-3">Trascina un'immagine qui</h5>
+                                <p class="text-muted">oppure clicca per selezionare</p>
+                                <small class="text-muted">Formati supportati: TIFF, TIF, JPG, PNG</small>
+                                <input ref="fileInput" 
+                                       type="file" 
+                                       class="d-none" 
+                                       @change="loadImage"
+                                       accept=".tiff,.tif,.jpg,.jpeg,.png">
+                            </div>
+                            
+                            <div v-else class="position-relative">
+                                <div class="image-container mb-3">
+                                    <img :src="originalImage" alt="Immagine originale" class="img-fluid">
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button @click="resetImage" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Rimuovi
+                                    </button>
+                                    <button @click="$refs.fileInput.click()" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-arrow-repeat"></i> Cambia
+                                    </button>
+                                </div>
+                                <input ref="fileInput" 
+                                       type="file" 
+                                       class="d-none" 
+                                       @change="loadImage"
+                                       accept=".tiff,.tif,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Risultato</h5>
+                            <div class="d-flex gap-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="showSteps" v-model="showStepByStep">
+                                    <label class="form-check-label" for="showSteps">
+                                        Mostra passaggi
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body position-relative">
+                            <div v-if="!processedImage && !processing" class="text-center text-muted py-5">
+                                <i class="bi bi-image fs-1"></i>
+                                <h5 class="mt-3">Risultato apparirà qui</h5>
+                                <p>Carica un'immagine e clicca "Elabora" per vedere il risultato</p>
+                            </div>
+                            
+                            <div v-else-if="processing" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Elaborazione...</span>
+                                </div>
+                                <h5 class="mt-3">Elaborazione in corso...</h5>
+                                <p class="text-muted">Correzione microrotazioni e ritaglio automatico</p>
+                            </div>
+                            
+                            <div v-else class="image-container">
+                                <img :src="processedImage" alt="Immagine elaborata" class="img-fluid">
+                            </div>
+                        </div>
+                        <div class="card-footer" v-if="imageLoaded">
+                            <button @click="processImage" 
+                                    :disabled="processing || !imageLoaded"
+                                    class="btn btn-primary w-100">
+                                <span v-if="processing" class="spinner-border spinner-border-sm me-2"></span>
+                                <i v-else class="bi bi-gear"></i>
+                                {{ processing ? 'Elaborazione...' : 'Elabora Immagine' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="row mt-4" v-if="imageLoaded">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Parametri</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="borderPixels" class="form-label">Bordo esterno (pixel)</label>
+                                    <input type="range" class="form-range" id="borderPixels" 
+                                           v-model="borderPixels" min="0" max="50" step="1">
+                                    <small class="text-muted">{{ borderPixels }} pixel</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html>

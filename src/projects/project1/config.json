@@ -1,0 +1,14 @@
+{
+  "name": "Correzione Microrotazioni",
+  "description": "Corregge automaticamente le microrotazioni e ritaglia le scansioni di documenti utilizzando algoritmi di computer vision",
+  "version": "1.0.0",
+  "main": "renderer/main.html",
+  "python_scripts": [
+    "python/microperspective_wrapper.py"
+  ],
+  "requirements": [
+    "opencv-python==4.10.0.84",
+    "numpy==2.2.1",
+    "matplotlib==3.10.0"
+  ]
+}

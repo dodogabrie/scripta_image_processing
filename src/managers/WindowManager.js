@@ -85,6 +85,27 @@ class WindowManager {
       errorWindow.webContents.send('error-message', errorMessage);
     });
   }
+
+  createProjectWindow(projectHtmlPath) {
+    const projectWindow = new BrowserWindow({
+      width: 1400,
+      height: 900,
+      show: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, '../preload/project-preload.js')
+      }
+    });
+
+    projectWindow.loadFile(projectHtmlPath);
+    
+    projectWindow.webContents.once('dom-ready', () => {
+      console.log('Project window DOM ready');
+    });
+
+    return projectWindow;
+  }
 }
 
 module.exports = WindowManager;

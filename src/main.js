@@ -3,11 +3,12 @@ const path = require('path');
 const { net } = require('electron');
 
 // Import managers with error handling for development
-let PythonManager, WindowManager, Logger;
+let PythonManager, WindowManager, Logger, ProjectManager;
 try {
   PythonManager = require('./managers/PythonManager');
   WindowManager = require('./managers/WindowManager');
   Logger = require('./utils/Logger');
+  ProjectManager = require('./managers/ProjectManager');
 } catch (error) {
   console.error('Missing dependencies. Creating minimal fallbacks...');
   
@@ -25,9 +26,9 @@ try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       progressCallback({ step: 'complete', message: 'Python environment ready!', percentage: 100 });
-      return Promise.resolve(); 
+      return Promise.reject(new Error('Python non trovato (simulazione)')); 
     }
-    getStatus() { return { ready: true }; }
+    getStatus() { return { ready: false }; }
     installEnvironment() { return Promise.resolve({ success: true }); }
     
     // Add runPythonScript method for testing
@@ -37,21 +38,13 @@ try {
       // Simulate script execution
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Return simulated Python output
-      return `Script Python avviato con successo! (simulazione)
-Versione Python: 3.11.0
-Script eseguito alle: ${new Date().toLocaleString()}
-Argomenti ricevuti: ${JSON.stringify(args)}
-Versione NumPy: 1.24.3
-Versione Pillow: 10.0.1
-Versione OpenCV: 4.8.1.78
-{"status": "successo", "message": "Ambiente Python funziona correttamente", "timestamp": "${new Date().toISOString()}", "packages_available": true}`;
+      return `Script Python non si esegue. Percorso: ${scriptPath}, Argomenti: ${args.join(', ')}`;
     }
     
     // Add checkPythonInstallation method for testing
     async checkPythonInstallation() {
       console.log('Fallback: checkPythonInstallation chiamato');
-      return true; // Simulate Python is installed
+      return false; // Simulate Python is NOT installed
     }
   };
   
@@ -88,10 +81,10 @@ Versione OpenCV: 4.8.1.78
         webPreferences: { 
           nodeIntegration: false, 
           contextIsolation: true,
-          preload: path.join(__dirname, 'preload/main-preload.js')
+          preload: path.join(__dirname, 'preload', 'main-preload.js')
         }
       });
-      win.loadFile(path.join(__dirname, 'renderer/main.html'));
+      win.loadFile(path.join(__dirname, 'renderer', 'main.html'));
       
       // Add debug logging
       win.webContents.once('dom-ready', () => {
@@ -99,6 +92,27 @@ Versione OpenCV: 4.8.1.78
       });
       
       return win;
+    }
+    
+    createProjectWindow(projectHtmlPath) {
+      console.log('Fallback: createProjectWindow chiamato con:', projectHtmlPath);
+      const projectWindow = new BrowserWindow({
+        width: 1400,
+        height: 900,
+        show: true,
+        webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false
+        }
+      });
+
+      projectWindow.loadFile(projectHtmlPath);
+      
+      projectWindow.webContents.once('dom-ready', () => {
+        console.log('Project window DOM ready (fallback)');
+      });
+
+      return projectWindow;
     }
     
     closeLoadingWindow() {
@@ -115,12 +129,36 @@ Versione OpenCV: 4.8.1.78
     info(msg) { console.log('[INFO]', msg); }
     error(msg, err) { console.error('[ERROR]', msg, err); }
   };
+  
+  ProjectManager = class {
+    constructor() {
+      this.projects = new Map();
+    }
+    async loadProjects() { 
+      // Simulate loading projects
+      this.projects.set('project1', {
+        id: 'project1',
+        config: {
+          name: 'Progetto Demo',
+          description: 'Progetto di esempio per test',
+          version: '1.0.0'
+        }
+      });
+    }
+    getProjects() { 
+      return Array.from(this.projects.values()); 
+    }
+    getProject(id) { 
+      return this.projects.get(id); 
+    }
+  };
 }
 
 class App {
   constructor() {
     this.pythonManager = new PythonManager();
     this.windowManager = new WindowManager();
+    this.projectManager = new ProjectManager();
     this.logger = new Logger();
     this.isReady = false;
     this.loadingWindow = null;
@@ -236,28 +274,74 @@ class App {
       return await this.pythonManager.installEnvironment();
     });
 
-    // Add Python script execution handler
-    ipcMain.handle('python:runScript', async (event, scriptName, args = []) => {
-      console.log('IPC: python:runScript chiamato con:', scriptName, args);
+    // Project management handlers
+    ipcMain.handle('projects:getAll', async () => {
+      console.log('IPC: projects:getAll chiamato');
+      await this.projectManager.loadProjects();
+      return this.projectManager.getProjects();
+    });
+
+    ipcMain.handle('projects:open', async (event, projectId) => {
+      console.log('IPC: projects:open chiamato con:', projectId);
       try {
-        const scriptPath = path.join(__dirname, 'python_scripts', scriptName);
-        console.log('Percorso script:', scriptPath);
+        const project = this.projectManager.getProject(projectId);
+        if (!project) {
+          return { success: false, error: 'Project not found' };
+        }
         
-        // Check if PythonManager has the method
-        if (!this.pythonManager.runPythonScript) {
-          console.error('runPythonScript method not available');
-          return { success: false, error: 'runPythonScript method not available' };
+        const mainHtmlPath = this.projectManager.getProjectMainHtml(projectId);
+        if (!mainHtmlPath) {
+          return { success: false, error: 'Project main HTML not found' };
+        }
+        
+        console.log('Opening project window with HTML:', mainHtmlPath);
+        const projectWindow = this.windowManager.createProjectWindow(mainHtmlPath);
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Errore apertura progetto:', error);
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle('projects:runScript', async (event, projectId, scriptName, args = []) => {
+      console.log('IPC: projects:runScript chiamato con:', projectId, scriptName, args);
+      try {
+        const scriptPath = this.projectManager.getProjectPythonScript(projectId, scriptName);
+        if (!scriptPath) {
+          return { success: false, error: 'Script not found' };
         }
         
         const result = await this.pythonManager.runPythonScript(scriptPath, args);
-        console.log('Risultato script:', result);
         return { success: true, output: result };
       } catch (error) {
-        console.error('Errore esecuzione script:', error);
         return { success: false, error: error.message };
       }
     });
     
+    ipcMain.handle('projects:loadContent', async (event, projectId) => {
+      console.log('IPC: projects:loadContent chiamato con:', projectId);
+      try {
+        const project = this.projectManager.getProject(projectId);
+        if (!project) {
+          return { success: false, error: 'Project not found' };
+        }
+        
+        const mainHtmlPath = this.projectManager.getProjectMainHtml(projectId);
+        if (!mainHtmlPath) {
+          return { success: false, error: 'Project main HTML not found' };
+        }
+        
+        const fs = require('fs');
+        const htmlContent = fs.readFileSync(mainHtmlPath, 'utf8');
+        
+        return { success: true, html: htmlContent };
+      } catch (error) {
+        console.error('Errore caricamento contenuto progetto:', error);
+        return { success: false, error: error.message };
+      }
+    });
+
     console.log('IPC handlers configurati');
   }
 }

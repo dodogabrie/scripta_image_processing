@@ -21,6 +21,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveFile: (data) => {
         console.log('Save file requested', data);
         return Promise.resolve();
+    },
+    
+    getProjects: () => {
+        console.log('Chiamata getProjects dal preload');
+        return ipcRenderer.invoke('projects:getAll');
+    },
+    
+    openProject: (projectId) => {
+        console.log('Chiamata openProject dal preload:', projectId);
+        return ipcRenderer.invoke('projects:open', projectId);
+    },
+    
+    loadProjectContent: (projectId) => {
+        console.log('Chiamata loadProjectContent dal preload:', projectId);
+        return ipcRenderer.invoke('projects:loadContent', projectId);
+    },
+    
+    runProjectScript: (projectId, scriptName, args) => {
+        console.log('Chiamata runProjectScript dal preload:', projectId, scriptName, args);
+        return ipcRenderer.invoke('projects:runScript', projectId, scriptName, args);
     }
 });
 

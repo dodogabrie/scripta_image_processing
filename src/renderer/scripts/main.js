@@ -8,7 +8,10 @@ createApp({
                 pythonStatus: { ready: false }
             },
             testing: false,
-            console: null
+            console: null,
+            projects: [],
+            projectsLoaded: false,
+            currentProject: null
         };
     },
     async mounted() {
@@ -16,6 +19,9 @@ createApp({
         this.addLogEntry('Applicazione caricata - Testing: ' + this.testing, 'info');
         this.testing = false;
         await this.checkAppStatus();
+        await this.loadProjects();
+        
+        // Check status periodically
         setInterval(this.checkAppStatus, 5000);
     },
     methods: {
@@ -33,6 +39,104 @@ createApp({
                 }
             } catch (error) {
                 this.addLogEntry('Errore controllo stato: ' + error.message, 'error');
+            }
+        },
+        async loadProjects() {
+            try {
+                if (window.electronAPI && window.electronAPI.getProjects) {
+                    this.projects = await window.electronAPI.getProjects();
+                    this.addLogEntry('Progetti caricati: ' + JSON.stringify(this.projects), 'info');
+                } else {
+                    this.addLogEntry('getProjects non disponibile', 'warning');
+                }
+            } catch (error) {
+                this.addLogEntry('Errore caricamento progetti: ' + error.message, 'error');
+            } finally {
+                this.projectsLoaded = true;
+            }
+        },
+        async openProject(projectId) {
+
+            if (!this.appStatus.isReady) {
+                alert('Attendere il completamento dell\'inizializzazione');
+                return;
+            }
+            
+            try {
+                // Trova il progetto
+                const project = this.projects.find(p => p.id === projectId);
+                if (!project) {
+                    alert('Progetto non trovato');
+                    return;
+                }
+                
+                // Carica il contenuto del progetto
+                if (window.electronAPI && window.electronAPI.loadProjectContent) {
+                    const result = await window.electronAPI.loadProjectContent(projectId);
+
+                    // logga result
+                    if (result.success) {
+                        this.currentProject = project;
+                        
+                        // Aspetta che Vue aggiorni il DOM
+                        await this.$nextTick();
+                        
+                        this.loadProjectHTML(result.html);
+                    } else {
+                        console.error('Errore caricamento progetto:', result.error);
+                        alert('Errore nel caricamento del progetto: ' + result.error);
+                    }
+                } else {
+                    console.error('loadProjectContent non disponibile');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('Errore nell\'apertura del progetto');
+            }
+        },
+        
+        loadProjectHTML(htmlContent) {
+            console.log('Cercando container...');
+            const container = document.getElementById('project-container');
+            console.log('Container trovato:', container);
+            
+            if (container) {
+                // Estrai solo il contenuto del body se presente
+                let cleanedHTML = htmlContent;
+                const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+                if (bodyMatch) {
+                    cleanedHTML = bodyMatch[1];
+                    console.log('Contenuto body estratto');
+                }
+                
+                container.innerHTML = cleanedHTML;
+                console.log('HTML inserito nel container');
+                
+                // Esegui gli script del progetto se presenti
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    if (script.src) {
+                        newScript.src = script.src;
+                    } else {
+                        newScript.textContent = script.textContent;
+                    }
+                    document.head.appendChild(newScript);
+                });
+            } else {
+                console.error('Container project-container non trovato!');
+                // Fallback: prova di nuovo dopo un delay
+                setTimeout(() => {
+                    console.log('Retry caricamento HTML...');
+                    this.loadProjectHTML(htmlContent);
+                }, 100);
+            }
+        },
+        goBackToHome() {
+            this.currentProject = null;
+            const container = document.getElementById('project-container');
+            if (container) {
+                container.innerHTML = '';
             }
         },
         addLogEntry(message, type = 'normal') {

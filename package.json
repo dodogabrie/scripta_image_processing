@@ -1,0 +1,38 @@
+{
+  "name": "scripta-image-processing",
+  "version": "1.0.0",
+  "description": "Image processing application built with Electron",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "install-deps": "npm install",
+    "clean": "rm -rf node_modules package-lock.json"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0"
+  },
+  "dependencies": {},
+  "author": "Edoardo",
+  "license": "MIT",
+  "build": {
+    "appId": "com.scripta.imageprocessing",
+    "productName": "Scripta Image Processing",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "config.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

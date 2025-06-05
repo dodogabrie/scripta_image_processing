@@ -1,0 +1,3 @@
+[submodule "src/projects/project1/python/microperspective-corrector"]
+	path = src/projects/project1/python/microperspective-corrector
+	url = git@github.com:dodogabrie/microperspective-corrector.git

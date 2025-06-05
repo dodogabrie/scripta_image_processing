@@ -8,7 +8,7 @@ const { app } = require('electron');
 class PythonManager {
   constructor() {
     this.logger = new Logger();
-    this.venvPath = path.join(app.getAppPath(), 'src', 'python_env');
+    this.venvPath = path.join(app.getAppPath(), 'python_env');
     this.pythonExecutable = this.getPythonExecutable();
     this.pipExecutable = this.getPipExecutable();
     this.status = {
@@ -20,7 +20,7 @@ class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-    return isWindows 
+    return isWindows
       ? path.join(this.venvPath, 'Scripts', 'python.exe')
       : path.join(this.venvPath, 'bin', 'python');
   }
@@ -133,6 +133,7 @@ class PythonManager {
 
   async createVirtualEnvironment() {
     return new Promise((resolve, reject) => {
+      const pythonPath = this.pythonExecutable; // Use the correct python path
       if (this.currentProgressCallback) {
         this.currentProgressCallback({
           step: 'venv-setup',
@@ -176,7 +177,10 @@ class PythonManager {
               logs: 'Virtual environment created successfully!'
             });
           }
-          resolve();
+          
+          // Install pip in the venv
+          this.installPipInVenv().then(resolve).catch(reject);
+          
         } else {
           const errorMsg = `Failed to create virtual environment. Exit code: ${code}`;
           if (this.currentProgressCallback) {
@@ -196,6 +200,84 @@ class PythonManager {
           this.currentProgressCallback({
             step: 'venv-setup',
             message: 'Virtual environment creation failed',
+            logs: `ERROR: ${errorMsg}`
+          });
+        }
+        reject(new Error(errorMsg));
+      });
+    });
+  }
+
+  async installPipInVenv() {
+    return new Promise((resolve, reject) => {
+      if (this.currentProgressCallback) {
+        this.currentProgressCallback({
+          step: 'venv-setup',
+          message: 'Installing pip in virtual environment...',
+          logs: `Running: ${this.pythonExecutable} -m ensurepip`
+        });
+      }
+
+      const process = spawn(this.pythonExecutable, ['-m', 'ensurepip'], {
+        cwd: this.venvPath,
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+
+      process.stdout.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output && this.currentProgressCallback) {
+          this.currentProgressCallback({
+            step: 'venv-setup',
+            message: 'Installing pip in virtual environment...',
+            logs: output
+          });
+        }
+      });
+
+      process.stderr.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output && this.currentProgressCallback) {
+          this.currentProgressCallback({
+            step: 'venv-setup',
+            message: 'Installing pip in virtual environment...',
+            logs: output
+          });
+        }
+      });
+
+      process.on('close', (code) => {
+        if (code === 0) {
+          this.logger.info('pip installed successfully in virtual environment');
+          if (this.currentProgressCallback) {
+            this.currentProgressCallback({
+              step: 'venv-setup',
+              message: 'pip installed in virtual environment',
+              logs: 'pip installed successfully in virtual environment!'
+            });
+          }
+          
+          // Update pipExecutable after installation
+          this.pipExecutable = this.getPipExecutable();
+          resolve();
+        } else {
+          const errorMsg = `Failed to install pip in virtual environment. Exit code: ${code}`;
+          if (this.currentProgressCallback) {
+            this.currentProgressCallback({
+              step: 'venv-setup',
+              message: 'pip installation failed',
+              logs: `ERROR: ${errorMsg}`
+            });
+          }
+          reject(new Error(errorMsg));
+        }
+      });
+
+      process.on('error', (error) => {
+        const errorMsg = `Failed to install pip in virtual environment: ${error.message}`;
+        if (this.currentProgressCallback) {
+          this.currentProgressCallback({
+            step: 'venv-setup',
+            message: 'pip installation failed',
             logs: `ERROR: ${errorMsg}`
           });
         }
@@ -231,7 +313,16 @@ class PythonManager {
     }
 
     return new Promise((resolve, reject) => {
-      const process = spawn(this.pipExecutable, ['install', '-r', requirementsPath], {
+      const pipPath = this.pipExecutable; // Use the correct pip path
+      if (this.currentProgressCallback) {
+        this.currentProgressCallback({
+          step: 'deps-install',
+          message: 'Installing Python packages...',
+          logs: `Running: ${pipPath} install -r requirements.txt`
+        });
+      }
+
+      const process = spawn(pipPath, ['install', '-r', requirementsPath], {
         stdio: ['pipe', 'pipe', 'pipe']
       });
       

@@ -2,17 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { net } = require('electron');
 
-// Load config
-let config;
-try {
-  const configPath = path.join(app.getAppPath(), 'src', 'config.json');
-  config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  console.log('Config loaded:', config);
-} catch (error) {
-  console.error('Failed to load config.json:', error);
-  config = {}; // Fallback config
-}
-
 // Import managers with error handling for development
 let PythonManager, WindowManager, Logger;
 try {
@@ -49,7 +38,7 @@ try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Return simulated Python output
-      return `Script Python avviato con successo!
+      return `Script Python avviato con successo! (simulazione)
 Versione Python: 3.11.0
 Script eseguito alle: ${new Date().toLocaleString()}
 Argomenti ricevuti: ${JSON.stringify(args)}
@@ -75,16 +64,11 @@ Versione OpenCV: 4.8.1.78
         alwaysOnTop: true,
         resizable: false,
         webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true,
+          nodeIntegration: true,
+          contextIsolation: false,
           preload: path.join(__dirname, 'preload/loading-preload.js')
         }
       });
-      
-      // Handle preload file not existing
-      this.loadingWindow.webPreferences.preload = '';
-      this.loadingWindow.webPreferences.nodeIntegration = true;
-      this.loadingWindow.webPreferences.contextIsolation = false;
       
       this.loadingWindow.loadFile(path.join(__dirname, 'renderer/loading.html'));
       

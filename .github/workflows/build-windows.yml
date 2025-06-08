@@ -51,16 +51,30 @@ jobs:
           dir "C:\usr\bin"
         shell: cmd
 
-      - name: Install dependencies (npm)
-        run: npm install
+      - name: Install dependencies (npm) - skip rebuild
+        run: |
+          npm install --ignore-scripts
+          npm rebuild --ignore-scripts
 
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
 
-      - name: Build Electron app (Windows)
-        run: npx electron-builder --win --x64
+      - name: Ensure Python symlink exists (pre-build check)
+        run: |
+          echo "Re-checking Python symlink before build..."
+          if not exist "C:\usr\bin\python.exe" (
+            echo "Symlink missing, recreating..."
+            mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
+          ) else (
+            echo "Symlink exists"
+          )
+          dir "C:\usr\bin"
+        shell: cmd
+
+      - name: Build Electron app (Windows) - no rebuild
+        run: npx electron-builder --win --x64 --config.nodeGypRebuild=false
         env:
-          PYTHON: ${{ env.pythonLocation }}\python.exe
+          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -35,6 +35,8 @@
       "oneClick": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false
   }
 }

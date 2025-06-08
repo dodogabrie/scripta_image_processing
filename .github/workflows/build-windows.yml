@@ -22,33 +22,21 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Python (for embedding script only)
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (npm) - force no rebuild
-        run: npm install --ignore-scripts
-
-      - name: Setup Python embedded (download, extract, pip, requirements)
-        run: node scripts/embed-python-win.js
-
-      - name: Create symlink as fallback
+      - name: Create hardcoded Python path for electron-builder
         run: |
           New-Item -ItemType Directory -Path "C:\usr\bin" -Force
-          New-Item -ItemType SymbolicLink -Path "C:\usr\bin\python.exe" -Target "${{ github.workspace }}\src\python-embed\python.exe" -Force
+          Copy-Item "${{ env.pythonLocation }}\python.exe" -Destination "C:\usr\bin\python.exe"
 
-      - name: Build Electron app (Windows) - use embedded Python
+      - name: Install dependencies (npm)
+        run: npm install --ignore-scripts
+
+      - name: Build Electron app (Windows)
         run: npx electron-builder --win --x64
-        env:
-          PYTHON: ${{ github.workspace }}\src\python-embed\python.exe
-          npm_config_node_gyp: ""
-          ELECTRON_REBUILD: false
-          npm_config_rebuild: false
-          npm_config_cache_lock_stale: 60000
-          # Forza electron-builder a non cercare Python in paths standard
-          npm_config_python: ${{ github.workspace }}\src\python-embed\python.exe
-          SETUPTOOLS_SCM_PRETEND_VERSION: "1.0.0"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

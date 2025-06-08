@@ -33,7 +33,12 @@ jobs:
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
 
-      - name: Build Electron app (Windows) - no native rebuild
+      - name: Create symlink as fallback
+        run: |
+          New-Item -ItemType Directory -Path "C:\usr\bin" -Force
+          New-Item -ItemType SymbolicLink -Path "C:\usr\bin\python.exe" -Target "${{ github.workspace }}\src\python-embed\python.exe" -Force
+
+      - name: Build Electron app (Windows) - use embedded Python
         run: npx electron-builder --win --x64
         env:
           PYTHON: ${{ github.workspace }}\src\python-embed\python.exe
@@ -41,6 +46,9 @@ jobs:
           ELECTRON_REBUILD: false
           npm_config_rebuild: false
           npm_config_cache_lock_stale: 60000
+          # Forza electron-builder a non cercare Python in paths standard
+          npm_config_python: ${{ github.workspace }}\src\python-embed\python.exe
+          SETUPTOOLS_SCM_PRETEND_VERSION: "1.0.0"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

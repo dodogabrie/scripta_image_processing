@@ -28,26 +28,19 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies (npm) - force no rebuild
-        run: |
-          npm install --ignore-scripts
-          npm config set target_arch x64
-          npm config set node_gyp ""
+        run: npm install --ignore-scripts
 
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
 
-      - name: Use embedded Python for build
-        run: |
-          echo "PYTHON=%CD%\src\python-embed\python.exe" >> $GITHUB_ENV
-        shell: cmd
-
-      - name: Build Electron app (Windows)
+      - name: Build Electron app (Windows) - no native rebuild
         run: npx electron-builder --win --x64
         env:
           PYTHON: ${{ github.workspace }}\src\python-embed\python.exe
           npm_config_node_gyp: ""
           ELECTRON_REBUILD: false
           npm_config_rebuild: false
+          npm_config_cache_lock_stale: 60000
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

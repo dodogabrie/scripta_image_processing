@@ -29,6 +29,24 @@ async function extract(zipPath, destDir) {
         .promise();
 }
 
+async function fixPthFile() {
+    // Trova il file pythonXY._pth (es: python311._pth)
+    const files = fs.readdirSync(PYTHON_EMBED_DIR);
+    const pthFile = files.find(f => /^python\d+\._pth$/.test(f));
+    if (!pthFile) {
+        console.warn('File ._pth non trovato, skip fix');
+        return;
+    }
+    const pthPath = path.join(PYTHON_EMBED_DIR, pthFile);
+    let content = fs.readFileSync(pthPath, 'utf-8');
+    // Decommenta import site se necessario
+    if (content.includes('#import site')) {
+        content = content.replace('#import site', 'import site');
+        fs.writeFileSync(pthPath, content, 'utf-8');
+        console.log('Modificato', pthFile, ': decommentato import site');
+    }
+}
+
 async function main() {
     if (!fs.existsSync(PYTHON_EMBED_DIR)) fs.mkdirSync(PYTHON_EMBED_DIR, { recursive: true });
 
@@ -38,6 +56,9 @@ async function main() {
 
     console.log('Estraggo Python embedded...');
     await extract(zipPath, PYTHON_EMBED_DIR);
+
+    // Fix ._pth file to enable site-packages
+    await fixPthFile();
 
     // Scarica get-pip.py
     console.log('Scarico get-pip.py...');

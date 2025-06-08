@@ -22,59 +22,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Python
+      - name: Setup Python (for embedding script only)
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Set PYTHON env for node-gyp/electron-builder
-        run: echo "PYTHON=${{ env.pythonLocation }}\\python.exe" >> $GITHUB_ENV
-
-      - name: Create Python symlink for node-gyp (early check)
-        run: |
-          echo "Python location: ${{ env.pythonLocation }}"
-          echo "Creating directory C:\usr\bin"
-          if not exist "C:\usr\bin" md "C:\usr\bin"
-          echo "Creating symlink..."
-          mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
-          echo "Verifying symlink..."
-          dir "C:\usr\bin"
-        shell: cmd
-
-      - name: Test Python setup (fail fast if broken)
-        run: |
-          echo "Testing system Python:"
-          python --version
-          echo "Testing symlinked Python:"
-          "C:\usr\bin\python.exe" --version
-          echo "Listing C:\usr\bin contents:"
-          dir "C:\usr\bin"
-        shell: cmd
-
-      - name: Install dependencies (npm) - skip rebuild
-        run: |
-          npm install --ignore-scripts
-          npm rebuild --ignore-scripts
+      - name: Install dependencies (npm)
+        run: npm install
 
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
 
-      - name: Ensure Python symlink exists (pre-build check)
-        run: |
-          echo "Re-checking Python symlink before build..."
-          if not exist "C:\usr\bin\python.exe" (
-            echo "Symlink missing, recreating..."
-            mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
-          ) else (
-            echo "Symlink exists"
-          )
-          dir "C:\usr\bin"
-        shell: cmd
-
-      - name: Build Electron app (Windows) - no rebuild
-        run: npx electron-builder --win --x64 --config.nodeGypRebuild=false
-        env:
-          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+      - name: Build Electron app (Windows)
+        run: npx electron-builder --win --x64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

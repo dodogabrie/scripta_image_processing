@@ -38,8 +38,6 @@
     },
     "nodeGypRebuild": false,
     "buildDependenciesFromSource": false,
-    "npmRebuild": false,
-    "electronRebuild": false,
-    "beforeBuild": "echo 'Skipping native rebuild'"
+    "npmRebuild": false
   }
 }

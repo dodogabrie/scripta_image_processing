@@ -205,4 +205,43 @@ class LoadingManager {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM caricato, inizializzazione LoadingManager');
     new LoadingManager();
+
+    const loadingMessage = document.getElementById('loadingMessage');
+    const loadingSubMessage = document.getElementById('loadingSubMessage');
+    const progressFill = document.getElementById('progressFill');
+    const logsConsole = document.getElementById('logsConsole');
+    const statusItems = {
+        'python-check': document.getElementById('pythonCheck'),
+        'venv-setup': document.getElementById('venvCheck'),
+        'deps-install': document.getElementById('depsCheck')
+    };
+
+    if (window.electronAPI && window.electronAPI.onSetupProgress) {
+        window.electronAPI.onSetupProgress((status) => {
+            if (status.message) loadingMessage.textContent = status.message;
+            if (status.error) loadingSubMessage.textContent = status.error;
+            if (status.logs) {
+                const div = document.createElement('div');
+                div.className = 'log-line';
+                div.textContent = status.logs;
+                logsConsole.appendChild(div);
+                logsConsole.scrollTop = logsConsole.scrollHeight;
+            }
+            if (typeof status.percentage === 'number') {
+                progressFill.style.width = status.percentage + '%';
+            }
+            if (status.step && statusItems[status.step]) {
+                if (status.step === 'error') {
+                    statusItems[status.step].classList.add('error');
+                    statusItems[status.step].querySelector('i').className = 'fas fa-times-circle text-danger me-2';
+                } else {
+                    statusItems[status.step].classList.add('completed');
+                    statusItems[status.step].querySelector('i').className = 'fas fa-check-circle text-success me-2';
+                }
+            }
+        });
+    }
+
+    // Richiedi l'avvio dell'installazione appena la pagina è pronta
+    window.electronAPI?.startPythonSetup?.();
 });

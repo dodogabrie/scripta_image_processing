@@ -432,11 +432,18 @@ class PythonManager {
     };
   }
 
-  async installEnvironment() {
+  async installEnvironment(progressCallback) {
     try {
-      await this.initialize();
+      await this.initialize(progressCallback);
       return { success: true, message: 'Python environment ready' };
     } catch (error) {
+      if (progressCallback) {
+        progressCallback({
+          step: 'error',
+          message: 'Errore durante l\'installazione dell\'ambiente Python',
+          logs: error.message
+        });
+      }
       return { success: false, error: error.message };
     }
   }

@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     goBackToMain: () => {
         console.log('Chiamata goBackToMain dal preload');
         window.close();
+    },
+    
+    selectDirectory: () => {
+        return ipcRenderer.invoke('dialog:selectDirectory');
     }
 });
 

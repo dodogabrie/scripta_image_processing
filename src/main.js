@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { net } = require('electron');
+const { net, dialog } = require('electron');
 
 // Import managers with error handling for development
 let PythonManager, WindowManager, Logger, ProjectManager;
@@ -101,13 +101,14 @@ try {
         height: 900,
         show: true,
         webPreferences: {
-          nodeIntegration: true,
-          contextIsolation: false
+          nodeIntegration: false,
+          contextIsolation: true,
+          preload: path.join(__dirname, 'preload', 'project-preload.js')
         }
       });
 
       projectWindow.loadFile(projectHtmlPath);
-      
+
       projectWindow.webContents.once('dom-ready', () => {
         console.log('Project window DOM ready (fallback)');
       });
@@ -214,7 +215,6 @@ class App {
           // Setup Python environment with progress updates
           await this.pythonManager.initialize((progress) => {
             if (this.loadingWindow && !this.loadingWindow.isDestroyed()) {
-              console.log('Sending progress:', progress);
               this.loadingWindow.webContents.send('setup-progress', progress);
             }
           });
@@ -340,6 +340,15 @@ class App {
         console.error('Errore caricamento contenuto progetto:', error);
         return { success: false, error: error.message };
       }
+    });
+
+    ipcMain.handle('dialog:selectDirectory', async (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      const result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory']
+      });
+      if (result.canceled || !result.filePaths.length) return null;
+      return result.filePaths[0];
     });
 
     console.log('IPC handlers configurati');

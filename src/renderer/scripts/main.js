@@ -56,12 +56,10 @@ createApp({
             }
         },
         async openProject(projectId) {
-
             if (!this.appStatus.isReady) {
                 alert('Attendere il completamento dell\'inizializzazione');
                 return;
             }
-            
             try {
                 // Trova il progetto
                 const project = this.projects.find(p => p.id === projectId);
@@ -69,67 +67,17 @@ createApp({
                     alert('Progetto non trovato');
                     return;
                 }
-                
-                // Carica il contenuto del progetto
-                if (window.electronAPI && window.electronAPI.loadProjectContent) {
-                    const result = await window.electronAPI.loadProjectContent(projectId);
-
-                    // logga result
-                    if (result.success) {
-                        this.currentProject = project;
-                        
-                        // Aspetta che Vue aggiorni il DOM
-                        await this.$nextTick();
-                        
-                        this.loadProjectHTML(result.html);
-                    } else {
-                        console.error('Errore caricamento progetto:', result.error);
-                        alert('Errore nel caricamento del progetto: ' + result.error);
+                // Apri il progetto in una nuova finestra Electron
+                if (window.electronAPI && window.electronAPI.openProject) {
+                    const result = await window.electronAPI.openProject(projectId);
+                    if (!result.success) {
+                        alert('Errore nell\'apertura del progetto: ' + result.error);
                     }
                 } else {
-                    console.error('loadProjectContent non disponibile');
+                    alert('Funzione openProject non disponibile');
                 }
             } catch (error) {
-                console.error('Errore:', error);
                 alert('Errore nell\'apertura del progetto');
-            }
-        },
-        
-        loadProjectHTML(htmlContent) {
-            console.log('Cercando container...');
-            const container = document.getElementById('project-container');
-            console.log('Container trovato:', container);
-            
-            if (container) {
-                // Estrai solo il contenuto del body se presente
-                let cleanedHTML = htmlContent;
-                const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-                if (bodyMatch) {
-                    cleanedHTML = bodyMatch[1];
-                    console.log('Contenuto body estratto');
-                }
-                
-                container.innerHTML = cleanedHTML;
-                console.log('HTML inserito nel container');
-                
-                // Esegui gli script del progetto se presenti
-                const scripts = container.querySelectorAll('script');
-                scripts.forEach(script => {
-                    const newScript = document.createElement('script');
-                    if (script.src) {
-                        newScript.src = script.src;
-                    } else {
-                        newScript.textContent = script.textContent;
-                    }
-                    document.head.appendChild(newScript);
-                });
-            } else {
-                console.error('Container project-container non trovato!');
-                // Fallback: prova di nuovo dopo un delay
-                setTimeout(() => {
-                    console.log('Retry caricamento HTML...');
-                    this.loadProjectHTML(htmlContent);
-                }, 100);
             }
         },
         goBackToHome() {

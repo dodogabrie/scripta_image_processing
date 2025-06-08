@@ -23,6 +23,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     
     selectDirectory: () => {
         return ipcRenderer.invoke('dialog:selectDirectory');
+    },
+    
+    logToMain: (msg) => {
+        ipcRenderer.send('log:fromProject1', msg);
+    },
+    
+    listThumbs: (thumbsDir) => {
+        console.log('Chiamata listThumbs dal preload:', thumbsDir);
+        return ipcRenderer.invoke('project1:listThumbs', thumbsDir);
     }
 });
 

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { net, dialog } = require('electron');
+const fs = require('fs');
 
 // Import managers with error handling for development
 let PythonManager, WindowManager, Logger, ProjectManager;
@@ -31,14 +32,11 @@ try {
     getStatus() { return { ready: false }; }
     installEnvironment() { return Promise.resolve({ success: true }); }
     
-    // Add runPythonScript method for testing
+    // runPythonScript: NON simulare output, restituisci stringa vuota se non c'è nulla
     async runPythonScript(scriptPath, args = []) {
-      console.log('Fallback: runPythonScript chiamato con:', scriptPath, args);
-      
-      // Simulate script execution
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      return `Script Python non si esegue. Percorso: ${scriptPath}, Argomenti: ${args.join(', ')}`;
+        console.log('Fallback: runPythonScript chiamato con:', scriptPath, args);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return '';
     }
     
     // Add checkPythonInstallation method for testing
@@ -111,6 +109,7 @@ try {
 
       projectWindow.webContents.once('dom-ready', () => {
         console.log('Project window DOM ready (fallback)');
+        projectWindow.webContents.openDevTools({ mode: 'detach' }); // <--- AGGIUNGI QUESTO
       });
 
       return projectWindow;
@@ -182,24 +181,23 @@ class App {
     try {
       // Show loading window first
       this.loadingWindow = this.windowManager.createLoadingWindow();
-      
       this.logger.info('Avvio dello starter di configurazione...');
-      
-      // Check internet connection
-      const online = await this.isOnline();
-      if (!online) {
-        this.loadingWindow.webContents.send('setup-progress', {
-          step: 'error',
-          message: 'Nessuna connessione Internet',
-          error: 'Connessione Internet non disponibile. Verifica la connessione e riavvia l\'applicazione.',
-          percentage: 0
-        });
-        return;
-      }
-      
+
       // Wait for DOM to be ready before sending progress
       this.loadingWindow.webContents.once('dom-ready', async () => {
         try {
+          // Check internet connection
+          const online = await this.isOnline();
+          if (!online) {
+            this.loadingWindow.webContents.send('setup-progress', {
+              step: 'error',
+              message: 'Nessuna connessione Internet',
+              error: 'Connessione Internet non disponibile. Verifica la connessione e riavvia l\'applicazione.',
+              percentage: 0
+            });
+            return;
+          }
+
           // Check if Python is installed
           const pythonInstalled = await this.pythonManager.checkPythonInstallation();
           if (!pythonInstalled) {
@@ -211,17 +209,17 @@ class App {
             });
             return;
           }
-          
+
           // Setup Python environment with progress updates
           await this.pythonManager.initialize((progress) => {
             if (this.loadingWindow && !this.loadingWindow.isDestroyed()) {
               this.loadingWindow.webContents.send('setup-progress', progress);
             }
           });
-          
+
           this.isReady = true;
           this.logger.info('Inizializzazione completata con successo!');
-          
+
           // Close loading window and create main window
           setTimeout(() => {
             this.windowManager.closeLoadingWindow();
@@ -230,12 +228,12 @@ class App {
               mainWindow.show();
             }
           }, 1000);
-          
+
         } catch (error) {
           this.handleInitializationError(error);
         }
       });
-      
+
     } catch (error) {
       this.handleInitializationError(error);
     }
@@ -349,6 +347,22 @@ class App {
       });
       if (result.canceled || !result.filePaths.length) return null;
       return result.filePaths[0];
+    });
+
+    ipcMain.handle('project1:listThumbs', async (event, thumbsDir) => {
+      try {
+          const fs = require('fs');
+          const path = require('path');
+          // Usa thumbsDir passato dal renderer, fallback su output/thumbs se non fornito
+          const dir = thumbsDir || path.join(process.cwd(), 'output', 'thumbs');
+          if (!fs.existsSync(dir)) return [];
+          const files = fs.readdirSync(dir)
+              .filter(f => f.toLowerCase().endsWith('.jpg'))
+              .map(f => path.join(dir, f).replace(/\\/g, '/'));
+          return files;
+      } catch (e) {
+          return [];
+      }
     });
 
     console.log('IPC handlers configurati');

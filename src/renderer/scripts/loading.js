@@ -216,8 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'deps-install': document.getElementById('depsCheck')
     };
 
+    let firstEventReceived = false;
+
     if (window.electronAPI && window.electronAPI.onSetupProgress) {
         window.electronAPI.onSetupProgress((status) => {
+            firstEventReceived = true;
             if (status.message) loadingMessage.textContent = status.message;
             if (status.error) loadingSubMessage.textContent = status.error;
             if (status.logs) {
@@ -241,6 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Fallback: mostra messaggio se dopo 5 secondi non arriva nulla
+    setTimeout(() => {
+        if (!firstEventReceived) {
+            const loadingMessage = document.getElementById('loadingMessage');
+            loadingMessage.textContent = 'Attendere... (nessun segnale dal backend)';
+        }
+    }, 5000);
 
     // Richiedi l'avvio dell'installazione appena la pagina è pronta
     window.electronAPI?.startPythonSetup?.();

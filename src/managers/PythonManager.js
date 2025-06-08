@@ -403,24 +403,19 @@ class PythonManager {
 
   async runPythonScript(scriptPath, args = []) {
     return new Promise((resolve, reject) => {
-      const process = spawn(this.pythonExecutable, [scriptPath, ...args]);
+      const py = spawn(this.pythonExecutable, [scriptPath, ...args]);
       let output = '';
       let error = '';
 
-      process.stdout.on('data', (data) => {
-        output += data.toString();
-      });
+      py.stdout.on('data', (data) => { output += data.toString(); });
+      py.stderr.on('data', (data) => { error += data.toString(); });
 
-      process.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
-      process.on('close', (code) => {
-        if (code === 0) {
-          resolve(output);
-        } else {
-          reject(new Error(`Python script failed: ${error}`));
-        }
+      py.on('close', (code) => {
+          if (code === 0) {
+              resolve({ success: true, output });
+          } else {
+              resolve({ success: false, error: error || output });
+          }
       });
     });
   }

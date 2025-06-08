@@ -30,17 +30,32 @@ jobs:
       - name: Set PYTHON env for node-gyp/electron-builder
         run: echo "PYTHON=${{ env.pythonLocation }}\\python.exe" >> $GITHUB_ENV
 
+      - name: Create Python symlink for node-gyp (early check)
+        run: |
+          echo "Python location: ${{ env.pythonLocation }}"
+          echo "Creating directory C:\usr\bin"
+          if not exist "C:\usr\bin" md "C:\usr\bin"
+          echo "Creating symlink..."
+          mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
+          echo "Verifying symlink..."
+          dir "C:\usr\bin"
+        shell: cmd
+
+      - name: Test Python setup (fail fast if broken)
+        run: |
+          echo "Testing system Python:"
+          python --version
+          echo "Testing symlinked Python:"
+          "C:\usr\bin\python.exe" --version
+          echo "Listing C:\usr\bin contents:"
+          dir "C:\usr\bin"
+        shell: cmd
+
       - name: Install dependencies (npm)
         run: npm install
 
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
-
-      - name: Create Python symlink for node-gyp
-        run: |
-          if not exist "C:\usr\bin" md "C:\usr\bin"
-          mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
-        shell: cmd
 
       - name: Build Electron app (Windows)
         run: npx electron-builder --win --x64

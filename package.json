@@ -12,7 +12,9 @@
   "devDependencies": {
     "electron": "^27.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "unzipper": "^0.12.3"
+  },
   "author": "Edoardo",
   "license": "MIT",
   "build": {

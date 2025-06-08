@@ -20,6 +20,12 @@ class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
+    
+    // Usa l'interprete embedded se presente
+    const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
+    if (fs.existsSync(embedded)) return embedded;
+    
+    // fallback: venv o sistema
     return isWindows 
       ? path.join(this.venvPath, 'Scripts', 'python.exe')
       : path.join(this.venvPath, 'bin', 'python');

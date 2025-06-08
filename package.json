@@ -37,6 +37,9 @@
       "allowToChangeInstallationDirectory": true
     },
     "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false
+    "buildDependenciesFromSource": false,
+    "npmRebuild": false,
+    "electronRebuild": false,
+    "beforeBuild": "echo 'Skipping native rebuild'"
   }
 }

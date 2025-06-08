@@ -30,16 +30,17 @@ jobs:
       - name: Set PYTHON env for node-gyp/electron-builder
         run: echo "PYTHON=${{ env.pythonLocation }}\\python.exe" >> $GITHUB_ENV
 
-      - name: Install Python requirements
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r src/projects/project1/python/microperspective-corrector/requirements.txt
-
       - name: Install dependencies (npm)
         run: npm install
 
       - name: Setup Python embedded (download, extract, pip, requirements)
         run: node scripts/embed-python-win.js
+
+      - name: Create Python symlink for node-gyp
+        run: |
+          if not exist "C:\usr\bin" md "C:\usr\bin"
+          mklink "C:\usr\bin\python.exe" "${{ env.pythonLocation }}\python.exe"
+        shell: cmd
 
       - name: Build Electron app (Windows)
         run: npx electron-builder --win --x64

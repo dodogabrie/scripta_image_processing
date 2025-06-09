@@ -23,7 +23,8 @@ class PythonManager {
     
     // Usa l'interprete embedded se presente (sync check)
     if (isWindows) {
-      const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
+      // Il Python embedded ora è nella root dell'app grazie a extraFiles
+      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
       try {
         const fs = require('fs');
         if (fs.existsSync(embedded)) {
@@ -114,6 +115,25 @@ class PythonManager {
   }
 
   async checkVirtualEnvironment() {
+    // If using embedded Python on Windows, skip venv creation
+    const isWindows = os.platform() === 'win32';
+    if (isWindows) {
+      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
+      const fs = require('fs');
+      if (fs.existsSync(embedded)) {
+        this.status.venvExists = true;
+        this.logger.info('Using embedded Python, skipping venv setup');
+        if (this.currentProgressCallback) {
+          this.currentProgressCallback({
+            step: 'venv-setup',
+            message: 'Using embedded Python environment',
+            logs: 'Embedded Python found, skipping virtual environment creation'
+          });
+        }
+        return;
+      }
+    }
+
     if (this.currentProgressCallback) {
       this.currentProgressCallback({
         step: 'venv-setup',
@@ -309,7 +329,7 @@ class PythonManager {
     // If using embedded Python, dependencies are already installed
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
-      const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
+      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
       const fs = require('fs');
       if (fs.existsSync(embedded)) {
         this.status.dependenciesInstalled = true;

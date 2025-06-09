@@ -28,7 +28,7 @@
     },
     "files": [
       "**/*",
-      "!src/python_env/bin/**"
+      "!src/python_env/**"
     ],
     "asarUnpack": [
       "src/python-embed/**/*",

@@ -22,9 +22,7 @@
   "build": {
     "appId": "com.scripta.imageprocessing",
     "productName": "Scripta Image Processing",
-    "buildDependenciesFromSource": false,
-    "npmRebuild": false,
-    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": true,
     "directories": {
       "output": "dist"
     },

@@ -28,6 +28,13 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Workaround node-gyp python path
+        shell: pwsh
+        run: |
+          $py = "${{ steps.setup-python.outputs.python-path }}"
+          New-Item -ItemType Directory -Force -Path 'C:\usr\bin'
+          Copy-Item $py 'C:\usr\bin\python.exe'
+
       - name: Set PYTHON env variable for native builds
         run: echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
 

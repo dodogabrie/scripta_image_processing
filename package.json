@@ -11,7 +11,7 @@
     "clean": "rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
-    "electron": "^27.0.0",
+    "electron": "^35.2.1",
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
@@ -23,6 +23,9 @@
     "appId": "com.scripta.imageprocessing",
     "productName": "Scripta Image Processing",
     "buildDependenciesFromSource": true,
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
+    "electronRebuild": false,
     "directories": {
       "output": "dist"
     },

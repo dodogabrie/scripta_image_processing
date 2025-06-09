@@ -27,7 +27,8 @@
       "output": "dist"
     },
     "files": [
-      "**/*"
+      "**/*",
+      "!src/python_env/bin/**"
     ],
     "asarUnpack": [
       "src/python-embed/**/*",

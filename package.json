@@ -47,5 +47,6 @@
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
     }
-  }
+  },
+  "publish": "never"
 }

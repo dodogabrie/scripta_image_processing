@@ -28,11 +28,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Export python path to NPM config
-        run: npm config set python ${{ steps.setup-python.outputs.python-path }}
-
       - name: Set PYTHON env variable for native builds
         run: echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
+
+      - name: Add Python to PATH
+        run: echo "PATH=$(dirname '${{ steps.setup-python.outputs.python-path }}'):$PATH" >> $GITHUB_ENV
 
       - name: Install dependencies (npm) - no rebuild
         run: npm install --ignore-scripts

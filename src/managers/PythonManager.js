@@ -21,9 +21,19 @@ class PythonManager {
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
     
-    // Usa l'interprete embedded se presente
-    const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
-    if (fs.existsSync(embedded)) return embedded;
+    // Usa l'interprete embedded se presente (sync check)
+    if (isWindows) {
+      const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
+      try {
+        const fs = require('fs');
+        if (fs.existsSync(embedded)) {
+          this.logger.info('Using embedded Python:', embedded);
+          return embedded;
+        }
+      } catch (e) {
+        this.logger.warn('Error checking embedded Python:', e.message);
+      }
+    }
     
     // fallback: venv o sistema
     return isWindows 
@@ -296,6 +306,25 @@ class PythonManager {
   }
 
   async installDependencies() {
+    // If using embedded Python, dependencies are already installed
+    const isWindows = os.platform() === 'win32';
+    if (isWindows) {
+      const embedded = path.join(app.getAppPath(), 'python-embed', 'python.exe');
+      const fs = require('fs');
+      if (fs.existsSync(embedded)) {
+        this.status.dependenciesInstalled = true;
+        this.logger.info('Using embedded Python with pre-installed dependencies');
+        if (this.currentProgressCallback) {
+          this.currentProgressCallback({
+            step: 'deps-install',
+            message: 'Dependencies already installed (embedded)',
+            logs: 'Using embedded Python with pre-installed packages'
+          });
+        }
+        return;
+      }
+    }
+
     const requirementsPath = path.join(__dirname, '../requirements.txt');
     
     try {

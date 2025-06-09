@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
+    "build": "electron-builder",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json"
   },
@@ -20,13 +21,16 @@
   "build": {
     "appId": "com.scripta.imageprocessing",
     "productName": "Scripta Image Processing",
+    "buildDependenciesFromSource": true,
     "directories": {
       "output": "dist"
     },
     "files": [
-      "src/**/*",
-      "node_modules/**/*",
-      "config.json"
+      "**/*"
+    ],
+    "asarUnpack": [
+      "src/python-embed/**/*",
+      "src/projects/**/*.py"
     ],
     "win": {
       "target": "nsis"
@@ -35,9 +39,6 @@
       "oneClick": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
-    },
-    "nodeGypRebuild": false,
-    "buildDependenciesFromSource": false,
-    "npmRebuild": false
+    }
   }
 }

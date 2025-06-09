@@ -22,21 +22,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Python
+      - name: Setup Python (for embedding script only)
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Create hardcoded Python path for electron-builder
-        run: |
-          New-Item -ItemType Directory -Path "C:\usr\bin" -Force
-          Copy-Item "${{ env.pythonLocation }}\python.exe" -Destination "C:\usr\bin\python.exe"
-
       - name: Install dependencies (npm)
-        run: npm install --ignore-scripts
+        run: npm install
 
-      - name: Build Electron app (Windows)
-        run: npx electron-builder --win --x64
+      - name: Setup Python embedded (download, extract, pip, requirements)
+        run: node scripts/embed-python-win.js
+
+      - name: Build Electron app
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

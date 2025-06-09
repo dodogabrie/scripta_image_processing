@@ -28,12 +28,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Workaround node-gyp python path
+      - name: Workaround node-gyp python path (symlink)
         shell: pwsh
         run: |
           $py = "${{ steps.setup-python.outputs.python-path }}"
-          New-Item -ItemType Directory -Force -Path 'C:\usr\bin'
-          Copy-Item $py 'C:\usr\bin\python.exe'
+          New-Item -ItemType Directory -Force -Path 'C:\usr\bin' | Out-Null
+          New-Item -ItemType SymbolicLink -Path 'C:\usr\bin\python' -Target $py -Force
 
       - name: Set PYTHON env variable for native builds
         run: echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV

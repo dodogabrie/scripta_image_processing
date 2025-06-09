@@ -11,10 +11,10 @@
     "clean": "rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
-    "electron": "^27.0.0"
+    "electron": "^27.0.0",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
-    "electron-builder": "^26.0.12",
     "unzipper": "^0.12.3"
   },
   "author": "Edoardo",

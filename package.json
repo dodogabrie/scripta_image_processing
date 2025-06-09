@@ -31,8 +31,13 @@
       "!src/python_env/**"
     ],
     "asarUnpack": [
-      "src/python-embed/**/*",
       "src/projects/**/*.py"
+    ],
+    "extraFiles": [
+      {
+        "from": "src/python-embed",
+        "to": "python-embed"
+      }
     ],
     "win": {
       "target": "nsis"

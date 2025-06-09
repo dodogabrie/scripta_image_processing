@@ -22,10 +22,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Python (for embedding script only)
+      - name: Setup Python (for embedding script and native deps)
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Set PYTHON env variable for native builds
+        run: echo "PYTHON=$(where python)" >> $GITHUB_ENV
 
       - name: Install dependencies (npm) - no rebuild
         run: npm install --ignore-scripts
@@ -38,6 +41,7 @@ jobs:
         env:
           ELECTRON_REBUILD: false
           npm_config_rebuild: false
+          PYTHON: ${{ env.PYTHON }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

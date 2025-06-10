@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         if (!firstEventReceived) {
             const loadingMessage = document.getElementById('loadingMessage');
-            loadingMessage.textContent = 'Attendere... (nessun segnale dal backend)';
+            loadingMessage.textContent = 'Attendere... L\'operazione potrebbe richiedere del tempo.';
         }
     }, 5000);
 

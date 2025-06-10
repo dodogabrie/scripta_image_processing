@@ -476,7 +476,7 @@ class PythonManager {
           path.dirname(app.getAppPath()),
           'python-embed',
           'vips-bin',
-          'vips-dev-w64-all-8.17.0',
+          'vips-dev-8.17.0',
           'bin'
         );
       }

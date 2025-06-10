@@ -477,7 +477,7 @@ class PythonManager {
           baseDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'python-embed', 'vips-bin', 'vips-dev-8.17', 'bin');
         } else {
           // In sviluppo: path relativo al progetto
-          baseDir = path.join(__dirname, '..', '..', 'python-embed', 'vips-bin', 'vips-dev-8.17.0', 'bin');
+          baseDir = path.join(__dirname, '..', '..', 'python-embed', 'vips-bin', 'vips-dev-8.17', 'bin');
         }
         vipsBinDir = baseDir;
       }

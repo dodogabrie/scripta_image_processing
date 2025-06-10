@@ -35,7 +35,7 @@
     "asarUnpack": [
       "src/projects/**/*.py",
       "requirements.txt",
-      "src/python-embed/vips-bin/**"
+      "src/python-embed/vips-bin/vips-dev-8.17/bin/*"
     ],
     "extraFiles": [
       {

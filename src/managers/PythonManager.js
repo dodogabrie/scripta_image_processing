@@ -467,16 +467,36 @@ class PythonManager {
       let output = '';
       let error = '';
   
+      // Costruisci il path delle DLL di vips
+      const isWindows = process.platform === 'win32';
+      let vipsBinDir = null;
+      if (isWindows) {
+        // Path assoluto alla cartella bin delle DLL di vips nella build
+        vipsBinDir = path.join(
+          path.dirname(app.getAppPath()),
+          'python-embed',
+          'vips-bin',
+          'vips-dev-w64-all-8.17.0',
+          'bin'
+        );
+      }
+  
+      // Prepara l'env per il processo Python
+      const env = { ...process.env };
+      if (isWindows && vipsBinDir) {
+        env.PATH = vipsBinDir + ';' + env.PATH;
+      }
+  
       let py;
       try {
-        py = spawn(this.pythonExecutable, [scriptPath, ...args]);
+        py = spawn(this.pythonExecutable, [scriptPath, ...args], { env });
       } catch (spawnErr) {
         return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
       }
   
       py.stdout.on('data', (data) => { output += data.toString(); });
       py.stderr.on('data', (data) => { error += data.toString(); });
-
+  
       py.on('close', (code) => {
         if (finished) return;
         finished = true;

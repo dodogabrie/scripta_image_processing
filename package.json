@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
+    "prebuild": "node scripts/download-libvips-win.js",
     "build": "electron-builder",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json"

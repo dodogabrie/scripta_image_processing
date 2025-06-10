@@ -474,6 +474,7 @@ class PythonManager {
         // Path assoluto alla cartella bin delle DLL di vips nella build
         vipsBinDir = path.join(
           path.dirname(app.getAppPath()),
+          'src',
           'python-embed',
           'vips-bin',
           'vips-dev-8.17.0',
@@ -483,7 +484,6 @@ class PythonManager {
   
       // Prepara l'env per il processo Python
       const env = { ...process.env };
-      console.log(isWindows && vipsBinDir ? `Adding vips bin dir to PATH: ${vipsBinDir}` : 'Not on Windows or vips bin dir not set');
       if (isWindows && vipsBinDir) {
         env.PATH = vipsBinDir + ';' + env.PATH;
       }

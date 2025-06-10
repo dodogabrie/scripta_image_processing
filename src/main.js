@@ -170,8 +170,7 @@ class App {
           return { success: false, error: 'Script not found' };
         }
         
-        const result = await this.pythonManager.runPythonScript(scriptPath, args);
-        return { success: true, output: result };
+        return await this.pythonManager.runPythonScript(scriptPath, args);
       } catch (error) {
         return { success: false, error: error.message };
       }

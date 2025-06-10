@@ -463,19 +463,34 @@ class PythonManager {
 
   async runPythonScript(scriptPath, args = []) {
     return new Promise((resolve, reject) => {
-      const py = spawn(this.pythonExecutable, [scriptPath, ...args]);
+      let finished = false;
       let output = '';
       let error = '';
-
+  
+      let py;
+      try {
+        py = spawn(this.pythonExecutable, [scriptPath, ...args]);
+      } catch (spawnErr) {
+        return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
+      }
+  
       py.stdout.on('data', (data) => { output += data.toString(); });
       py.stderr.on('data', (data) => { error += data.toString(); });
 
       py.on('close', (code) => {
-          if (code === 0) {
-              resolve({ success: true, output });
-          } else {
-              resolve({ success: false, error: error || output });
-          }
+        if (finished) return;
+        finished = true;
+        if (code === 0) {
+          resolve({ success: true, output });
+        } else {
+          resolve({ success: false, error: error || output || `Python exited with code ${code}` });
+        }
+      });
+  
+      py.on('error', (err) => {
+        if (finished) return;
+        finished = true;
+        resolve({ success: false, error: `Failed to run Python: ${err.message}` });
       });
     });
   }

@@ -471,15 +471,15 @@ class PythonManager {
       const isWindows = process.platform === 'win32';
       let vipsBinDir = null;
       if (isWindows) {
-        // Path assoluto alla cartella bin delle DLL di vips nella build
-        vipsBinDir = path.join(
-          path.dirname(app.getAppPath()),
-          'src',
-          'python-embed',
-          'vips-bin',
-          'vips-dev-8.17.0',
-          'bin'
-        );
+        // In produzione: cerca in app.asar.unpacked
+        let baseDir;
+        if (app.isPackaged) {
+          baseDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'python-embed', 'vips-bin', 'vips-dev-8.17.0', 'bin');
+        } else {
+          // In sviluppo: path relativo al progetto
+          baseDir = path.join(__dirname, '..', '..', 'python-embed', 'vips-bin', 'vips-dev-8.17.0', 'bin');
+        }
+        vipsBinDir = baseDir;
       }
   
       // Prepara l'env per il processo Python

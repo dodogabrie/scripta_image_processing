@@ -474,7 +474,7 @@ class PythonManager {
         // In produzione: cerca in app.asar.unpacked
         let baseDir;
         if (app.isPackaged) {
-          baseDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'python-embed', 'vips-bin', 'vips-dev-8.17.0', 'bin');
+          baseDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'python-embed', 'vips-bin', 'vips-dev-8.17', 'bin');
         } else {
           // In sviluppo: path relativo al progetto
           baseDir = path.join(__dirname, '..', '..', 'python-embed', 'vips-bin', 'vips-dev-8.17.0', 'bin');

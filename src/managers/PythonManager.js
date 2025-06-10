@@ -8,7 +8,7 @@ const { app } = require('electron');
 class PythonManager {
   constructor() {
     this.logger = new Logger();
-    this.venvPath = path.join(app.getAppPath(), 'python_env');
+    this.venvPath = path.join(app.getPath('userData'), 'python_env');
     this.pythonExecutable = this.getPythonExecutable();
     this.pipExecutable = this.getPipExecutable();
     this.status = {

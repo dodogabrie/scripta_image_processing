@@ -24,6 +24,13 @@ jobs:
         with:
           node-version: 20
 
+
+      - name: Download VIPS binaries
+        run: |
+          curl -L -o vips.tar.xz "https://github.com/libvips/libvips/releases/download/v8.17.0/vips-8.17.0.tar.xz"
+          mkdir -p src/python-embed/vips
+          tar -xf vips.tar.xz -C src/python-embed/vips --strip-components=1
+
       - name: Setup Python (for embedding script and native deps)
         id: setup-python
         uses: actions/setup-python@v5

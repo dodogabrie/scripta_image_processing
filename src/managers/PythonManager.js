@@ -483,6 +483,7 @@ class PythonManager {
   
       // Prepara l'env per il processo Python
       const env = { ...process.env };
+      console.log(isWindows && vipsBinDir ? `Adding vips bin dir to PATH: ${vipsBinDir}` : 'Not on Windows or vips bin dir not set');
       if (isWindows && vipsBinDir) {
         env.PATH = vipsBinDir + ';' + env.PATH;
       }

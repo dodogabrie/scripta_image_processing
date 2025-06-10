@@ -10,7 +10,8 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     processing: false,
                     inputDir: null,
                     outputDir: null,
-                    borderPixels: '', // nuovo campo per il bordo
+                    borderPixels: '', // campo per il bordo
+                    imageFormat: 'tif', // campo per il formato immagine
                     consoleLines: [],
                     elaborazioneCompletata: false,
                     thumbs: [],
@@ -106,6 +107,10 @@ fetch('../projects/project1/renderer/Project1.template.html')
                         if (this.borderPixels && !isNaN(Number(this.borderPixels))) {
                             args.push("--border", String(this.borderPixels));
                             this.addConsoleLine(`Bordo esterno: ${this.borderPixels} px`, 'info');
+                        }
+                        if (this.imageFormat) {
+                            args.push("--image-input-format", this.imageFormat);
+                            this.addConsoleLine(`Formato immagini: ${this.imageFormat.toUpperCase()}`, 'info');
                         }
                         const result = await window.electronAPI.runProjectScript(
                             'project1',

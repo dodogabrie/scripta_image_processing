@@ -62,7 +62,14 @@
                     <div class="card h-100 project-card">
                         <div class="card-body d-flex flex-column">
                             <div class="text-center mb-3">
-                                <i class="fas fa-image fa-3x text-primary"></i>
+                                <template v-if="project.config.icon">
+                                    <img :src="`../projects/${project.id}/${project.config.icon}`"
+                                         alt="Icona progetto"
+                                         style="max-width:48px;max-height:48px;" />
+                                </template>
+                                <template v-else>
+                                    <i class="fas fa-image fa-3x text-primary"></i>
+                                </template>
                             </div>
                             <h5 class="card-title text-center">{{ project.config.name }}</h5>
                             <p class="card-text text-muted text-center flex-grow-1">

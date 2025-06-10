@@ -1,7 +1,7 @@
 {
   "name": "Correzione Microrotazioni",
   "description": "Corregge automaticamente le microrotazioni e ritaglia le scansioni di documenti utilizzando algoritmi di computer vision",
-  "icon": "renderer/assets/icon.png",
+  "icon": "renderer/assets/icon.svg",
   "version": "1.0.0",
   "main": "renderer/main.html",
   "renderer_script": "renderer/Project1.js",

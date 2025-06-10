@@ -34,7 +34,8 @@
     ],
     "asarUnpack": [
       "src/projects/**/*.py",
-      "requirements.txt"
+      "requirements.txt",
+      "src/python-embed/vips-bin/**"
     ],
     "extraFiles": [
       {

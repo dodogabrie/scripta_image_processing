@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const { app } = require('electron');
 const path = require('path');
 const Logger = require('../utils/Logger');
 
@@ -65,8 +66,23 @@ class ProjectManager {
   getProjectPythonScript(projectId, scriptName) {
     const project = this.getProject(projectId);
     if (!project) return null;
-    
-    return path.join(project.path, 'python', scriptName);
+    let scriptPath;
+    if (app.isPackaged) {
+        // In production: scripts are in the asar.unpacked directory
+        scriptPath = path.join(
+            process.resourcesPath,
+            'app.asar.unpacked',
+            'src',
+            'projects',
+            projectId,
+            'python',
+            scriptName
+        );
+    } else {
+        // In development: use normal path
+        scriptPath = path.join(project.path, 'python', scriptName);
+    } 
+    return scriptPath;
   }
 }
 

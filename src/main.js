@@ -49,11 +49,11 @@ try {
   WindowManager = class {
     createLoadingWindow() {
       this.loadingWindow = new BrowserWindow({
-        width: 500,
-        height: 600,
+        width: 600,
+        height: 800,
         frame: false,
         alwaysOnTop: true,
-        resizable: false,
+        resizable: true,
         webPreferences: {
           nodeIntegration: true,
           contextIsolation: false,

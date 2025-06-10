@@ -345,7 +345,12 @@ class PythonManager {
       }
     }
 
-    const requirementsPath = path.join(__dirname, '../requirements.txt');
+    let requirementsPath;
+    if (process.env.NODE_ENV === 'development') {
+      requirementsPath = path.join(__dirname, '../requirements.txt');
+    } else {
+      requirementsPath = path.join(app.getAppPath(), 'requirements.txt');
+    }
     
     try {
       await fs.access(requirementsPath);

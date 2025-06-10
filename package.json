@@ -4,9 +4,9 @@
   "description": "Image processing application built with Electron",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "build": "electron-builder",
+    "start": "cross-env NODE_ENV=development electron .",
+    "dev": "cross-env NODE_ENV=development electron . --dev",
+    "build": "cross-env NODE_ENV=production electron-builder",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json"
   },
@@ -28,10 +28,12 @@
     },
     "files": [
       "**/*",
-      "!src/python_env/**"
+      "!src/python_env/**",
+      "requirements.txt"
     ],
     "asarUnpack": [
-      "src/projects/**/*.py"
+      "src/projects/**/*.py",
+      "requirements.txt"
     ],
     "extraFiles": [
       {

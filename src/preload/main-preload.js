@@ -55,10 +55,28 @@ contextBridge.exposeInMainWorld('electronAPI', {
         return ipcRenderer.invoke('project1:listThumbs', thumbsDir);
     },
 
+    stopPythonProcess: () => {
+        console.log('Chiamata stopPythonProcess dal preload');
+        return ipcRenderer.invoke('python:stop');
+    },
+
     logToMain: (msg) => {
         console.log('Chiamata logToMain dal preload:', msg);
         ipcRenderer.send('log:fromProject1', msg);
-    }
+    },
+
+    listQualityFiles: (qualityDir) => {
+        console.log('Chiamata listQualityFiles dal preload:', qualityDir);
+        return ipcRenderer.invoke('project1:listQualityFiles', qualityDir);
+    },
+    readFile: (filePath) => {
+        console.log('Chiamata readFile dal preload:', filePath);
+        return ipcRenderer.invoke('project1:readFile', filePath);
+    },
+    writeFile: (filePath, content) => {
+        console.log('Chiamata writeFile dal preload:', filePath);
+        return ipcRenderer.invoke('project1:writeFile', filePath, content);
+    },
 });
 
 console.log('Main preload script caricato');

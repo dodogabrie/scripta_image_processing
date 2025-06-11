@@ -132,6 +132,11 @@ class App {
       return await this.pythonManager.installEnvironment();
     });
 
+    ipcMain.handle('python:stop', async () => {
+      console.log('IPC: python:stop chiamato');
+      return this.pythonManager.stopPythonProcess();
+    });
+
     // Project management handlers
     ipcMain.handle('projects:getAll', async () => {
       console.log('IPC: projects:getAll chiamato');
@@ -222,6 +227,38 @@ class App {
       } catch (e) {
           return [];
       }
+    });
+
+    ipcMain.handle('project1:listQualityFiles', async (event, qualityDir) => {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            if (!fs.existsSync(qualityDir)) return [];
+            return fs.readdirSync(qualityDir)
+                .filter(f => f.toLowerCase().endsWith('.json'))
+                .map(f => path.join(qualityDir, f).replace(/\\/g, '/'));
+        } catch (e) {
+            return [];
+        }
+    });
+
+    ipcMain.handle('project1:readFile', async (event, filePath) => {
+        try {
+            const fs = require('fs');
+            return fs.readFileSync(filePath, 'utf8');
+        } catch (e) {
+            return '';
+        }
+    });
+
+    ipcMain.handle('project1:writeFile', async (event, filePath, content) => {
+        try {
+            const fs = require('fs');
+            fs.writeFileSync(filePath, content, 'utf8');
+            return true;
+        } catch (e) {
+            return false;
+        }
     });
 
     console.log('IPC handlers configurati');

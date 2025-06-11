@@ -16,6 +16,7 @@ class PythonManager {
       venvExists: false,
       dependenciesInstalled: false
     };
+    this.activeProcess = null; // Track the active Python process
   }
 
   getPythonExecutable() {
@@ -466,7 +467,7 @@ class PythonManager {
       let finished = false;
       let output = '';
       let error = '';
-  
+
       // Costruisci il path delle DLL di vips
       const isWindows = process.platform === 'win32';
       let vipsBinDir = null;
@@ -491,6 +492,7 @@ class PythonManager {
       let py;
       try {
         py = spawn(this.pythonExecutable, [scriptPath, ...args], { env });
+        this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
       }
@@ -501,6 +503,7 @@ class PythonManager {
       py.on('close', (code) => {
         if (finished) return;
         finished = true;
+        this.activeProcess = null; // Clear on exit
         if (code === 0) {
           resolve({ success: true, output });
         } else {
@@ -511,9 +514,27 @@ class PythonManager {
       py.on('error', (err) => {
         if (finished) return;
         finished = true;
+        this.activeProcess = null;
         resolve({ success: false, error: `Failed to run Python: ${err.message}` });
       });
     });
+  }
+
+  stopPythonProcess() {
+    if (this.activeProcess) {
+      this.activeProcess.kill('SIGTERM');
+      this.activeProcess = null;
+      this.logger.info('Python process stopped by user.');
+      return true;
+    }
+    return false;
+  }
+
+  killActiveProcess() {
+    if (this.activeProcess) {
+      this.activeProcess.kill('SIGTERM');
+      this.activeProcess = null;
+    }
   }
 
   getStatus() {

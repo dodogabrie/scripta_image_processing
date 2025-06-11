@@ -10,14 +10,25 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     processing: false,
                     inputDir: null,
                     outputDir: null,
-                    borderPixels: '', // campo per il bordo
-                    imageFormat: 'tif', // campo per il formato immagine
+                    borderPixels: '',
+                    imageFormat: 'tif',
                     consoleLines: [],
                     elaborazioneCompletata: false,
                     thumbs: [],
                     thumbsInterval: null,
                     previewThumb: null,
-                    lastThumb: null
+                    lastThumb: null,
+                    // Thresholds for quality evaluation
+                    threshold_sharpness: 0.1,
+                    threshold_entropy: 0.1,
+                    threshold_edge_density: 0.1,
+                    threshold_residual_skew_angle: 0.1,
+                    qualityCheckResults: [],
+                    qualityCheckReportPath: null,
+                    enableSharpness: true,
+                    enableEntropy: true,
+                    enableEdgeDensity: true,
+                    enableSkew: true,
                 };
             },
             methods: {
@@ -62,11 +73,12 @@ fetch('../projects/project1/renderer/Project1.template.html')
                 async loadThumbs() {
                     if (window.electronAPI && window.electronAPI.listThumbs && this.outputDir) {
                         const thumbs = await window.electronAPI.listThumbs(this.outputDir + '/thumbs');
-                        // Usa direttamente il percorso restituito dal backend
-                        this.thumbs = thumbs;
-                        if (this.thumbs.length > 0) {
-                            this.lastThumb = this.thumbs[this.thumbs.length - 1];
+                        // Rimuovi l'ultima miniatura (se presente)
+                        if (thumbs.length > 0) {
+                            this.thumbs = thumbs.slice(0, -1);
+                            this.lastThumb = thumbs[thumbs.length - 1];
                         } else {
+                            this.thumbs = [];
                             this.lastThumb = null;
                         }
                     }
@@ -138,6 +150,117 @@ fetch('../projects/project1/renderer/Project1.template.html')
                         this.loadThumbs();
                     }
                 },
+                async stopProcessing() {
+                    // Forza la chiamata all'IPC per inviare SIGTERM al processo Python attivo
+                    try {
+                        // Preferisci sempre window.electronAPI.stopPythonProcess se esiste
+                        if (window.electronAPI && typeof window.electronAPI.stopPythonProcess === 'function') {
+                            await window.electronAPI.stopPythonProcess();
+                            this.addConsoleLine('Processo Python terminato con segnale di stop.', 'warning');
+                        } else if (window.electronAPI && typeof window.electronAPI.invoke === 'function') {
+                            // fallback generico per ipcRenderer.invoke
+                            await window.electronAPI.invoke('python:stop');
+                            this.addConsoleLine('Processo Python terminato con segnale di stop (fallback invoke).', 'warning');
+                        } else if (window.ipcRenderer && typeof window.ipcRenderer.invoke === 'function') {
+                            // fallback legacy diretto su ipcRenderer globale
+                            await window.ipcRenderer.invoke('python:stop');
+                            this.addConsoleLine('Processo Python terminato con segnale di stop (ipcRenderer globale).', 'warning');
+                        } else {
+                            this.addConsoleLine('Nessuna funzione stopPythonProcess disponibile! Verifica preload.js e contextBridge.', 'error');
+                        }
+                    } catch (e) {
+                        this.addConsoleLine('Errore durante lo stop del processo Python: ' + e.message, 'error');
+                    }
+                    this.processing = false;
+                    this.stopThumbsPolling();
+                },
+                async evaluateQuality() {
+                    if (!this.outputDir) {
+                        this.addConsoleLine('Seleziona una cartella di output per valutare la qualità.', 'error');
+                        return;
+                    }
+                    const qualityDir = this.outputDir + '/quality';
+                    if (!window.electronAPI || !window.electronAPI.listQualityFiles || !window.electronAPI.readFile) {
+                        this.addConsoleLine('Funzioni electronAPI per quality non disponibili.', 'error');
+                        return;
+                    }
+                    const files = await window.electronAPI.listQualityFiles(qualityDir);
+                    if (!files || files.length === 0) {
+                        this.addConsoleLine('Nessun file di qualità trovato.', 'warning');
+                        return;
+                    }
+                    const failed = [];
+                    for (const file of files) {
+                        try {
+                            const content = await window.electronAPI.readFile(file);
+                            const data = JSON.parse(content);
+                            let fail = false;
+                            let reasons = [];
+                            let details = [];
+                            if (this.enableSharpness && data.sharpness) {
+                                const ratio = data.sharpness.processed / data.sharpness.original;
+                                if (ratio < this.threshold_sharpness) {
+                                    fail = true;
+                                    reasons.push('sharpness');
+                                    details.push(`sharpness: ${data.sharpness.processed.toFixed(2)} / ${data.sharpness.original.toFixed(2)} = ${ratio.toFixed(3)} < ${this.threshold_sharpness}`);
+                                }
+                            }
+                            if (this.enableEntropy && data.entropy) {
+                                const ratio = data.entropy.processed / data.entropy.original;
+                                if (ratio < this.threshold_entropy) {
+                                    fail = true;
+                                    reasons.push('entropy');
+                                    details.push(`entropy: ${data.entropy.processed.toFixed(3)} / ${data.entropy.original.toFixed(3)} = ${ratio.toFixed(3)} < ${this.threshold_entropy}`);
+                                }
+                            }
+                            if (this.enableEdgeDensity && data.edge_density) {
+                                const ratio = data.edge_density.processed / data.edge_density.original;
+                                if (ratio < this.threshold_edge_density) {
+                                    fail = true;
+                                    reasons.push('edge_density');
+                                    details.push(`edge_density: ${data.edge_density.processed.toFixed(4)} / ${data.edge_density.original.toFixed(4)} = ${ratio.toFixed(3)} < ${this.threshold_edge_density}`);
+                                }
+                            }
+                            if (this.enableSkew && data.residual_skew_angle !== undefined) {
+                                const absSkew = Math.abs(data.residual_skew_angle);
+                                if (absSkew > this.threshold_residual_skew_angle) {
+                                    fail = true;
+                                    reasons.push('residual_skew_angle');
+                                    details.push(`residual_skew_angle: ${absSkew.toFixed(2)} > ${this.threshold_residual_skew_angle}`);
+                                }
+                            }
+                            if (fail) {
+                                failed.push({ file, reasons, details });
+                            }
+                        } catch (e) {
+                            this.addConsoleLine(`Errore lettura quality file ${file}: ${e.message}`, 'error');
+                        }
+                    }
+                    this.qualityCheckResults = failed;
+                    // Write report
+                    const reportPath = qualityDir + '/quality_report.txt';
+                    let reportText = '';
+                    if (failed.length === 0) {
+                        reportText = 'Tutte le immagini rispettano le soglie di qualità.\n';
+                        this.addConsoleLine('Tutte le immagini rispettano le soglie di qualità.', 'success');
+                    } else {
+                        reportText = 'Immagini che NON rispettano le soglie di qualità:\n';
+                        failed.forEach(f => {
+                            reportText += `${f.file.split('/').pop()}: ${f.reasons.join(', ')}\n`;
+                            f.details.forEach(d => {
+                                reportText += `    ${d}\n`;
+                            });
+                            this.addConsoleLine(
+                                `Quality FAIL: ${f.file.split('/').pop()} (${f.reasons.join(', ')})\n  ${f.details.join('\n  ')}`,
+                                'error'
+                            );
+                        });
+                    }
+                    if (window.electronAPI && window.electronAPI.writeFile) {
+                        await window.electronAPI.writeFile(reportPath, reportText);
+                        this.qualityCheckReportPath = reportPath;
+                    }
+                },
                 goBack() {
                     this.$emit('goBack');
                 },
@@ -146,7 +269,7 @@ fetch('../projects/project1/renderer/Project1.template.html')
                 },
                 closePreview() {
                     this.previewThumb = null;
-                }
+                },
             },
             mounted() {
                 this.loadThumbs();

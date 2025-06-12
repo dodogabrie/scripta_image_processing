@@ -29,14 +29,13 @@
     },
     "files": [
       "**/*",
-      "!src/python_env{,/**}",
+      "!src/python-env/**",
       "requirements.txt"
     ],
     "asarUnpack": [
       "src/projects/**/*.py",
       "requirements.txt",
-      "src/python-embed/vips-bin/vips-dev-8.17/bin/*",
-      "src/python-embed/**"
+      "src/python-embed/vips-bin/vips-dev-8.17/bin/*"
     ],
     "extraFiles": [
       {

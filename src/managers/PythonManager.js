@@ -21,7 +21,12 @@ class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-    
+    console.log('PythonManager: Determining Python executable path...');
+    console.log('PythonManager: isWindows:', isWindows);
+    console.log('PythonManager: venvPath:', this.venvPath);
+    console.log('PythonManager: app.getAppPath():', app.getAppPath());
+    console.log('PythonManager: app.isPackaged:', app.isPackaged);
+    console.log('PythonManager: app.getPath("userData"):', app.getPath('userData'));
     // Usa l'interprete embedded se presente (sync check)
     if (isWindows) {
       // Il Python embedded ora è nella root dell'app grazie a extraFiles

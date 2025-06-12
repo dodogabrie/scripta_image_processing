@@ -334,10 +334,17 @@ class PythonManager {
   async installDependencies() {
     let requirementsPath;
     if (app.isPackaged) {
-      requirementsPath = path.join(__dirname, '../requirements.txt');
+      // Cerca in app.asar.unpacked
+      requirementsPath = path.join(
+        process.resourcesPath,
+        'app.asar.unpacked',
+        'requirements.txt'
+      );
+      // Se non c'è lì, prova anche in src/projects/... se serve
     } else {
       requirementsPath = path.join(app.getAppPath(), 'requirements.txt');
     }
+
     
     try {
       await fs.access(requirementsPath);

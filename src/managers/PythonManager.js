@@ -332,25 +332,6 @@ class PythonManager {
   }
 
   async installDependencies() {
-    // If using embedded Python, dependencies are already installed
-    const isWindows = os.platform() === 'win32';
-    if (isWindows) {
-      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
-      const fs = require('fs');
-      if (fs.existsSync(embedded)) {
-        this.status.dependenciesInstalled = true;
-        this.logger.info('Using embedded Python with pre-installed dependencies');
-        if (this.currentProgressCallback) {
-          this.currentProgressCallback({
-            step: 'deps-install',
-            message: 'Dependencies already installed (embedded)',
-            logs: 'Using embedded Python with pre-installed packages'
-          });
-        }
-        return;
-      }
-    }
-
     let requirementsPath;
     if (app.isPackaged) {
       requirementsPath = path.join(__dirname, '../requirements.txt');
@@ -407,8 +388,8 @@ class PythonManager {
               step: 'deps-install',
               message: 'Installing Python packages...',
               logs: line.trim()
-      });
-      });
+            });
+          });
         }
       });
 
@@ -423,8 +404,8 @@ class PythonManager {
               step: 'deps-install',
               message: 'Installing Python packages...',
               logs: line.trim()
-      });
-      });
+            });
+          });
         }
       });
 

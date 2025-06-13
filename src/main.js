@@ -213,7 +213,7 @@ class App {
       return result.filePaths[0];
     });
 
-    ipcMain.handle('project1:listThumbs', async (event, thumbsDir) => {
+    ipcMain.handle('files:listThumbs', async (event, thumbsDir) => {
       try {
           const fs = require('fs');
           const path = require('path');
@@ -229,7 +229,7 @@ class App {
       }
     });
 
-    ipcMain.handle('project1:listQualityFiles', async (event, qualityDir) => {
+    ipcMain.handle('files:listQualityFiles', async (event, qualityDir) => {
         try {
             const fs = require('fs');
             const path = require('path');
@@ -242,7 +242,7 @@ class App {
         }
     });
 
-    ipcMain.handle('project1:readFile', async (event, filePath) => {
+    ipcMain.handle('files:readFile', async (event, filePath) => {
         try {
             const fs = require('fs');
             return fs.readFileSync(filePath, 'utf8');
@@ -251,7 +251,7 @@ class App {
         }
     });
 
-    ipcMain.handle('project1:writeFile', async (event, filePath, content) => {
+    ipcMain.handle('files:writeFile', async (event, filePath, content) => {
         try {
             const fs = require('fs');
             fs.writeFileSync(filePath, content, 'utf8');
@@ -259,6 +259,11 @@ class App {
         } catch (e) {
             return false;
         }
+    });
+
+    // Generic logging handler
+    ipcMain.on('log:fromRenderer', (event, msg) => {
+        console.log('Log from renderer:', msg);
     });
 
     console.log('IPC handlers configurati');

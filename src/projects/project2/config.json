@@ -1,0 +1,15 @@
+{
+  "name": "Ritaglio doppia pagina",
+  "description": "Ritaglia un doppio foglio A4 sulla piega e aggiorna l'ordine delle pagine generate dal ritaglio",
+  "icon": "renderer/assets/icon.svg",
+  "version": "1.0.0",
+  "main": "renderer/main.html",
+  "renderer_script": "renderer/project2.js",
+  "python_scripts": [
+    "python/main.py"
+  ],
+  "requirements": [
+    "opencv-python==4.10.0.84",
+    "numpy==2.2.1"
+  ]
+}

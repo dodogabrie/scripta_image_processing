@@ -50,11 +50,28 @@ contextBridge.exposeInMainWorld('electronAPI', {
         return ipcRenderer.invoke('dialog:selectDirectory');
     },
 
+    // Generic file operations
     listThumbs: (thumbsDir) => {
         console.log('Chiamata listThumbs dal preload:', thumbsDir);
-        return ipcRenderer.invoke('project1:listThumbs', thumbsDir);
+        return ipcRenderer.invoke('files:listThumbs', thumbsDir);
     },
 
+    listQualityFiles: (qualityDir) => {
+        console.log('Chiamata listQualityFiles dal preload:', qualityDir);
+        return ipcRenderer.invoke('files:listQualityFiles', qualityDir);
+    },
+
+    readFile: (filePath) => {
+        console.log('Chiamata readFile dal preload:', filePath);
+        return ipcRenderer.invoke('files:readFile', filePath);
+    },
+
+    writeFile: (filePath, content) => {
+        console.log('Chiamata writeFile dal preload:', filePath);
+        return ipcRenderer.invoke('files:writeFile', filePath, content);
+    },
+
+    // Generic process control
     stopPythonProcess: () => {
         console.log('Chiamata stopPythonProcess dal preload');
         return ipcRenderer.invoke('python:stop');
@@ -62,20 +79,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     logToMain: (msg) => {
         console.log('Chiamata logToMain dal preload:', msg);
-        ipcRenderer.send('log:fromProject1', msg);
-    },
-
-    listQualityFiles: (qualityDir) => {
-        console.log('Chiamata listQualityFiles dal preload:', qualityDir);
-        return ipcRenderer.invoke('project1:listQualityFiles', qualityDir);
-    },
-    readFile: (filePath) => {
-        console.log('Chiamata readFile dal preload:', filePath);
-        return ipcRenderer.invoke('project1:readFile', filePath);
-    },
-    writeFile: (filePath, content) => {
-        console.log('Chiamata writeFile dal preload:', filePath);
-        return ipcRenderer.invoke('project1:writeFile', filePath, content);
+        ipcRenderer.send('log:fromRenderer', msg);
     },
 });
 

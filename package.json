@@ -9,7 +9,8 @@
     "prebuild": "node scripts/download-libvips-win.js",
     "build": "electron-builder",
     "install-deps": "npm install",
-    "clean": "rm -rf node_modules package-lock.json"
+    "clean": "rm -rf node_modules package-lock.json",
+    "create-project": "node scripts/create-project.js"
   },
   "devDependencies": {
     "electron": "^35.2.1",

@@ -65,18 +65,38 @@ function mountAppWhenReady() {
             async openProject(projectId) {
                 this.currentProject = projectId;
                 await this.loadProjectScript(projectId);
-                const compName = capitalize(projectId);
+                
+                // Try multiple component name variations
+                const compNameCapitalized = capitalize(projectId); // Project2
+                const compNameLowercase = projectId; // project2
+                
+                let component = null;
                 let tries = 0;
-                while (!window[compName] && tries < 20) { 
+                
+                while (!component && tries < 20) { 
+                    // Try capitalized version first (Project2)
+                    if (window[compNameCapitalized]) {
+                        component = window[compNameCapitalized];
+                        break;
+                    }
+                    // Try lowercase version (project2)
+                    if (window[compNameLowercase]) {
+                        component = window[compNameLowercase];
+                        break;
+                    }
+                    
                     await new Promise(r => setTimeout(r, 100));
                     tries++;
                 }
-                if (!window[compName]) {
-                    this.addLogEntry(`Componente ${compName} non trovato dopo il caricamento dello script!`, 'error');
+                
+                if (!component) {
+                    this.addLogEntry(`Componente non trovato per ${projectId}. Tentati: ${compNameCapitalized}, ${compNameLowercase}`, 'error');
+                    this.addLogEntry(`Window objects disponibili: ${Object.keys(window).filter(k => k.includes(projectId) || k.includes(compNameCapitalized)).join(', ')}`, 'info');
                     this.currentProjectComponent = null;
                 } else {
+                    this.addLogEntry(`Componente ${component.name || projectId} caricato con successo`, 'success');
                     // Usa markRaw per evitare che Vue lo renda reattivo
-                    this.currentProjectComponent = markRaw(window[compName]);
+                    this.currentProjectComponent = markRaw(component);
                 }
             },
             goBackToHome() {

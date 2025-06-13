@@ -70,47 +70,40 @@
                                 <h5 class="mt-3">I risultati appariranno qui</h5>
                                 <p>Seleziona una cartella di input e clicca "Elabora" per processare tutte le immagini</p>
                             </div>
+                            
+                            <!-- Progress bar during processing -->
                             <div v-else-if="processing" class="text-center py-5">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Elaborazione...</span>
+                                <div v-if="progressInfo" class="mt-4">
+                                    <div class="progress mb-3" style="height: 20px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                                             :style="{width: progressPercentage + '%'}" 
+                                             :aria-valuenow="progressInfo.processed" 
+                                             :aria-valuemin="0" 
+                                             :aria-valuemax="progressInfo.total_images">
+                                             {{ progressPercentage }}%
+                                        </div>
+                                    </div>
+                                    <h5 class="text-muted">
+                                        {{ progressInfo.processed }} / {{ progressInfo.total_images }} immagini elaborate
+                                    </h5>
+                                    <div class="small text-muted mt-2">
+                                        <div>Formato: {{ progressInfo.primary_format }}</div>
+                                        <div>Dimensione totale: {{ progressInfo.total_size_gb }} GB</div>
+                                    </div>
                                 </div>
-                                <h5 class="mt-3">Elaborazione in corso...</h5>
-                                <p class="text-muted">Correzione microrotazioni e ritaglio automatico</p>
-                                <!-- Pulsante stop accanto allo stato di processing -->
-                                <button class="btn btn-outline-danger mt-3" @click="stopProcessing" :disabled="!processing">
-                                    <i class="bi bi-stop-circle"></i> Stop
-                                </button>
+                                <div v-else class="text-center">
+                                    <div class="spinner-border text-primary mb-3" role="status">
+                                        <span class="visually-hidden">Elaborazione...</span>
+                                    </div>
+                                    <h5 class="text-muted">Avvio elaborazione...</h5>
+                                </div>
                             </div>
+                            
                             <div v-else-if="elaborazioneCompletata" class="alert alert-success py-2 px-3">
                                 <strong>Immagini elaborate!</strong><br>
                                 <span>Risultati salvati in:</span>
                                 <div class="small text-break">{{ outputDir }}</div>
                             </div>
-
-                            <!-- Accordion thumbnails spostato qui in alto -->
-                            <div class="accordion mt-4" id="processedAccordion">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingProcessed">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProcessed" aria-expanded="false" aria-controls="collapseProcessed">
-                                            Immagini già processate (thumbnails)
-                                        </button>
-                                    </h2>
-                                    <div id="collapseProcessed" class="accordion-collapse collapse" aria-labelledby="headingProcessed" data-bs-parent="#processedAccordion">
-                                        <div class="accordion-body">
-                                            <div v-if="thumbs.length > 0" class="d-flex flex-wrap justify-content-start align-items-start gap-2 mt-3">
-                                                <div v-for="(thumb, idx) in thumbs" :key="thumb" class="thumbnail" style="margin: 5px; cursor:pointer;" @click="showPreview(thumb)">
-                                                    <img :src="thumb" :alt="thumb" style="width: 120px; height: auto; border-radius: 4px; border: 1px solid #ccc;">
-                                                    <div class="small text-break text-center">
-                                                        <span style="user-select: text; cursor: text;">{{ thumb.split('/').pop() }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div v-else class="text-muted">Nessuna miniatura trovata.</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Fine espandibile -->
 
                             <!-- Modal anteprima -->
                             <div v-if="previewThumb" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1000;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;" @click="closePreview">
@@ -231,10 +224,10 @@
                                     <div id="collapseProcessed" class="accordion-collapse collapse" aria-labelledby="headingProcessed" data-bs-parent="#processedAccordion">
                                         <div class="accordion-body">
                                             <div v-if="thumbs.length > 0" class="d-flex flex-wrap justify-content-start align-items-start gap-2 mt-3">
-                                                <div v-for="(thumb, idx) in thumbs" :key="thumb" class="thumbnail" style="margin: 5px; cursor:pointer;" @click="showPreview(thumb)">
-                                                    <img :src="thumb" :alt="thumb" style="width: 120px; height: auto; border-radius: 4px; border: 1px solid #ccc;">
+                                                <div v-for="(thumb, idx) in thumbs" :key="thumb" class="thumbnail" style="margin: 5px;">
+                                                    <img :src="thumb" :alt="thumb" style="width: 120px; height: auto; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;" @click="showPreview(thumb)">
                                                     <div class="small text-break text-center">
-                                                        <span style="user-select: text; cursor: text;">{{ thumb.split('/').pop() }}</span>
+                                                        <span style="user-select: text; cursor: text;">{{ getCleanFilename(thumb) }}</span>
                                                     </div>
                                                 </div>
                                             </div>

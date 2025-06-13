@@ -18,6 +18,9 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     thumbsInterval: null,
                     previewThumb: null,
                     lastThumb: null,
+                    // Progress tracking
+                    progressInfo: null,
+                    progressInterval: null,
                     // Thresholds for quality evaluation
                     threshold_sharpness: 0.1,
                     threshold_entropy: 0.1,
@@ -73,10 +76,15 @@ fetch('../projects/project1/renderer/Project1.template.html')
                 async loadThumbs() {
                     if (window.electronAPI && window.electronAPI.listThumbs && this.outputDir) {
                         const thumbs = await window.electronAPI.listThumbs(this.outputDir + '/thumbs');
-                        // Rimuovi l'ultima miniatura (se presente)
                         if (thumbs.length > 0) {
-                            this.thumbs = thumbs.slice(0, -1);
+                            // Sort thumbnails by modification time or name to get the most recent
+                            thumbs.sort();
+                            
+                            // Always show the last (most recent) thumbnail as lastThumb
                             this.lastThumb = thumbs[thumbs.length - 1];
+                            
+                            // Keep all thumbnails except the last one for the gallery
+                            this.thumbs = thumbs.slice(0, -1);
                         } else {
                             this.thumbs = [];
                             this.lastThumb = null;
@@ -96,6 +104,31 @@ fetch('../projects/project1/renderer/Project1.template.html')
                         this.thumbsInterval = null;
                     }
                 },
+                async loadProgress() {
+                    if (window.electronAPI && window.electronAPI.readFile && this.outputDir) {
+                        try {
+                            const infoPath = this.outputDir + '/info.json';
+                            const content = await window.electronAPI.readFile(infoPath);
+                            this.progressInfo = JSON.parse(content);
+                        } catch (error) {
+                            // File doesn't exist yet or can't be read
+                            this.progressInfo = null;
+                        }
+                    }
+                },
+                startProgressPolling() {
+                    this.loadProgress();
+                    if (this.progressInterval) clearInterval(this.progressInterval);
+                    this.progressInterval = setInterval(() => {
+                        this.loadProgress();
+                    }, 1000);
+                },
+                stopProgressPolling() {
+                    if (this.progressInterval) {
+                        clearInterval(this.progressInterval);
+                        this.progressInterval = null;
+                    }
+                },
                 async processImages() {
                     window.electronAPI.logToMain('processImages chiamato dal renderer!');
                     this.addConsoleLine(`Inizio a elaborare le immagini...`, 'info');
@@ -103,7 +136,9 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     this.processing = true;
                     this.elaborazioneCompletata = false;
                     this.thumbs = [];
+                    this.progressInfo = null;
                     this.startThumbsPolling();
+                    this.startProgressPolling();
                     this.addConsoleLine(`Esecuzione script Python: microperspective-corrector/main.py`, 'info');
                     this.addConsoleLine(`Input: ${this.inputDir}`, 'info');
                     this.addConsoleLine(`Output: ${this.outputDir}`, 'info');
@@ -147,6 +182,7 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     } finally {
                         this.processing = false;
                         this.stopThumbsPolling();
+                        this.stopProgressPolling();
                         this.loadThumbs();
                     }
                 },
@@ -173,6 +209,7 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     }
                     this.processing = false;
                     this.stopThumbsPolling();
+                    this.stopProgressPolling();
                 },
                 async evaluateQuality() {
                     if (!this.outputDir) {
@@ -270,9 +307,24 @@ fetch('../projects/project1/renderer/Project1.template.html')
                 closePreview() {
                     this.previewThumb = null;
                 },
+                getCleanFilename(thumb) {
+                    // Extract filename from path
+                    const filename = thumb.split('/').pop();
+                    // Remove timestamp prefix (pattern: timestamp_filename.jpg)
+                    const withoutTimestamp = filename.replace(/^\d+_/, '');
+                    // Remove extension
+                    const withoutExtension = withoutTimestamp.replace(/\.[^/.]+$/, '');
+                    return withoutExtension;
+                },
             },
             mounted() {
                 this.loadThumbs();
+            },
+            computed: {
+                progressPercentage() {
+                    if (!this.progressInfo || !this.progressInfo.total_images) return 0;
+                    return Math.round((this.progressInfo.processed / this.progressInfo.total_images) * 100);
+                }
             }
         };
     });

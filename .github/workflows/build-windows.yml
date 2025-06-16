@@ -29,6 +29,7 @@ jobs:
 
       - name: Check if release exists
         id: check-release
+        shell: bash
         run: |
           if gh release view "$RELEASE_VERSION" >/dev/null 2>&1; then
             echo "release-exists=true" >> $GITHUB_OUTPUT

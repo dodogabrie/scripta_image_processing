@@ -4,17 +4,28 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. v1.0.2)'
-        required: true
+        description: 'Release version (e.g. 1.0.3)'
+        required: false
+
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build-and-release:
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      RELEASE_VERSION: ${{ github.event.inputs.version }}
 
     steps:
+      - name: Set RELEASE_VERSION env var
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "RELEASE_VERSION=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+
       - name: Checkout repository (with submodules)
         uses: actions/checkout@v4
         with:
@@ -67,6 +78,7 @@ jobs:
           path: dist/*.exe
 
       - name: Create GitHub release
-        run: gh release create "v${{ env.RELEASE_VERSION }}" dist/*.exe --title "v${{ env.RELEASE_VERSION }}" --notes "Release v${{ env.RELEASE_VERSION }}"
+        run: gh release create "$RELEASE_VERSION" dist/*.exe --title "$RELEASE_VERSION" --notes "Release $RELEASE_VERSION"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+

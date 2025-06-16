@@ -1,17 +1,18 @@
-name: Build Windows
+name: Release Windows
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v1.0.2)'
+        required: true
 
 jobs:
-  build-windows:
+  build-and-release:
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      RELEASE_VERSION: ${{ github.event.inputs.version }}
 
     steps:
       - name: Checkout repository (with submodules)
@@ -24,7 +25,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Python (for embedding script and native deps)
+      - name: Setup Python
         id: setup-python
         uses: actions/setup-python@v5
         with:
@@ -43,16 +44,16 @@ jobs:
       - name: Add Python to PATH
         run: echo "PATH=$(dirname '${{ steps.setup-python.outputs.python-path }}'):$PATH" >> $GITHUB_ENV
 
-      - name: Install dependencies (npm) - no rebuild
+      - name: Install dependencies (npm)
         run: npm install --ignore-scripts
 
       - name: Install vips dependencies
         run: node scripts/download-libvips-win.js
 
-      - name: Setup Python embedded (download, extract, pip, requirements)
+      - name: Setup Python embedded
         run: node scripts/embed-python-win.js
 
-      - name: Build Electron app (no rebuild)
+      - name: Build Electron app
         run: npm run build
         env:
           ELECTRON_REBUILD: false
@@ -64,3 +65,8 @@ jobs:
         with:
           name: scripta-image-processing-win
           path: dist/*.exe
+
+      - name: Create GitHub release
+        run: gh release create "v${{ env.RELEASE_VERSION }}" dist/*.exe --title "v${{ env.RELEASE_VERSION }}" --notes "Release v${{ env.RELEASE_VERSION }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

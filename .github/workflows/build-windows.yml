@@ -19,6 +19,7 @@ jobs:
 
     steps:
       - name: Set RELEASE_VERSION env var
+        shell: bash
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
             echo "RELEASE_VERSION=v${{ github.event.inputs.version }}" >> $GITHUB_ENV

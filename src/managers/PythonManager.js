@@ -429,12 +429,14 @@ class PythonManager {
           }
           resolve();
         } else {
-          const errorMsg = `Failed to install dependencies. Exit code: ${code}`;
+          const stderrCombined = collectedStderr.join('\n'); // vedi nota sotto
+          const errorMsg = `❌ Failed to install dependencies (exit code ${code})\n\nDetails:\n${stderrCombined}`;
+      
           if (this.currentProgressCallback) {
             this.currentProgressCallback({
               step: 'deps-install',
               message: 'Dependency installation failed',
-              logs: `ERROR: ${errorMsg}`
+              logs: `ERROR:\n${errorMsg}`
             });
           }
           reject(new Error(errorMsg));

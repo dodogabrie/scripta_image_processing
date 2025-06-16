@@ -332,6 +332,8 @@ class PythonManager {
   }
 
   async installDependencies() {
+    const collectedStderr = [];
+
     let requirementsPath;
     if (app.isPackaged) {
       // Cerca in app.asar.unpacked
@@ -402,6 +404,7 @@ class PythonManager {
 
       process.stderr.on('data', (data) => {
         const output = data.toString().trim();
+        collectedStderr.push(output); 
         this.logger.warn(`pip stderr: ${output}`);
         
         if (output && this.currentProgressCallback) {
@@ -429,7 +432,7 @@ class PythonManager {
           }
           resolve();
         } else {
-          const stderrCombined = collectedStderr.join('\n'); // vedi nota sotto
+          const stderrCombined = collectedStderr.join('\n'); 
           const errorMsg = `❌ Failed to install dependencies (exit code ${code})\n\nDetails:\n${stderrCombined}`;
       
           if (this.currentProgressCallback) {

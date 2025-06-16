@@ -1,0 +1,24 @@
+name: Release App
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. v1.0.2)'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      RELEASE_VERSION: ${{ github.event.inputs.version }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-win
+
+      - name: Create GitHub release
+        run: gh release create "$RELEASE_VERSION" build-win/*.exe --title "$RELEASE_VERSION" --notes "Release $RELEASE_VERSION"

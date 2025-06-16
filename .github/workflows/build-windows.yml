@@ -64,23 +64,3 @@ jobs:
         with:
           name: scripta-image-processing-win
           path: dist/*.exe
-
-      - name: Check if tag exists
-        id: tag-check
-        shell: bash
-        run: |
-          if gh release view v1.0.0 &>/dev/null; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-
-      - name: Create GitHub release if tag doesn't exist
-        if: steps.tag-check.outputs.exists == 'false'
-        run: gh release create v1.0.1 dist/*.exe --title "v1.0.1" --notes "Release 1.0.1"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-

@@ -38,6 +38,8 @@ def main():
                    help="Output format. If specified, images will be resized to HD and converted to this format.")
     p.add_argument("--rotate", action='store_true', default=False,
                    help="Apply rotation to straighten the fold. Default is False.")
+    p.add_argument("--smart_crop", action='store_true', default=False,
+                   help="Use document edge detection for intelligent cropping. Default is False.")
     args = p.parse_args()
 
     # Load image without quality loss
@@ -80,9 +82,12 @@ def main():
             save_image_preserve_format(img, path_left)
         return
 
-    left_side, right_side, debug_info = process_image(img, side, debug=args.debug, debug_dir=debug_dir, apply_rotation=args.rotate)
+    left_side, right_side, debug_info = process_image(img, side, debug=args.debug, debug_dir=debug_dir, 
+                                                     apply_rotation=args.rotate, smart_crop=args.smart_crop)
+    
     rotation_status = "con rotazione" if debug_info['rotation_applied'] else "senza rotazione"
-    print(f"x: {debug_info['x_fold']}, inclinazione stimata: {debug_info['angle']:.2f}°, processato {rotation_status}")
+    crop_status = "smart crop" if debug_info['smart_crop_applied'] else "crop standard"
+    print(f"x: {debug_info['x_fold']}, inclinazione stimata: {debug_info['angle']:.2f}°, processato {rotation_status}, {crop_status}")
 
     if debug_dir:
         save_debug_line_visualization(img, debug_info['x_fold'], debug_info['angle'], 

@@ -11,7 +11,7 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     inputDir: null,
                     outputDir: null,
                     borderPixels: '',
-                    imageFormat: 'tif',
+                    imageFormat: 'tiff',
                     consoleLines: [],
                     elaborazioneCompletata: false,
                     thumbs: [],

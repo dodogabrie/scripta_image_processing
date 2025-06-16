@@ -13,8 +13,25 @@ fetch('../projects/project2/renderer/project2.template.html')
                     outputDir: null,
                     consoleLines: [],
                     elaborazioneCompletata: false,
-                    // Add your data properties here
+                    // Progress tracking
+                    progressInfo: null,
+                    progressInterval: null,
+                    // Processing parameters
+                    imageFormat: '',
+                    outputFormat: '',
+                    sideDetection: '',
+                    applyRotation: false,
+                    smartCrop: true,  // Default enabled
+                    enableDebug: false,
+                    enableFileListener: true,  // Default enabled
+                    renameMapText: '{"_01_right": "_01", "_01_left": "_04", "_02_left": "_02", "_02_right": "_03"}',
                 };
+            },
+            computed: {
+                progressPercentage() {
+                    if (!this.progressInfo || !this.progressInfo.total_images) return 0;
+                    return Math.round((this.progressInfo.processed / this.progressInfo.total_images) * 100);
+                }
             },
             methods: {
                 addConsoleLine(text, type = 'normal') {
@@ -55,20 +72,108 @@ fetch('../projects/project2/renderer/project2.template.html')
                         this.addConsoleLine('Selezione cartella output annullata.', 'warning');
                     }
                 },
+                async loadProgress() {
+                    if (window.electronAPI && window.electronAPI.readFile && this.outputDir) {
+                        try {
+                            const infoPath = this.outputDir + '/info.json';
+                            const content = await window.electronAPI.readFile(infoPath);
+                            this.progressInfo = JSON.parse(content);
+                        } catch (error) {
+                            // File doesn't exist yet or can't be read
+                            this.progressInfo = null;
+                        }
+                    }
+                },
+                startProgressPolling() {
+                    this.loadProgress();
+                    if (this.progressInterval) clearInterval(this.progressInterval);
+                    this.progressInterval = setInterval(() => {
+                        this.loadProgress();
+                    }, 1000);
+                },
+                stopProgressPolling() {
+                    if (this.progressInterval) {
+                        clearInterval(this.progressInterval);
+                        this.progressInterval = null;
+                    }
+                },
                 async processData() {
                     this.addConsoleLine('Inizio elaborazione...', 'info');
                     if (!this.inputDir || !this.outputDir) return;
+
                     this.processing = true;
                     this.elaborazioneCompletata = false;
+                    this.progressInfo = null;
+                    this.startProgressPolling();
+
                     this.addConsoleLine(`Input: ${this.inputDir}`, 'info');
                     this.addConsoleLine(`Output: ${this.outputDir}`, 'info');
+
                     try {
-                        // Add your processing logic here
+                        // Costruisci gli argomenti per lo script Python
+                        const args = [this.inputDir, this.outputDir];
+
+                        // Aggiungi parametri opzionali
+                        if (this.sideDetection) {
+                            args.push('--side', this.sideDetection);
+                            this.addConsoleLine(`Lato piega: ${this.sideDetection}`, 'info');
+                        }
+
+                        if (this.outputFormat) {
+                            args.push('--output_format', this.outputFormat);
+                            this.addConsoleLine(`Formato output: ${this.outputFormat.toUpperCase()}`, 'info');
+                        }
+
+                        if (this.imageFormat) {
+                            args.push('--image_input_format', this.imageFormat);
+                            this.addConsoleLine(`Formato input: ${this.imageFormat.toUpperCase()}`, 'info');
+                        }
+
+                        if (this.applyRotation) {
+                            args.push('--rotate');
+                            this.addConsoleLine('Rotazione abilitata', 'info');
+                        }
+
+                        if (this.smartCrop) {
+                            args.push('--smart_crop');
+                            this.addConsoleLine('Crop intelligente abilitato', 'info');
+                        }
+
+                        if (this.enableDebug) {
+                            args.push('--debug');
+                            this.addConsoleLine('Debug abilitato', 'info');
+                        }
+                        
+                        if (this.enableFileListener) {
+                            args.push('--enable_file_listener');
+                            this.addConsoleLine('File listener abilitato', 'info');
+                            
+                            // Valida e salva la mappa di rinominazione se fornita
+                            if (this.renameMapText.trim()) {
+                                try {
+                                    const renameMap = JSON.parse(this.renameMapText);
+                                    
+                                    // Salva la mappa in un file temporaneo
+                                    const mapPath = this.outputDir + '/rename_map.json';
+                                    if (window.electronAPI && window.electronAPI.writeFile) {
+                                        await window.electronAPI.writeFile(mapPath, this.renameMapText);
+                                        args.push('--rename_map_file', mapPath);
+                                        this.addConsoleLine(`Mappa di rinominazione: ${JSON.stringify(renameMap)}`, 'info');
+                                    }
+                                } catch (e) {
+                                    this.addConsoleLine('Errore nel parsing della mappa di rinominazione, uso default', 'warning');
+                                }
+                            }
+                        }
+                        
+                        args.push('--verbose');
+
                         const result = await window.electronAPI.runProjectScript(
                             'project2',
                             'main.py',
-                            [this.inputDir, this.outputDir]
+                            args
                         );
+
                         if (result.success) {
                             this.addConsoleLine('Elaborazione completata con successo!', 'success');
                             this.elaborazioneCompletata = true;
@@ -86,6 +191,8 @@ fetch('../projects/project2/renderer/project2.template.html')
                         this.elaborazioneCompletata = false;
                     } finally {
                         this.processing = false;
+                        this.stopProgressPolling();
+                        this.loadProgress();
                     }
                 },
                 async stopProcessing() {

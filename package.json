@@ -1,6 +1,6 @@
 {
   "name": "scripta-image-processing",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Image processing application built with Electron",
   "main": "src/main.js",
   "scripts": {

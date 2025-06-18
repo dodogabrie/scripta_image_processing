@@ -125,7 +125,8 @@ class PythonManager {
     // If using embedded Python on Windows, skip venv creation
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
-      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
+      // Usa lo stesso path di getPythonExecutable()
+      const embedded = path.join(process.resourcesPath, 'python-embed', 'python.exe');
       const fs = require('fs');
       if (fs.existsSync(embedded)) {
         this.status.venvExists = true;

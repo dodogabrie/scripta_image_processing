@@ -29,20 +29,22 @@ class PythonManager {
     console.log('PythonManager: app.getPath("userData"):', app.getPath('userData'));
     // Usa l'interprete embedded se presente (sync check)
     if (isWindows) {
-      // Il Python embedded ora è nella root dell'app grazie a extraFiles
-      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
+      // 1. PRIMA: Cerca l'ambiente embedded nell'installazione dell'app
+      const appDir = path.dirname(process.execPath); // Local/Programs/Scripta.../
+      const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
+      
       try {
         const fs = require('fs');
-        if (fs.existsSync(embedded)) {
-          this.logger.info('Using embedded Python:', embedded);
-          return embedded;
+        if (fs.existsSync(embeddedPath)) {
+          this.logger.info('Using installed embedded Python:', embeddedPath);
+          return embeddedPath;
         }
       } catch (e) {
-        this.logger.warn('Error checking embedded Python:', e.message);
+        this.logger.warn('Error checking installed embedded Python:', e.message);
       }
     }
     
-    // fallback: venv o sistema
+    // 2. FALLBACK: venv in AppData/Roaming (creato se embedded non trovato)
     return isWindows 
       ? path.join(this.venvPath, 'Scripts', 'python.exe')
       : path.join(this.venvPath, 'bin', 'python');
@@ -50,6 +52,21 @@ class PythonManager {
 
   getPipExecutable() {
     const isWindows = os.platform() === 'win32';
+    
+    if (isWindows) {
+      const appDir = path.dirname(process.execPath);
+      const embeddedPip = path.join(appDir, 'python-embed', 'Scripts', 'pip.exe');
+      
+      try {
+        const fs = require('fs');
+        if (fs.existsSync(embeddedPip)) {
+          return embeddedPip;
+        }
+      } catch (e) {
+        this.logger.warn('Error checking embedded pip:', e.message);
+      }
+    }
+    
     return isWindows 
       ? path.join(this.venvPath, 'Scripts', 'pip.exe')
       : path.join(this.venvPath, 'bin', 'pip');

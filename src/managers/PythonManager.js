@@ -21,30 +21,23 @@ class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-    console.log('PythonManager: Determining Python executable path...');
-    console.log('PythonManager: isWindows:', isWindows);
-    console.log('PythonManager: venvPath:', this.venvPath);
-    console.log('PythonManager: app.getAppPath():', app.getAppPath());
-    console.log('PythonManager: app.isPackaged:', app.isPackaged);
-    console.log('PythonManager: app.getPath("userData"):', app.getPath('userData'));
-    // Usa l'interprete embedded se presente (sync check)
+    
     if (isWindows) {
-      // 1. PRIMA: Cerca l'ambiente embedded nell'installazione dell'app
-      const appDir = path.dirname(process.execPath); // Local/Programs/Scripta.../
-      const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
+      // Path corretto: resources/python-embed/
+      const embeddedPath = path.join(process.resourcesPath, 'python-embed', 'python.exe');
       
       try {
         const fs = require('fs');
         if (fs.existsSync(embeddedPath)) {
-          this.logger.info('Using installed embedded Python:', embeddedPath);
+          this.logger.info('Using embedded Python:', embeddedPath);
           return embeddedPath;
         }
       } catch (e) {
-        this.logger.warn('Error checking installed embedded Python:', e.message);
+        this.logger.warn('Error checking embedded Python:', e.message);
       }
     }
     
-    // 2. FALLBACK: venv in AppData/Roaming (creato se embedded non trovato)
+    // Fallback: venv in AppData/Roaming
     return isWindows 
       ? path.join(this.venvPath, 'Scripts', 'python.exe')
       : path.join(this.venvPath, 'bin', 'python');
@@ -54,8 +47,7 @@ class PythonManager {
     const isWindows = os.platform() === 'win32';
     
     if (isWindows) {
-      const appDir = path.dirname(process.execPath);
-      const embeddedPip = path.join(appDir, 'python-embed', 'Scripts', 'pip.exe');
+      const embeddedPip = path.join(process.resourcesPath, 'python-embed', 'Scripts', 'pip.exe');
       
       try {
         const fs = require('fs');
@@ -99,40 +91,32 @@ class PythonManager {
 
   async checkPythonInstallation() {
     return new Promise((resolve, reject) => {
-      const pythonCommand = os.platform() === 'win32' ? 'python.exe' : 'python';
-      if (this.currentProgressCallback) {
-        this.currentProgressCallback({
-          step: 'python-check',
-          message: 'Verifica installazione Python...',
-          logs: `Running: ${pythonCommand} --version`
-        });
-      }
-
-      exec(`${pythonCommand} --version`, (error, stdout, stderr) => {
+      const pythonCmd = this.pythonExecutable;
+      
+      exec(`"${pythonCmd}" --version`, (error, stdout, stderr) => {
         if (error) {
-          this.logger.error('Python non trovato in PATH');
-          if (this.currentProgressCallback) {
-            this.currentProgressCallback({
-              step: 'python-check',
-              message: 'Python check failed',
-              logs: `ERROR: ${error.message}`
-            });
-          }
+          this.logger.error('Python not found:', error.message);
           this.status.pythonInstalled = false;
-          resolve(false); // Resolve with false
-          return;
+          return resolve(false);
         }
         
-        this.status.pythonInstalled = true;
-        this.logger.info(`Python found: ${stdout.trim()}`);
-        if (this.currentProgressCallback) {
-          this.currentProgressCallback({
-            step: 'python-check',
-            message: 'Python installation verified',
-            logs: `Found: ${stdout.trim()}`
-          });
+        const versionMatch = (stdout + stderr).match(/Python (\d+)\.(\d+)/);
+        if (versionMatch) {
+          const major = parseInt(versionMatch[1]);
+          const minor = parseInt(versionMatch[2]);
+          
+          // Accetta Python 3.8+ invece di richiedere specificamente 3.11
+          if (major === 3 && minor >= 8) {
+            this.logger.info(`Python ${major}.${minor} found and compatible`);
+            this.status.pythonInstalled = true;
+            return resolve(true);
+          } else {
+            this.logger.warn(`Python ${major}.${minor} found but requires 3.8+`);
+          }
         }
-        resolve(true); // Resolve with true
+        
+        this.status.pythonInstalled = false;
+        resolve(false);
       });
     });
   }

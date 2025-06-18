@@ -358,27 +358,23 @@ class PythonManager {
 
   async installDependencies() {
     const collectedStderr = [];
-
+    
     let requirementsPath;
     if (app.isPackaged) {
-      // Cerca in app.asar.unpacked
       requirementsPath = path.join(
         process.resourcesPath,
-        'app.asar.unpacked',
+        'app.asar.unpacked', 
         'requirements.txt'
       );
-      // Se non c'è lì, prova anche in src/projects/... se serve
     } else {
       requirementsPath = path.join(app.getAppPath(), 'requirements.txt');
     }
-
-    
+  
     try {
       await fs.access(requirementsPath);
     } catch (error) {
       this.logger.info('No requirements.txt found, skipping dependency installation');
       this.status.dependenciesInstalled = true;
-      collectedStderr.push('No requirements.txt found, skipping dependency installation');
       if (this.currentProgressCallback) {
         this.currentProgressCallback({
           step: 'deps-install',
@@ -388,53 +384,41 @@ class PythonManager {
       }
       return;
     }
-
-    if (this.currentProgressCallback) {
-      this.currentProgressCallback({
-        step: 'deps-install',
-        message: 'Installing Python packages...',
-        logs: `Running: ${this.pipExecutable} install -r requirements.txt`
-      });
-    }
-
+  
     return new Promise((resolve, reject) => {
-      const pipPath = this.pipExecutable; // Use the correct pip path
-      if (this.currentProgressCallback) {
-        this.currentProgressCallback({
-          step: 'deps-install',
-          message: 'Installing Python packages...',
-          logs: `Running: ${pipPath} install -r requirements.txt`
-        });
-      }
-
       const isWindows = os.platform() === 'win32';
       const appDir = path.dirname(process.resourcesPath);
       const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
       
+      let pipProcess; // ← RINOMINA da 'process' a 'pipProcess'
+      
       if (isWindows && require('fs').existsSync(embeddedPython)) {
-        // Usa python -m pip invece di pip.exe
-        const installProcess = spawn(embeddedPython, ['-m', 'pip', 'install', '-r', requirementsPath], {
-          cwd: pythonProjectPath,
+        // Usa python -m pip per embedded
+        pipProcess = spawn(embeddedPython, ['-m', 'pip', 'install', '-r', requirementsPath], {
+          stdio: ['pipe', 'pipe', 'pipe'],
           env: process.env
         });
       } else {
         // Usa pip normale per venv
-        const installProcess = spawn(this.pipExecutable, ['install', '-r', requirementsPath], {
-          cwd: pythonProjectPath,
+        pipProcess = spawn(this.pipExecutable, ['install', '-r', requirementsPath], {
+          stdio: ['pipe', 'pipe', 'pipe'],
           env: process.env
         });
       }
       
-      const process = spawn(pipPath, ['install', '-r', requirementsPath], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+      if (this.currentProgressCallback) {
+        this.currentProgressCallback({
+          step: 'deps-install',
+          message: 'Installing Python packages...',
+          logs: `Running pip install...`
+        });
+      }
       
-      process.stdout.on('data', (data) => {
+      pipProcess.stdout.on('data', (data) => {
         const output = data.toString().trim();
         this.logger.info(`pip stdout: ${output}`);
         
         if (output && this.currentProgressCallback) {
-          // Split multi-line output and send each line
           const lines = output.split('\n').filter(line => line.trim());
           lines.forEach(line => {
             this.currentProgressCallback({
@@ -445,10 +429,10 @@ class PythonManager {
           });
         }
       });
-
-      process.stderr.on('data', (data) => {
+  
+      pipProcess.stderr.on('data', (data) => {
         const output = data.toString().trim();
-        collectedStderr.push(output); 
+        collectedStderr.push(output);
         this.logger.warn(`pip stderr: ${output}`);
         
         if (output && this.currentProgressCallback) {
@@ -462,8 +446,8 @@ class PythonManager {
           });
         }
       });
-
-      process.on('close', (code) => {
+  
+      pipProcess.on('close', (code) => {
         if (code === 0) {
           this.status.dependenciesInstalled = true;
           this.logger.info('Dependencies installed successfully');
@@ -476,7 +460,7 @@ class PythonManager {
           }
           resolve();
         } else {
-          const stderrCombined = collectedStderr.join('\n'); 
+          const stderrCombined = collectedStderr.join('\n');
           const errorMsg = `❌ Failed to install dependencies (exit code ${code})\n\nDetails:\n${stderrCombined}`;
       
           if (this.currentProgressCallback) {
@@ -489,8 +473,8 @@ class PythonManager {
           reject(new Error(errorMsg));
         }
       });
-
-      process.on('error', (error) => {
+  
+      pipProcess.on('error', (error) => {
         const errorMsg = `Failed to install dependencies: ${error.message}`;
         if (this.currentProgressCallback) {
           this.currentProgressCallback({

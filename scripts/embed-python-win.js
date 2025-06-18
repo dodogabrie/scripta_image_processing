@@ -7,7 +7,7 @@ const { spawnSync } = require('child_process');
 const PYTHON_VERSION = '3.11.8';
 const PYTHON_EMBED_URL = `https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-embed-amd64.zip`;
 const PYTHON_EMBED_DIR = path.join(__dirname, '..', 'src', 'python-embed');
-const REQUIREMENTS = path.join(__dirname, '..', 'src', 'projects', 'project1', 'python', 'microperspective-corrector', 'requirements.txt');
+const REQUIREMENTS = path.join(__dirname, '..', 'requirements.txt');
 const GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py';
 const GET_PIP_PATH = path.join(PYTHON_EMBED_DIR, 'get-pip.py');
 

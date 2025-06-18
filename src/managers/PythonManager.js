@@ -23,8 +23,9 @@ class PythonManager {
     const isWindows = os.platform() === 'win32';
     
     if (isWindows) {
-      // Path corretto: resources/python-embed/
-      const embeddedPath = path.join(process.resourcesPath, 'python-embed', 'python.exe');
+      // Path corretto: affianco a resources, non dentro
+      const appDir = path.dirname(process.resourcesPath); // Programs/Scripta.../
+      const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
       
       try {
         const fs = require('fs');
@@ -47,7 +48,8 @@ class PythonManager {
     const isWindows = os.platform() === 'win32';
     
     if (isWindows) {
-      const embeddedPip = path.join(process.resourcesPath, 'python-embed', 'Scripts', 'pip.exe');
+      const appDir = path.dirname(process.resourcesPath);
+      const embeddedPip = path.join(appDir, 'python-embed', 'Scripts', 'pip.exe');
       
       try {
         const fs = require('fs');
@@ -93,11 +95,25 @@ class PythonManager {
     return new Promise((resolve, reject) => {
       const pythonCmd = this.pythonExecutable;
       
+      // Se stiamo usando Python embedded su Windows, salta il check della versione
+      const isWindows = os.platform() === 'win32';
+      if (isWindows) {
+        const appDir = path.dirname(process.resourcesPath);
+        const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
+        const fs = require('fs');
+        if (fs.existsSync(embeddedPath)) {
+          this.logger.info('Using embedded Python, skipping version check');
+          this.status.pythonInstalled = true;
+          return resolve(true);
+        }
+      }
+      
       exec(`"${pythonCmd}" --version`, (error, stdout, stderr) => {
         if (error) {
-          this.logger.error('Python not found:', error.message);
+          const errorMsg = `Python non trovato: ${error.message}`;
+          this.logger.error(errorMsg);
           this.status.pythonInstalled = false;
-          return resolve(false);
+          return reject(new Error(errorMsg)); // Usa reject invece di resolve(false)
         }
         
         const versionMatch = (stdout + stderr).match(/Python (\d+)\.(\d+)/);
@@ -111,12 +127,17 @@ class PythonManager {
             this.status.pythonInstalled = true;
             return resolve(true);
           } else {
-            this.logger.warn(`Python ${major}.${minor} found but requires 3.8+`);
+            const errorMsg = `Python ${major}.${minor} trovato ma richiede Python 3.8+`;
+            this.logger.warn(errorMsg);
+            this.status.pythonInstalled = false;
+            return reject(new Error(errorMsg));
           }
         }
         
+        const errorMsg = 'Versione Python non riconosciuta';
+        this.logger.error(errorMsg);
         this.status.pythonInstalled = false;
-        resolve(false);
+        reject(new Error(errorMsg));
       });
     });
   }
@@ -125,8 +146,8 @@ class PythonManager {
     // If using embedded Python on Windows, skip venv creation
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
-      // Usa lo stesso path di getPythonExecutable()
-      const embedded = path.join(process.resourcesPath, 'python-embed', 'python.exe');
+      const appDir = path.dirname(process.resourcesPath);
+      const embedded = path.join(appDir, 'python-embed', 'python.exe');
       const fs = require('fs');
       if (fs.existsSync(embedded)) {
         this.status.venvExists = true;

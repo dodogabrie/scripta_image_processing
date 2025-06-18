@@ -59,12 +59,26 @@ class App {
           }
 
           // Check if Python is installed
-          const pythonInstalled = await this.pythonManager.checkPythonInstallation();
-          if (!pythonInstalled) {
+          try {
+            const pythonInstalled = await this.pythonManager.checkPythonInstallation();
+            if (!pythonInstalled) {
+              // Ottieni il path dove sta cercando Python
+              const pythonPath = this.pythonManager.getPythonExecutable();
+              this.loadingWindow.webContents.send('setup-progress', {
+                step: 'error',
+                message: 'Python non trovato',
+                error: `Python non trovato nel path: ${pythonPath}. Controllare se il file esiste in questa posizione.`,
+                percentage: 0
+              });
+              return;
+            }
+          } catch (error) {
+            // Ottieni il path dove sta cercando Python
+            const pythonPath = this.pythonManager.getPythonExecutable();
             this.loadingWindow.webContents.send('setup-progress', {
               step: 'error',
-              message: 'Python non trovato',
-              error: 'Python non è installato o non è nel PATH. Installare Python 3.11 e riavviare l\'applicazione.',
+              message: 'Errore Python',
+              error: `${error.message} - Path cercato: ${pythonPath}`,
               percentage: 0
             });
             return;

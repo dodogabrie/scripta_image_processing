@@ -49,15 +49,17 @@ class PythonManager {
     
     if (isWindows) {
       const appDir = path.dirname(process.resourcesPath);
-      const embeddedPip = path.join(appDir, 'python-embed', 'Scripts', 'pip.exe');
+      const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
       
       try {
         const fs = require('fs');
-        if (fs.existsSync(embeddedPip)) {
-          return embeddedPip;
+        if (fs.existsSync(embeddedPython)) {
+          // Usa "python -m pip" invece di pip.exe diretto
+          this.logger.info('Using embedded Python pip module');
+          return embeddedPython; // Ritorna python.exe, userai -m pip
         }
       } catch (e) {
-        this.logger.warn('Error checking embedded pip:', e.message);
+        this.logger.warn('Error checking embedded Python:', e.message);
       }
     }
     
@@ -376,6 +378,7 @@ class PythonManager {
     } catch (error) {
       this.logger.info('No requirements.txt found, skipping dependency installation');
       this.status.dependenciesInstalled = true;
+      collectedStderr.push('No requirements.txt found, skipping dependency installation');
       if (this.currentProgressCallback) {
         this.currentProgressCallback({
           step: 'deps-install',
@@ -404,6 +407,24 @@ class PythonManager {
         });
       }
 
+      const isWindows = os.platform() === 'win32';
+      const appDir = path.dirname(process.resourcesPath);
+      const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
+      
+      if (isWindows && require('fs').existsSync(embeddedPython)) {
+        // Usa python -m pip invece di pip.exe
+        const installProcess = spawn(embeddedPython, ['-m', 'pip', 'install', '-r', requirementsPath], {
+          cwd: pythonProjectPath,
+          env: process.env
+        });
+      } else {
+        // Usa pip normale per venv
+        const installProcess = spawn(this.pipExecutable, ['install', '-r', requirementsPath], {
+          cwd: pythonProjectPath,
+          env: process.env
+        });
+      }
+      
       const process = spawn(pipPath, ['install', '-r', requirementsPath], {
         stdio: ['pipe', 'pipe', 'pipe']
       });

@@ -10,6 +10,8 @@ from pathlib import Path
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
 from src.image_io import load_image, save_image_preserve_format, generate_output_paths
 from src.fold_detection import auto_detect_side

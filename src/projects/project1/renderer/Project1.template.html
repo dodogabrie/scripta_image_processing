@@ -54,6 +54,15 @@
                                     <option value="tiff">TIF</option>
                                 </select>
                             </div>
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="useLzwCompression" v-model="useLzwCompression">
+                                    <label class="form-check-label" for="useLzwCompression">
+                                        Usa compressione LZW per file TIFF
+                                    </label>
+                                    <div class="form-text">La compressione LZW riduce la dimensione dei file TIFF senza perdita di qualità</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

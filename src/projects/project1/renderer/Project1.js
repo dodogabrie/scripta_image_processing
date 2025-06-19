@@ -12,6 +12,7 @@ fetch('../projects/project1/renderer/Project1.template.html')
                     outputDir: null,
                     borderPixels: '',
                     imageFormat: 'tiff',
+                    useLzwCompression: true, // Default to true
                     consoleLines: [],
                     elaborazioneCompletata: false,
                     thumbs: [],
@@ -158,6 +159,13 @@ fetch('../projects/project1/renderer/Project1.template.html')
                         if (this.imageFormat) {
                             args.push("--image-input-format", this.imageFormat);
                             this.addConsoleLine(`Formato immagini: ${this.imageFormat.toUpperCase()}`, 'info');
+                        }
+                        // Add LZW compression parameter
+                        if (!this.useLzwCompression) {
+                            args.push("--no-compression");
+                            this.addConsoleLine(`Compressione LZW disabilitata`, 'info');
+                        } else {
+                            this.addConsoleLine(`Compressione LZW abilitata per file TIFF`, 'info');
                         }
                         const result = await window.electronAPI.runProjectScript(
                             'project1',

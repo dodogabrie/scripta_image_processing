@@ -53,7 +53,7 @@ def get_file_size_gb(file_path):
     return os.path.getsize(file_path) / (1024**3)
 
 
-def process_single_image(input_path, output_dir, side=None, output_format=None, 
+def process_single_image(input_path, output_dir, input_base_dir, side=None, output_format=None, 
                         apply_rotation=False, smart_crop=False, debug=False):
     """
     Processa una singola immagine usando la funzionalità di crop.py
@@ -61,6 +61,7 @@ def process_single_image(input_path, output_dir, side=None, output_format=None,
     Args:
         input_path (str): Percorso dell'immagine di input
         output_dir (str): Directory di output
+        input_base_dir (str): Directory base di input per preservare la struttura
         side (str): Lato della piega ('left', 'right', 'center', None per auto-detect)
         output_format (str): Formato di output ('jpg', 'png', 'tiff', None per mantenere originale)
         apply_rotation (bool): Se applicare la rotazione
@@ -74,23 +75,17 @@ def process_single_image(input_path, output_dir, side=None, output_format=None,
         # Carica l'immagine
         img = load_image(input_path)
         
-        # Calcola il percorso relativo per mantenere la struttura delle cartelle
-        rel_path = os.path.relpath(input_path, os.path.dirname(input_path))
-        
-        # Genera i percorsi di output
+        # Genera i percorsi di output preservando la struttura delle cartelle
         if output_format:
             # Cambia l'estensione se specificato un formato
-            base_name = os.path.splitext(rel_path)[0]
-            output_file = os.path.join(output_dir, base_name + f".{output_format}")
+            input_base, _ = os.path.splitext(input_path)
+            modified_output = output_dir
         else:
-            output_file = os.path.join(output_dir, rel_path)
+            modified_output = output_dir
         
-        # Assicurati che la directory di output esista
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        
-        # Genera i percorsi per left e right
+        # Usa generate_output_paths con input_base_dir per preservare la struttura
         path_left, path_right, base_path = generate_output_paths(
-            input_path, output_file
+            input_path, modified_output, input_base_dir
         )
         
         # Se è specificato un formato, aggiorna le estensioni
@@ -269,7 +264,7 @@ def main(input_dir, output_dir, side=None, output_format=None, image_input_forma
             print(f"[{i+1}/{total_files}] Processing: {rel_path}")
         
         success, message, debug_info = process_single_image(
-            input_path, output_dir, side, output_format,
+            input_path, output_dir, input_dir, side, output_format,
             apply_rotation, smart_crop, debug
         )
         

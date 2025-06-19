@@ -291,6 +291,14 @@ app.whenReady().then(() => {
   appInstance.initialize();
 });
 
+// Kill any active Python process before the app quits
+app.on('before-quit', () => {
+  if (appInstance.pythonManager) {
+    appInstance.pythonManager.killActiveProcess();
+  }
+});
+
+// existing window-all-closed and activate handlers
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();

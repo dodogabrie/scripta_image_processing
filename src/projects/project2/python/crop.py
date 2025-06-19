@@ -40,6 +40,8 @@ def main():
                    help="Apply rotation to straighten the fold. Default is False.")
     p.add_argument("--smart_crop", action='store_true', default=False,
                    help="Use document edge detection for intelligent cropping. Default is False.")
+    p.add_argument("--input_base_dir", default=None,
+                   help="Base directory for preserving folder structure in batch processing.")
     args = p.parse_args()
 
     # Load image without quality loss
@@ -55,14 +57,14 @@ def main():
             modified_out = output_base + f".{args.output_format}"
         else:
             modified_out = args.out
-        path_left, path_right, base_path = generate_output_paths(args.input, modified_out)
+        path_left, path_right, base_path = generate_output_paths(args.input, modified_out, args.input_base_dir)
         # Ensure the extensions match the output format
         base_left, _ = os.path.splitext(path_left)
         base_right, _ = os.path.splitext(path_right)
         path_left = base_left + f".{args.output_format}"
         path_right = base_right + f".{args.output_format}"
     else:
-        path_left, path_right, base_path = generate_output_paths(args.input, args.out)
+        path_left, path_right, base_path = generate_output_paths(args.input, args.out, args.input_base_dir)
 
     debug_dir = None
     if args.debug:

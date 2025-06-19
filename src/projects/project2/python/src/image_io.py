@@ -65,9 +65,9 @@ def save_image_preserve_format(img, out_path):
         print(f"Error: Failed to create output file {out_path}")
 
 
-def generate_output_paths(input_path, output_path=None):
+def generate_output_paths(input_path, output_path=None, input_base_dir=None):
     """
-    Genera i percorsi di output per le immagini sinistra e destra.
+    Genera i percorsi di output per le immagini sinistra e destra preservando la struttura delle cartelle.
     Ritorna: (path_left, path_right, base_path_for_debug)
     """
     input_base, input_ext = os.path.splitext(input_path)
@@ -78,8 +78,38 @@ def generate_output_paths(input_path, output_path=None):
         output_base = input_base
         output_ext = input_ext
     elif os.path.isdir(output_path):
-        # Output is a directory, use input filename in that directory
-        output_base = os.path.join(output_path, input_filename)
+        # Output is a directory, preserve folder structure
+        if input_base_dir:
+            # Calculate relative path from input_base_dir
+            try:
+                # Normalize paths to handle different path separators
+                input_path_norm = os.path.normpath(os.path.abspath(input_path))
+                input_base_dir_norm = os.path.normpath(os.path.abspath(input_base_dir))
+                
+                # Get relative path from base directory
+                rel_path = os.path.relpath(input_path_norm, input_base_dir_norm)
+                
+                # Ensure we don't go outside the base directory
+                if rel_path.startswith('..'):
+                    # File is not under input_base_dir, use filename only
+                    output_base = os.path.join(output_path, input_filename)
+                else:
+                    # Preserve the directory structure
+                    rel_base = os.path.splitext(rel_path)[0]
+                    output_base = os.path.join(output_path, rel_base)
+                
+                # Ensure output directory exists
+                output_dir = os.path.dirname(output_base)
+                if output_dir:  # Only create if there's actually a directory part
+                    os.makedirs(output_dir, exist_ok=True)
+                    
+            except (ValueError, OSError) as e:
+                # Fallback: input_path is not relative to input_base_dir or other error
+                print(f"Warning: Could not preserve folder structure for {input_path}: {e}")
+                output_base = os.path.join(output_path, input_filename)
+        else:
+            # No base directory provided, use filename only
+            output_base = os.path.join(output_path, input_filename)
         output_ext = input_ext
     else:
         # Output is a file path
@@ -87,6 +117,10 @@ def generate_output_paths(input_path, output_path=None):
         if not output_ext:
             # No extension in output, use input extension
             output_ext = input_ext
+        # Ensure output directory exists
+        output_dir = os.path.dirname(output_base)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
     
     path_left = output_base + "_left" + output_ext
     path_right = output_base + "_right" + output_ext

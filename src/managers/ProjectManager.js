@@ -1,10 +1,12 @@
-const fs = require('fs').promises;
-const { app } = require('electron');
-const path = require('path');
-const Logger = require('../utils/Logger');
+import fs from 'fs/promises';
+import { app } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Logger from '../utils/Logger.js';
 
-class ProjectManager {
+export default class ProjectManager {
   constructor() {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
     this.logger = new Logger();
     this.projectsPath = path.join(__dirname, '..', 'projects');
     this.projects = new Map();
@@ -86,4 +88,3 @@ class ProjectManager {
   }
 }
 
-module.exports = ProjectManager;

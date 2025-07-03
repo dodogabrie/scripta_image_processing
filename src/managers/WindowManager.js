@@ -1,7 +1,11 @@
-const { BrowserWindow } = require('electron');
-const path = require('path');
+import { BrowserWindow } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-class WindowManager {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default class WindowManager {
+
   constructor() {
     this.mainWindow = null;
     this.loadingWindow = null;
@@ -19,7 +23,13 @@ class WindowManager {
       }
     });
 
-    this.mainWindow.loadFile(path.join(__dirname, '../renderer/main.html'));
+    const isDev = process.env.NODE_ENV === 'development';
+    const rendererPath = isDev ? 'http://localhost:5173' : path.join(__dirname, '../renderer/index.html');
+    if (isDev) {
+      this.mainWindow.loadURL(rendererPath);
+    } else {
+      this.mainWindow.loadFile(rendererPath);
+    }
 
     this.mainWindow.once('ready-to-show', () => {
       if (this.loadingWindow) {
@@ -108,4 +118,3 @@ class WindowManager {
   }
 }
 
-module.exports = WindowManager;

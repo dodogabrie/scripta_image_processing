@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const { app } = require('electron');
+import fs from 'fs';
+import path from 'path';
+import { app } from 'electron';
 
 class Logger {
   constructor() {
@@ -75,4 +75,4 @@ class Logger {
   }
 }
 
-module.exports = Logger;
+export default Logger;

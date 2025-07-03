@@ -1,0 +1,99 @@
+<div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col-12 mb-4">
+        <h1>Schema Builder</h1>
+        <p class="text-muted">Crea il JSON di configurazione delle risorse</p>
+      </div>
+    </div>
+
+    <!-- Toast Messages -->
+    <toast-message :message="toastMessage" @clear="clearToast"></toast-message>
+
+    <div class="row">
+      <!-- Resources -->
+      <div class="col-lg-12 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Resources</h5>
+            <div class="input-group input-group-sm">
+              <input v-model="newResourceName" placeholder="Nome della risorsa" class="form-control">
+              <button @click="addResource(newResourceName)" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus"></i> Aggiungi Resource
+              </button>
+            </div>
+          </div>
+          <div class="card-body" v-if="resources.length">
+            <div v-for="(resource, rIdx) in resources" :key="rIdx" class="mb-3 border p-2 rounded">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>{{ resource.name }}</span>
+                <div class="d-flex">
+                  <button @click="removeResource(rIdx)" class="btn btn-sm btn-danger me-2">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <div class="input-group input-group-sm">
+                    <input v-model="resource.newChildName" placeholder="Nome del figlio" class="form-control">
+                    <button @click="addChildResource(rIdx, resource.newChildName)" class="btn btn-sm btn-secondary">
+                      <i class="bi bi-diagram-3"></i> Aggiungi Figlio
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- Fields -->
+              <div>
+                <small class="text-muted">Fields</small>
+                <div v-for="(field, fIdx) in resource.fields" :key="fIdx" class="d-flex mb-1">
+                  <span>{{ field.name }} ({{ field.type }})</span>
+                  <button @click="removeResourceField(rIdx, fIdx)" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+                <div class="input-group input-group-sm mt-1">
+                  <input v-model="newFieldName" placeholder="Nome del campo" class="form-control">
+                  <input v-model="newFieldType" placeholder="Tipo del campo" class="form-control">
+                  <button @click="addResourceField(rIdx, newFieldName, newFieldType)" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus"></i> Aggiungi Field
+                  </button>
+                </div>
+              </div>
+              <!-- Child Resources -->
+              <div v-if="resource.children && resource.children.length" class="mt-3">
+                <small class="text-muted">Child Resources</small>
+                <div v-for="(child, cIdx) in resource.children" :key="cIdx" class="border p-2 rounded mb-2">
+                  <span>{{ child.name }}</span>
+                  <div>
+                    <small class="text-muted">Fields</small>
+                    <div v-for="(field, fIdx) in child.fields" :key="fIdx" class="d-flex mb-1">
+                      <span>{{ field.name }} ({{ field.type }})</span>
+                      <button @click="removeResourceField(cIdx, fIdx)" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                    <div class="input-group input-group-sm mt-1">
+                      <input v-model="newFieldName" placeholder="Nome del campo" class="form-control">
+                      <input v-model="newFieldType" placeholder="Tipo del campo" class="form-control">
+                      <button @click="addResourceField(cIdx, newFieldName, newFieldType)" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus"></i> Aggiungi Field
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-muted text-center py-3">
+            Nessuna resource aggiunta.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-12 text-end">
+        <button @click="exportSchema" class="btn btn-success">
+          <i class="bi bi-download"></i> Esporta JSON
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

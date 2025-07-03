@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev",
+    "dev": "vite & electron . --dev",
     "prebuild": "node scripts/download-libvips-win.js",
     "build": "electron-builder",
     "install-deps": "npm install",
@@ -17,7 +17,10 @@
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
-    "unzipper": "^0.12.3"
+    "@vitejs/plugin-vue": "^6.0.0",
+    "unzipper": "^0.12.3",
+    "vite": "^7.0.1",
+    "vue": "^3.5.17"
   },
   "author": "Edoardo",
   "license": "MIT",
@@ -53,5 +56,6 @@
       "allowToChangeInstallationDirectory": true
     }
   },
-  "publish": "never"
+  "publish": "never",
+  "type": "module"
 }

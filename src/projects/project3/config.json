@@ -1,0 +1,15 @@
+{
+  "name": "Digiscripta Builder",
+  "description": "Crea nuova configurazione per software Digiscripta",
+  "icon": "renderer/assets/icon.svg",
+  "version": "1.0.0",
+  "main": "renderer/main.html",
+  "renderer_script": "renderer/project3.js",
+  "python_scripts": [
+    "python/main.py"
+  ],
+  "requirements": [
+    "opencv-python==4.10.0.84",
+    "numpy==2.2.1"
+  ]
+}

@@ -1,11 +1,11 @@
-const { spawn, exec } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
-const Logger = require('../utils/Logger');
-const { app } = require('electron');
+import { spawn, exec } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+import Logger from '../utils/Logger.js';
+import { app } from 'electron';
 
-class PythonManager {
+export default class PythonManager {
   constructor() {
     this.logger = new Logger();
     this.venvPath = path.join(app.getPath('userData'), 'python_env');
@@ -586,5 +586,3 @@ class PythonManager {
     }
   }
 }
-
-module.exports = PythonManager;

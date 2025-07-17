@@ -3,8 +3,7 @@
   "description": "Ritaglia un doppio foglio A4 sulla piega e aggiorna l'ordine delle pagine generate dal ritaglio",
   "icon": "renderer/assets/icon.svg",
   "version": "1.0.0",
-  "main": "renderer/main.html",
-  "renderer_script": "renderer/project2.js",
+  "main": "renderer/Project2Component.vue",
   "python_scripts": [
     "python/main.py"
   ],

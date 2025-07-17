@@ -26,7 +26,7 @@ def main(input_dir, output_dir):
     print("Processing complete!")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Crea nuova configurazione per software Digiscripta")
+    parser = argparse.ArgumentParser(description="Crea campi di progetto compatibili  il software Digiscripta")
     parser.add_argument("input_dir", type=str, help="Input directory")
     parser.add_argument("output_dir", type=str, help="Output directory")
     

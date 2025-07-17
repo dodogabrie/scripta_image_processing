@@ -48,7 +48,7 @@
             <div class="card-body d-flex flex-column">
               <div class="text-center mb-3">
                 <template v-if="project.config.icon">
-                  <img :src="`../projects/${project.id}/${project.config.icon}`"
+                  <img :src="project.iconDataUrl"
                        alt="Icona progetto"
                        style="max-width:48px;max-height:48px;" />
                 </template>
@@ -113,6 +113,8 @@
 </template>
 
 <script>
+import { markRaw } from 'vue';
+const projectComponents = import.meta.glob('../projects/**/renderer/*.vue');
 export default {
   name: 'App',
   data() {
@@ -131,11 +133,34 @@ export default {
       this.currentProject = null;
       this.currentProjectComponent = null;
     },
-    openProject(projectId) {
+    async openProject(projectId) {
+      const project = this.projects.find(p => p.id === projectId);
+      if (!project) return;
+      const componentPath = `../projects/${projectId}/${project.config.main}`;
+      const loader = projectComponents[componentPath];
+      if (!loader) {
+        console.error('Componente non trovato:', componentPath);
+        return;
+      }
+
+      const component = (await loader()).default;
       this.currentProject = projectId;
-      this.currentProjectComponent = 'ProjectComponent'; // Replace with actual component logic
-    },
+      this.currentProjectComponent = markRaw(component);
+    }
+
   },
+  mounted() {
+    window.electronAPI.getProjects().then(async projects => {
+      for (const project of projects) {
+        const dataUrl = await window.electronAPI.getProjectIconData(project.id);
+        project.iconDataUrl = dataUrl;
+      }
+      this.projects = projects;
+      this.projectsLoaded = true;
+      this.appStatus.isReady = true;
+    });
+  }
+
 };
 </script>
 

@@ -19,12 +19,13 @@ export default class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '../preload/main-preload.js')
+        preload: path.join(__dirname, '../preload/main-preload.cjs')
       }
     });
 
     const isDev = process.env.NODE_ENV === 'development';
     const rendererPath = isDev ? 'http://localhost:5173' : path.join(__dirname, '../renderer/index.html');
+    console.log(isDev ? 'Loading renderer in development mode' : 'Loading renderer in production mode');
     if (isDev) {
       this.mainWindow.loadURL(rendererPath);
     } else {
@@ -37,12 +38,10 @@ export default class WindowManager {
         this.loadingWindow = null;
       }
       this.mainWindow.show();
+      if (isDev) {
+        this.mainWindow.webContents.openDevTools({ mode: 'bottom' }); 
+      }
     });
-
-    if (process.argv.includes('--dev')) {
-      this.mainWindow.webContents.openDevTools();
-    }
-
     return this.mainWindow;
   }
 
@@ -61,12 +60,10 @@ export default class WindowManager {
     });
 
     this.loadingWindow.loadFile(path.join(__dirname, '../renderer/loading.html'));
-    
     // Wait for DOM to be ready before allowing messages
     this.loadingWindow.webContents.once('dom-ready', () => {
       console.log('Loading window DOM ready');
     });
-
     return this.loadingWindow;
   }
 
@@ -90,7 +87,6 @@ export default class WindowManager {
     });
 
     errorWindow.loadFile(path.join(__dirname, '../renderer/error.html'));
-    
     errorWindow.webContents.once('dom-ready', () => {
       errorWindow.webContents.send('error-message', errorMessage);
     });
@@ -109,11 +105,9 @@ export default class WindowManager {
     });
 
     projectWindow.loadFile(projectHtmlPath);
-    
     projectWindow.webContents.once('dom-ready', () => {
       console.log('Project window DOM ready');
     });
-
     return projectWindow;
   }
 }

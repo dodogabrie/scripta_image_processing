@@ -1,10 +1,9 @@
 {
   "name": "Digiscripta Builder",
-  "description": "Crea nuova configurazione per software Digiscripta",
+  "description": "Crea campi di progetto compatibili  il software Digiscripta",
   "icon": "renderer/assets/icon.svg",
   "version": "1.0.0",
-  "main": "renderer/main.html",
-  "renderer_script": "renderer/project3.js",
+  "main": "renderer/ProjectProject3Component.vue",
   "python_scripts": [
     "python/main.py"
   ],

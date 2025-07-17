@@ -6,6 +6,7 @@ export async function initializeApp(managers) {
   let loadingWindow = null;
 
   try {
+    logger.info('Mostra la finestra di caricamento');
     // Mostra la finestra di caricamento
     loadingWindow = windowManager.createLoadingWindow();
     logger.info('Avvio dello starter di configurazione...');
@@ -13,9 +14,11 @@ export async function initializeApp(managers) {
     // Aspetta che il DOM sia pronto
     loadingWindow.webContents.once('dom-ready', async () => {
       try {
+        logger.info('DOM pronto, controllo connessione Internet');
         // Controlla la connessione Internet
         const online = await isOnline();
         if (!online) {
+          logger.warn('Nessuna connessione Internet');
           loadingWindow.webContents.send('setup-progress', {
             step: 'error',
             message: 'Nessuna connessione Internet',
@@ -25,10 +28,12 @@ export async function initializeApp(managers) {
           return;
         }
 
+        logger.info('Connessione Internet OK, controllo Python');
         // Controlla se Python è installato
         const pythonInstalled = await pythonManager.checkPythonInstallation();
         if (!pythonInstalled) {
           const pythonPath = pythonManager.getPythonExecutable();
+          logger.error('Python non trovato', new Error(`Python non trovato nel path: ${pythonPath}`));
           loadingWindow.webContents.send('setup-progress', {
             step: 'error',
             message: 'Python non trovato',
@@ -38,8 +43,10 @@ export async function initializeApp(managers) {
           return;
         }
 
+        logger.info('Python trovato, inizializzo ambiente Python');
         // Configura l'ambiente Python con aggiornamenti di progresso
         await pythonManager.initialize((progress) => {
+          logger.info(`Progresso setup: ${progress.step} - ${progress.message}`);
           if (loadingWindow && !loadingWindow.isDestroyed()) {
             loadingWindow.webContents.send('setup-progress', progress);
           }
@@ -49,17 +56,21 @@ export async function initializeApp(managers) {
 
         // Chiudi la finestra di caricamento e crea la finestra principale
         setTimeout(() => {
+          logger.info('Chiudo loading window e apro main window');
           windowManager.closeLoadingWindow();
           const mainWindow = windowManager.createMainWindow();
           if (mainWindow) {
             mainWindow.show();
+            logger.info('Main window mostrata');
           }
         }, 1000);
       } catch (error) {
+        logger.error('Errore durante l\'inizializzazione', error);
         handleInitializationError(error, loadingWindow, logger, windowManager);
       }
     });
   } catch (error) {
+    logger.error('Errore globale in initializeApp', error);
     handleInitializationError(error, loadingWindow, logger, windowManager);
   }
 }

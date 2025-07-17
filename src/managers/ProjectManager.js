@@ -15,7 +15,6 @@ export default class ProjectManager {
   async loadProjects() {
     try {
       console.log('ProjectManager: Caricamento progetti da:', this.projectsPath);
-      
       const projectDirs = await fs.readdir(this.projectsPath);
       console.log('ProjectManager: Cartelle trovate:', projectDirs);
       
@@ -29,10 +28,16 @@ export default class ProjectManager {
           const configData = await fs.readFile(configPath, 'utf8');
           const config = JSON.parse(configData);
           
+          // Aggiunta iconUrl se esiste
+          const iconUrl = config.icon
+            ? `file://${path.join(projectPath, config.icon)}`
+            : null;
+          
           this.projects.set(projectDir, {
             id: projectDir,
             path: projectPath,
-            config: config
+            config: config,
+            iconUrl,
           });
           
           console.log('ProjectManager: Caricato progetto:', config.name);
@@ -70,21 +75,20 @@ export default class ProjectManager {
     if (!project) return null;
     let scriptPath;
     if (app.isPackaged) {
-        // In production: scripts are in the asar.unpacked directory
-        scriptPath = path.join(
-            process.resourcesPath,
-            'app.asar.unpacked',
-            'src',
-            'projects',
-            projectId,
-            'python',
-            scriptName
-        );
+      // In production: scripts are in the asar.unpacked directory
+      scriptPath = path.join(
+          process.resourcesPath,
+          'app.asar.unpacked',
+          'src',
+          'projects',
+          projectId,
+          'python',
+          scriptName
+      );
     } else {
-        // In development: use normal path
-        scriptPath = path.join(project.path, 'python', scriptName);
+      // In development: use normal path
+      scriptPath = path.join(project.path, 'python', scriptName);
     } 
     return scriptPath;
   }
 }
-

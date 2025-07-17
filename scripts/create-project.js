@@ -1,5 +1,10 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function createProject(projectName, projectDisplayName, projectDescription) {
     const projectsDir = path.join(__dirname, '..', 'src', 'projects');
@@ -30,8 +35,7 @@ function createProject(projectName, projectDisplayName, projectDescription) {
         "description": projectDescription,
         "icon": "renderer/assets/icon.svg",
         "version": "1.0.0",
-        "main": "renderer/main.html",
-        "renderer_script": `renderer/${projectName}.js`,
+        "main": `renderer/Project${projectName.charAt(0).toUpperCase() + projectName.slice(1)}Component.vue`,
         "python_scripts": [
             "python/main.py"
         ],
@@ -47,267 +51,60 @@ function createProject(projectName, projectDisplayName, projectDescription) {
         'utf-8'
     );
     
-    // Create main.html
-    const mainHtml = `<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${projectDisplayName}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-</head>
-<body>
-    <div id="app"></div>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${projectName}.js"></script>
+    const componentName = `Project${projectName.charAt(0).toUpperCase() + projectName.slice(1)}Component.vue`;
+    const vueComponent = `<template>
+      <div class="container py-4">
+        <h1>${projectDisplayName}</h1>
+        <p class="text-muted">${projectDescription}</p>
+
+        <!-- UI logica qui -->
+        <button @click="selectInputDir" class="btn btn-primary mb-2">Input</button>
+        <button @click="selectOutputDir" class="btn btn-secondary mb-2">Output</button>
+
+        <div v-if="processing" class="text-muted">Elaborazione...</div>
+        <div v-if="elaborazioneCompletata" class="alert alert-success">Completato!</div>
+      </div>
+    </template>
+
     <script>
-        const { createApp } = Vue;
-        createApp(window.${projectName}).mount('#app');
-    </script>
-</body>
-</html>`;
-    
-    fs.writeFileSync(
-        path.join(projectDir, 'renderer', 'main.html'),
-        mainHtml,
-        'utf-8'
-    );
-    
-    // Create template.html
-    const templateHtml = `<!-- filepath: /home/edoardo/Work/Projects/scripta_image_processing/src/projects/${projectName}/renderer/${projectName}.template.html -->
-<div>
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h1>${projectDisplayName}</h1>
-                        <p class="text-muted">${projectDescription}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Input Section -->
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Configurazione Input</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <button @click="selectInputDir" class="btn btn-primary w-100 mb-2">
-                                <i class="bi bi-folder2-open"></i> Scegli cartella di input
-                            </button>
-                            <div v-if="inputDir" class="alert alert-info py-2 px-3 mb-2">
-                                <strong>Input:</strong>
-                                <div class="small text-break">{{ inputDir }}</div>
-                            </div>
-                            <button @click="selectOutputDir" class="btn btn-secondary w-100 mb-2">
-                                <i class="bi bi-folder2-open"></i> Scegli cartella di output
-                            </button>
-                            <div v-if="outputDir" class="alert alert-info py-2 px-3">
-                                <strong>Output:</strong>
-                                <div class="small text-break">{{ outputDir }}</div>
-                            </div>
-                            <div v-if="!inputDir" class="text-muted mt-2">
-                                Nessuna cartella di input selezionata.
-                            </div>
-                            <div v-if="!outputDir" class="text-muted">
-                                Nessuna cartella di output selezionata.
-                            </div>
-                        </div>
-                        <!-- Add your custom parameters here -->
-                        <div class="mt-3">
-                            <label class="form-label">Parametri aggiuntivi:</label>
-                            <p class="text-muted small">Aggiungi qui i controlli specifici per questo progetto</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Output Section -->
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Risultato</h5>
-                    </div>
-                    <div class="card-body position-relative">
-                        <div v-if="!processing && !elaborazioneCompletata" class="text-center text-muted py-5">
-                            <i class="bi bi-image fs-1"></i>
-                            <h5 class="mt-3">I risultati appariranno qui</h5>
-                            <p>Seleziona le cartelle e clicca "Elabora" per processare</p>
-                        </div>
-                        
-                        <!-- Progress bar during processing -->
-                        <div v-else-if="processing" class="text-center py-5">
-                            <div class="spinner-border text-primary mb-3" role="status">
-                                <span class="visually-hidden">Elaborazione...</span>
-                            </div>
-                            <h5 class="text-muted">Elaborazione in corso...</h5>
-                            <p class="text-muted">Attendere...</p>
-                        </div>
-                        
-                        <div v-else-if="elaborazioneCompletata" class="alert alert-success py-2 px-3">
-                            <strong>Elaborazione completata!</strong><br>
-                            <span>Risultati salvati in:</span>
-                            <div class="small text-break">{{ outputDir }}</div>
-                        </div>
-                    </div>
-                    <div class="card-footer" v-if="inputDir && outputDir">
-                        <button @click="processData"
-                                :disabled="processing || !inputDir || !outputDir"
-                                class="btn btn-primary w-100">
-                            <span v-if="processing" class="spinner-border spinner-border-sm me-2"></span>
-                            <i v-else class="bi bi-gear"></i>
-                            {{ processing ? 'Elaborazione...' : 'Elabora' }}
-                        </button>
-                        <button class="btn btn-outline-danger w-100 mt-2" @click="stopProcessing" :disabled="!processing">
-                            <i class="bi bi-stop-circle"></i> Stop
-                        </button>
-                    </div>
-                    <!-- Console output -->
-                    <div class="mt-3">
-                        <h6 class="text-muted mb-1"><i class="bi bi-terminal"></i> Console</h6>
-                        <div style="background:#222;color:#eee;padding:10px;border-radius:6px;min-height:80px;max-height:180px;overflow:auto;font-size:13px;font-family:monospace;"
-                             id="console-output">
-                            <div v-for="(line, idx) in consoleLines" :key="idx" :style="{color: line.type==='error' ? '#ff6b6b' : (line.type==='success' ? '#51cf66' : '#eee')}">
-                                {{ line.text }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>`;
-    
-    fs.writeFileSync(
-        path.join(projectDir, 'renderer', `${projectName}.template.html`),
-        templateHtml,
-        'utf-8'
-    );
-    
-    // Create JS file
-    const jsFile = `// filepath: /home/edoardo/Work/Projects/scripta_image_processing/src/projects/${projectName}/renderer/${projectName}.js
-// Carica il template da file esterno via fetch
-fetch('../projects/${projectName}/renderer/${projectName}.template.html')
-    .then(response => response.text())
-    .then(template => {
-        window.${projectName} = {
-            name: '${projectName}',
-            template,
-            data() {
-                return {
-                    processing: false,
-                    inputDir: null,
-                    outputDir: null,
-                    consoleLines: [],
-                    elaborazioneCompletata: false,
-                    // Add your data properties here
-                };
-            },
-            methods: {
-                addConsoleLine(text, type = 'normal') {
-                    this.consoleLines.push({ text, type });
-                    if (this.consoleLines.length > 100) this.consoleLines.shift();
-                    this.$nextTick(() => {
-                        const el = document.getElementById('console-output');
-                        if (el) el.scrollTop = el.scrollHeight;
-                    });
-                },
-                async selectInputDir() {
-                    this.addConsoleLine('Selezione cartella di input...', 'info');
-                    if (!window.electronAPI || !window.electronAPI.selectDirectory) {
-                        this.addConsoleLine('electronAPI.selectDirectory non disponibile', 'error');
-                        return;
-                    }
-                    const dir = await window.electronAPI.selectDirectory();
-                    if (dir) {
-                        this.inputDir = dir;
-                        this.elaborazioneCompletata = false;
-                        this.addConsoleLine('Cartella input selezionata: ' + dir, 'success');
-                    } else {
-                        this.addConsoleLine('Selezione cartella input annullata.', 'warning');
-                    }
-                },
-                async selectOutputDir() {
-                    this.addConsoleLine('Selezione cartella di output...', 'info');
-                    if (!window.electronAPI || !window.electronAPI.selectDirectory) {
-                        this.addConsoleLine('electronAPI.selectDirectory non disponibile', 'error');
-                        return;
-                    }
-                    const dir = await window.electronAPI.selectDirectory();
-                    if (dir) {
-                        this.outputDir = dir;
-                        this.elaborazioneCompletata = false;
-                        this.addConsoleLine('Cartella output selezionata: ' + dir, 'success');
-                    } else {
-                        this.addConsoleLine('Selezione cartella output annullata.', 'warning');
-                    }
-                },
-                async processData() {
-                    this.addConsoleLine('Inizio elaborazione...', 'info');
-                    if (!this.inputDir || !this.outputDir) return;
-                    this.processing = true;
-                    this.elaborazioneCompletata = false;
-                    this.addConsoleLine(\`Input: \${this.inputDir}\`, 'info');
-                    this.addConsoleLine(\`Output: \${this.outputDir}\`, 'info');
-                    try {
-                        // Add your processing logic here
-                        const result = await window.electronAPI.runProjectScript(
-                            '${projectName}',
-                            'main.py',
-                            [this.inputDir, this.outputDir]
-                        );
-                        if (result.success) {
-                            this.addConsoleLine('Elaborazione completata con successo!', 'success');
-                            this.elaborazioneCompletata = true;
-                            if (result.output) {
-                                result.output.toString().split('\\n').forEach(line => {
-                                    if (line.trim()) this.addConsoleLine(line.trim(), 'normal');
-                                });
-                            }
-                        } else {
-                            this.addConsoleLine('Errore durante l\\'elaborazione: ' + result.error, 'error');
-                            this.elaborazioneCompletata = false;
-                        }
-                    } catch (error) {
-                        this.addConsoleLine('Errore JS: ' + error.message, 'error');
-                        this.elaborazioneCompletata = false;
-                    } finally {
-                        this.processing = false;
-                    }
-                },
-                async stopProcessing() {
-                    try {
-                        if (window.electronAPI && typeof window.electronAPI.stopPythonProcess === 'function') {
-                            await window.electronAPI.stopPythonProcess();
-                            this.addConsoleLine('Processo terminato.', 'warning');
-                        }
-                    } catch (e) {
-                        this.addConsoleLine('Errore durante lo stop: ' + e.message, 'error');
-                    }
-                    this.processing = false;
-                },
-                goBack() {
-                    this.$emit('goBack');
-                },
-            },
-            mounted() {
-                // Initialize component
-            }
+    export default {
+      name: '${componentName.replace('.vue', '')}',
+      data() {
+        return {
+          inputDir: null,
+          outputDir: null,
+          processing: false,
+          elaborazioneCompletata: false,
+          consoleLines: [],
         };
-    });`;
-    
+      },
+      methods: {
+        async selectInputDir() {
+          this.inputDir = await window.electronAPI.selectDirectory();
+        },
+        async selectOutputDir() {
+          this.outputDir = await window.electronAPI.selectDirectory();
+        },
+        async processData() {
+          this.processing = true;
+          const result = await window.electronAPI.runProjectScript('${projectName}', 'main.py', [this.inputDir, this.outputDir]);
+          this.processing = false;
+          this.elaborazioneCompletata = result.success;
+        },
+        goBack() {
+          this.$emit('goBack');
+        }
+      }
+    };
+    </script>
+    `;
+
     fs.writeFileSync(
-        path.join(projectDir, 'renderer', `${projectName}.js`),
-        jsFile,
-        'utf-8'
+      path.join(projectDir, 'renderer', componentName),
+      vueComponent,
+      'utf-8'
     );
+
     
     // Create Python main.py
     const pythonMain = `#!/usr/bin/env python3

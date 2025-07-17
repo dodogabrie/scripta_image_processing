@@ -4,8 +4,8 @@
   "description": "Image processing application built with Electron",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "vite & electron . --dev",
+    "start": "NODE_ENV=production electron .",
+    "dev": "NODE_ENV=development vite & NODE_ENV=development electron . --dev",
     "prebuild": "node scripts/download-libvips-win.js",
     "build": "electron-builder",
     "install-deps": "npm install",
@@ -14,10 +14,14 @@
   },
   "devDependencies": {
     "electron": "^35.2.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "electron-devtools-installer": "^4.0.0"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@vitejs/plugin-vue": "^6.0.0",
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
     "unzipper": "^0.12.3",
     "vite": "^7.0.1",
     "vue": "^3.5.17"

@@ -6,6 +6,20 @@ export function setupIPC(managers) {
     const { pythonManager, projectManager, windowManager, logger } = managers;
     console.log('Configurazione IPC handlers...');
 
+
+    ipcMain.handle('projects:getIconData', (event, projectId) => {
+      const project = managers.projectManager.getProject(projectId);
+      if (!project || !project.config.icon) return null;
+    
+      const iconPath = path.join(project.path, project.config.icon);
+      if (!fs.existsSync(iconPath)) return null;
+    
+      const ext = path.extname(iconPath).slice(1); // svg, png, etc
+      const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext}`;
+      const base64 = fs.readFileSync(iconPath).toString('base64');
+      return `data:${mime};base64,${base64}`;
+    });
+
     ipcMain.handle('app:getStatus', () => {
       console.log('IPC: app:getStatus chiamato');
       return {

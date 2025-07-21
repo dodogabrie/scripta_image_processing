@@ -164,7 +164,7 @@ if __name__ == "__main__":
     console.log(`\n✅ Project ${projectName} created successfully!`);
     console.log(`📁 Location: ${projectDir}`);
     console.log(`\nNext steps:`);
-    console.log(`1. Customize the template in renderer/${projectName}.template.html`);
+    console.log(`1. Customize the component in renderer/${projectName}Component.vue`);
     console.log(`2. Add your processing logic in python/main.py`);
     console.log(`3. Update config.json with specific requirements`);
     console.log(`4. Test your project in the main application`);

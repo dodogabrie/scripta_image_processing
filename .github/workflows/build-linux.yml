@@ -1,4 +1,4 @@
-name: Release Windows
+name: Release Linux
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -55,38 +55,19 @@ jobs:
 
       - name: Setup Python
         if: steps.check-release.outputs.release-exists == 'false'
-        id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Workaround node-gyp python path (symlink)
+      - name: Install system dependencies
         if: steps.check-release.outputs.release-exists == 'false'
-        shell: pwsh
         run: |
-          $py = "${{ steps.setup-python.outputs.python-path }}"
-          New-Item -ItemType Directory -Force -Path 'C:\usr\bin' | Out-Null
-          New-Item -ItemType SymbolicLink -Path 'C:\usr\bin\python' -Target $py -Force
-
-      - name: Set PYTHON env variable for native builds
-        if: steps.check-release.outputs.release-exists == 'false'
-        run: echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
-
-      - name: Add Python to PATH
-        if: steps.check-release.outputs.release-exists == 'false'
-        run: echo "PATH=$(dirname '${{ steps.setup-python.outputs.python-path }}'):$PATH" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y libvips-dev
 
       - name: Install dependencies (npm)
         if: steps.check-release.outputs.release-exists == 'false'
-        run: npm install --ignore-scripts
-
-      - name: Install vips dependencies
-        if: steps.check-release.outputs.release-exists == 'false'
-        run: node scripts/download-libvips-win.js
-
-      - name: Setup Python embedded
-        if: steps.check-release.outputs.release-exists == 'false'
-        run: node scripts/embed-python-win.js
+        run: npm install
 
       - name: Build Vue renderer
         if: steps.check-release.outputs.release-exists == 'false'
@@ -95,30 +76,23 @@ jobs:
       - name: Build Electron app
         if: steps.check-release.outputs.release-exists == 'false'
         run: npm run build
-        env:
-          ELECTRON_REBUILD: false
-          npm_config_rebuild: false
-          PYTHON: ${{ env.PYTHON }}
 
       - name: Upload artifact
         if: steps.check-release.outputs.release-exists == 'false'
         uses: actions/upload-artifact@v4
         with:
-          name: scripta-image-processing-win
-          path: dist/*.exe
+          name: scripta-image-processing-linux
+          path: dist/*.AppImage
 
-      - name: Create GitHub release
+      - name: Create GitHub release (Linux)
         if: steps.check-release.outputs.release-exists == 'false'
         shell: bash
         run: |
-          gh release create "$RELEASE_VERSION" dist/*.exe \
-            --title "$RELEASE_VERSION" \
-            --notes "Release $RELEASE_VERSION" \
-            --verify-tag
+          gh release upload "$RELEASE_VERSION" dist/*.AppImage \
+            --clobber
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Skip build - release exists
         if: steps.check-release.outputs.release-exists == 'true'
         run: echo "Skipping build as release $RELEASE_VERSION already exists"
-

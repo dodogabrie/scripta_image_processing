@@ -3,18 +3,14 @@
     <TreeNodeContainer
         v-if="node.type === 'node'"
         :node="node"
-        @add-child="(parentId, childName) => $emit('add-child', parentId, childName)"
-        @add-field="(parentId, fieldName, fieldType, fieldConfig) => $emit('add-field', parentId, fieldName, fieldType, fieldConfig)"
-        @delete-node="(nodeId) => $emit('delete-node', nodeId)"
-        @update-config="$emit('update-config', $event)"
+        @delete-node="$emit('delete-node', $event)"
     />
 
     <!-- Use TreeNodeField for fields -->
     <TreeNodeField
         v-else
         :node="node"
-        @delete-node="(nodeId) => $emit('delete-node', nodeId)"
-        @update-config="$emit('update-config', $event)"
+        @delete-node="$emit('delete-node', $event)"
     />
 </template>
 

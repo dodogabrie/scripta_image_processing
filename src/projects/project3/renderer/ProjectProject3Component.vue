@@ -27,15 +27,7 @@
             Nessun elemento creato.
         </div>
         <div v-for="(node, idx) in rootNodes" :key="node.id" class="mb-3">
-            <TreeNode
-                :node="node"
-                @add-child="addChildNode"
-                @add-field="addFieldNode"
-                @add-value="addValueToField"
-                @remove-value="removeValueFromField"
-                @update-field-config="updateFieldConfig"
-                @delete-node="deleteNode"
-            />
+            <TreeNode :node="node" />
         </div>
 
         <!-- Export Button -->
@@ -94,118 +86,7 @@ export default {
             }
         },
 
-        addChildNode(parentId, childName) {
-            const findAndAdd = (nodes) => {
-                for (const node of nodes) {
-                    if (node.id === parentId) {
-                        node.children.push({
-                            id: uuidv4(),
-                            name: childName,
-                            type: "node",
-                            children: [],
-                        });
-                        return true;
-                    }
-                    if (node.children?.length && findAndAdd(node.children))
-                        return true;
-                }
-                return false;
-            };
-            findAndAdd(this.rootNodes);
-        },
 
-        addFieldNode(parentId, fieldName, fieldType, fieldConfig) {
-            const findAndAdd = (nodes) => {
-                for (const node of nodes) {
-                    if (node.id === parentId) {
-                        node.children.push({
-                            id: uuidv4(),
-                            name: fieldName,
-                            type: "field",
-                            fieldType: fieldType,
-                            config: fieldConfig,
-                            values: [],
-                            children: [],
-                        });
-                        return true;
-                    }
-                    if (node.children?.length && findAndAdd(node.children))
-                        return true;
-                }
-                return false;
-            };
-            findAndAdd(this.rootNodes);
-        },
-
-        addValueToField(fieldId, value) {
-            const findAndAddValue = (nodes) => {
-                for (const node of nodes) {
-                    if (node.id === fieldId && node.type === "field") {
-                        if (!node.values) node.values = [];
-                        node.values.push(value);
-                        return true;
-                    }
-                    if (node.children?.length && findAndAddValue(node.children))
-                        return true;
-                }
-                return false;
-            };
-            findAndAddValue(this.rootNodes);
-        },
-
-        removeValueFromField(fieldId, valueIndex) {
-            const findAndRemoveValue = (nodes) => {
-                for (const node of nodes) {
-                    if (node.id === fieldId && node.type === "field") {
-                        if (node.values?.length > valueIndex) {
-                            node.values.splice(valueIndex, 1);
-                            return true;
-                        }
-                    }
-                    if (
-                        node.children?.length &&
-                        findAndRemoveValue(node.children)
-                    )
-                        return true;
-                }
-                return false;
-            };
-            findAndRemoveValue(this.rootNodes);
-        },
-
-        updateFieldConfig(fieldId, config) {
-            const findAndUpdateConfig = (nodes) => {
-                for (const node of nodes) {
-                    if (node.id === fieldId && node.type === "field") {
-                        node.config = { ...config };
-                        return true;
-                    }
-                    if (
-                        node.children?.length &&
-                        findAndUpdateConfig(node.children)
-                    )
-                        return true;
-                }
-                return false;
-            };
-            findAndUpdateConfig(this.rootNodes);
-        },
-
-        deleteNode(nodeId) {
-            const findAndDelete = (nodes) => {
-                for (let i = 0; i < nodes.length; i++) {
-                    const node = nodes[i];
-                    if (node.id === nodeId) {
-                        nodes.splice(i, 1);
-                        return true;
-                    }
-                    if (node.children?.length && findAndDelete(node.children))
-                        return true;
-                }
-                return false;
-            };
-            findAndDelete(this.rootNodes);
-        },
 
         exportData() {
             try {

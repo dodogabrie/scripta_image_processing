@@ -6,8 +6,9 @@
   "scripts": {
     "start": "NODE_ENV=production electron .",
     "dev": "NODE_ENV=development vite & NODE_ENV=development electron . --dev",
-    "prebuild": "node scripts/download-libvips-win.js",
+    "prebuild": "vite build && node scripts/download-libvips-win.js",
     "build": "electron-builder",
+    "vite:build": "vite build",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json",
     "create-project": "node scripts/create-project.js"
@@ -39,6 +40,8 @@
     "files": [
       "**/*",
       "!src/python-env/**",
+      "!src/renderer/**",
+      "dist/renderer/**/*",
       "requirements.txt"
     ],
     "asarUnpack": [
@@ -54,6 +57,10 @@
     ],
     "win": {
       "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Graphics"
     },
     "nsis": {
       "oneClick": false,

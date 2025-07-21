@@ -1,0 +1,14 @@
+{
+  "name": "Leggio Massive Builder",
+  "description": "Riorganizza i file multimediali di una istanza di Leggio in modo tale da ottimizzarne il caricamento sul server",
+  "icon": "renderer/assets/icon.svg",
+  "version": "1.0.0",
+  "main": "renderer/ProjectProject4Component.vue",
+  "python_scripts": [
+    "python/main.py"
+  ],
+  "requirements": [
+    "opencv-python==4.10.0.84",
+    "numpy==2.2.1"
+  ]
+}

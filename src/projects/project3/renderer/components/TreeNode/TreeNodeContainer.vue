@@ -7,8 +7,9 @@
                 <h5 class="mb-0">📁 {{ node.name }}</h5>
             </div>
             <button
-                @click="$emit('delete-node', node.id)"
+                @click="handleDelete"
                 class="btn btn-sm btn-outline-light"
+                title="Elimina nodo"
             >
                 🗑️
             </button>
@@ -27,10 +28,7 @@
                     v-for="child in node.children"
                     :key="child.id"
                     :node="child"
-                    @add-child="(parentId, childName) => $emit('add-child', parentId, childName)"
-                    @add-field="(parentId, fieldName, fieldType, fieldConfig) => $emit('add-field', parentId, fieldName, fieldType, fieldConfig)"
-                    @delete-node="(nodeId) => $emit('delete-node', nodeId)"
-                    @update-config="$emit('update-config', $event)"
+                    @delete-node="handleChildDelete"
                 />
             </div>
         </div>
@@ -66,10 +64,39 @@ export default {
     },
     methods: {
         handleAddChild(childName) {
-            this.$emit('add-child', this.node.id, childName);
+            // Add child directly to this node
+            this.node.children.push({
+                id: this.generateId(),
+                name: childName,
+                type: "node",
+                children: [],
+            });
         },
         handleAddField(fieldName, fieldType, fieldConfig) {
-            this.$emit('add-field', this.node.id, fieldName, fieldType, fieldConfig);
+            // Add field directly to this node
+            this.node.children.push({
+                id: this.generateId(),
+                name: fieldName,
+                type: "field",
+                fieldType: fieldType,
+                config: fieldConfig,
+                values: [],
+                children: [],
+            });
+        },
+        handleDelete() {
+            // Emit delete event to parent to remove this node
+            this.$emit('delete-node', this.node.id);
+        },
+        handleChildDelete(childId) {
+            // Handle deletion of child nodes
+            const index = this.node.children.findIndex(child => child.id === childId);
+            if (index !== -1) {
+                this.node.children.splice(index, 1);
+            }
+        },
+        generateId() {
+            return 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
     }
 };

@@ -1,6 +1,14 @@
 <template>
     <div
-        class="border-start border-3 ps-3 mb-2 bg-light rounded-end p-2"
+        class="border-start border-3 ps-3 mb-2 bg-ligh    methods: {
+        handleDelete() {
+            this.$emit('delete-node', this.node.id);
+        },
+        handleConfigUpdate(config) {
+            // Update config directly on the node
+            this.node.config = { ...config };
+        }
+    },-2"
         :class="getFieldClass"
     >
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -10,8 +18,9 @@
                 </span>
             </div>
             <button
-                @click="$emit('delete-node', node.id)"
+                @click="handleDelete"
                 class="btn btn-sm btn-outline-danger"
+                title="Elimina campo"
             >
                 🗑️
             </button>
@@ -21,13 +30,13 @@
         <FieldChoicesConfig
             v-if="node.fieldType === 'choices'"
             :node="node"
-            @update-config="$emit('update-config', $event)"
+            @update-config="handleConfigUpdate"
         />
 
         <FieldNumericConfig
             v-if="node.fieldType === 'numeric'"
             :node="node"
-            @update-config="$emit('update-config', $event)"
+            @update-config="handleConfigUpdate"
         />
     </div>
 </template>
@@ -69,6 +78,21 @@ export default {
                 numeric: "🔢",
             };
             return icons[this.node.fieldType] || "🏷️";
+        }
+    },
+    methods: {
+        handleDelete() {
+            this.$emit('node-action', {
+                type: 'delete-node',
+                nodeId: this.node.id
+            });
+        },
+        handleConfigUpdate(config) {
+            this.$emit('node-action', {
+                type: 'update-field-config',
+                fieldId: this.node.id,
+                config
+            });
         }
     }
 };

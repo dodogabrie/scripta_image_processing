@@ -1,0 +1,98 @@
+name: Release Linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.0.3)'
+        required: false
+
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+      - name: Set RELEASE_VERSION env var
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "RELEASE_VERSION=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          else
+            echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
+
+      - name: Check if release exists
+        id: check-release
+        shell: bash
+        run: |
+          if gh release view "$RELEASE_VERSION" >/dev/null 2>&1; then
+            echo "release-exists=true" >> $GITHUB_OUTPUT
+            echo "Release $RELEASE_VERSION already exists"
+          else
+            echo "release-exists=false" >> $GITHUB_OUTPUT
+            echo "Release $RELEASE_VERSION does not exist, proceeding with build"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Checkout repository (with submodules)
+        if: steps.check-release.outputs.release-exists == 'false'
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        if: steps.check-release.outputs.release-exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python
+        if: steps.check-release.outputs.release-exists == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips-dev
+
+      - name: Install dependencies (npm)
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: npm install
+
+      - name: Build Vue renderer
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: npm run vite:build
+
+      - name: Build Electron app
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: npm run build
+
+      - name: Upload artifact
+        if: steps.check-release.outputs.release-exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scripta-image-processing-linux
+          path: dist/*.AppImage
+
+      - name: Create GitHub release (Linux)
+        if: steps.check-release.outputs.release-exists == 'false'
+        shell: bash
+        run: |
+          gh release upload "$RELEASE_VERSION" dist/*.AppImage \
+            --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Skip build - release exists
+        if: steps.check-release.outputs.release-exists == 'true'
+        run: echo "Skipping build as release $RELEASE_VERSION already exists"

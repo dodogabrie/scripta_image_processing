@@ -1,312 +1,70 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const { net, dialog } = require('electron');
-const fs = require('fs');
+import { app, BrowserWindow } from 'electron';
+import path from 'path';
+import { initializeManagers } from './managers/index.js';
+import { initializeApp } from './initialize.js';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import { setupIPC } from './setupIPC.js';
+import Logger from './utils/Logger.js';
 
-// Import managers with error handling for development
-let PythonManager, WindowManager, Logger, ProjectManager;
-try {
-  PythonManager = require('./managers/PythonManager');
-  WindowManager = require('./managers/WindowManager');
-  Logger = require('./utils/Logger');
-  ProjectManager = require('./managers/ProjectManager');
-} catch (error) {
-  console.error('Missing dependencies...');
-}
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-class App {
-  constructor() {
-    this.pythonManager = new PythonManager();
-    this.windowManager = new WindowManager();
-    this.projectManager = new ProjectManager();
-    this.logger = new Logger();
-    this.isReady = false;
-    this.loadingWindow = null;
-  }
+const logger = new Logger();
+const managers = initializeManagers(); // Inizializza i manager
 
-  async isOnline() {
-    return new Promise(resolve => {
-      const request = net.request('https://www.google.com');
-      request.on('response', (response) => {
-        resolve(response.statusCode === 200);
-      });
-      request.on('error', () => {
-        resolve(false);
-      });
-      request.end();
-    });
-  }
+logger.info('App avviata, managers inizializzati');
 
-  async initialize() {
+app.on('ready', async () => {
+
+  if (process.env.NODE_ENV === 'development') {
+    const { default: installExtension, VUEJS_DEVTOOLS } = require('electron-devtools-installer');
     try {
-      // Show loading window first
-      this.loadingWindow = this.windowManager.createLoadingWindow();
-      this.logger.info('Avvio dello starter di configurazione...');
-
-      // Wait for DOM to be ready before sending progress
-      this.loadingWindow.webContents.once('dom-ready', async () => {
-        try {
-          // Check internet connection
-          const online = await this.isOnline();
-          if (!online) {
-            this.loadingWindow.webContents.send('setup-progress', {
-              step: 'error',
-              message: 'Nessuna connessione Internet',
-              error: 'Connessione Internet non disponibile. Verifica la connessione e riavvia l\'applicazione.',
-              percentage: 0
-            });
-            return;
-          }
-
-          // Check if Python is installed
-          try {
-            const pythonInstalled = await this.pythonManager.checkPythonInstallation();
-            if (!pythonInstalled) {
-              // Ottieni il path dove sta cercando Python
-              const pythonPath = this.pythonManager.getPythonExecutable();
-              this.loadingWindow.webContents.send('setup-progress', {
-                step: 'error',
-                message: 'Python non trovato',
-                error: `Python non trovato nel path: ${pythonPath}. Controllare se il file esiste in questa posizione.`,
-                percentage: 0
-              });
-              return;
-            }
-          } catch (error) {
-            // Ottieni il path dove sta cercando Python
-            const pythonPath = this.pythonManager.getPythonExecutable();
-            this.loadingWindow.webContents.send('setup-progress', {
-              step: 'error',
-              message: 'Errore Python',
-              error: `${error.message} - Path cercato: ${pythonPath}`,
-              percentage: 0
-            });
-            return;
-          }
-
-          // Setup Python environment with progress updates
-          await this.pythonManager.initialize((progress) => {
-            if (this.loadingWindow && !this.loadingWindow.isDestroyed()) {
-              this.loadingWindow.webContents.send('setup-progress', progress);
-            }
-          });
-
-          this.isReady = true;
-          this.logger.info('Inizializzazione completata con successo!');
-
-          // Close loading window and create main window
-          setTimeout(() => {
-            this.windowManager.closeLoadingWindow();
-            const mainWindow = this.windowManager.createMainWindow();
-            if (mainWindow) {
-              mainWindow.show();
-            }
-          }, 1000);
-
-        } catch (error) {
-          this.handleInitializationError(error);
-        }
-      });
-
-    } catch (error) {
-      this.handleInitializationError(error);
+      const name = await installExtension(VUEJS_DEVTOOLS);
+      logger.info(`Vue Devtools installati: ${name}`);
+    } catch (err) {
+      logger.error('Errore installazione Vue Devtools:', err);
     }
   }
 
-  handleInitializationError(error) {
-    this.logger.error('Initialization failed:', error);
-    
-    if (this.loadingWindow && !this.loadingWindow.isDestroyed()) {
-      this.loadingWindow.webContents.send('setup-progress', {
-        step: 'error',
-        message: 'Setup Failed',
-        error: error.message,
-        percentage: 0
-      });
-    }
-    
-    setTimeout(() => {
-      this.windowManager.createErrorWindow(error.message);
-    }, 3000);
-  }
 
-  setupIPC() {
-    console.log('Configurazione IPC handlers...');
-    
-    ipcMain.handle('app:getStatus', () => {
-      console.log('IPC: app:getStatus chiamato');
-      return {
-        isReady: this.isReady,
-        pythonStatus: this.pythonManager.getStatus()
-      };
-    });
-
-    ipcMain.handle('python:install', async () => {
-      console.log('IPC: python:install chiamato');
-      return await this.pythonManager.installEnvironment();
-    });
-
-    ipcMain.handle('python:stop', async () => {
-      console.log('IPC: python:stop chiamato');
-      return this.pythonManager.stopPythonProcess();
-    });
-
-    // Project management handlers
-    ipcMain.handle('projects:getAll', async () => {
-      console.log('IPC: projects:getAll chiamato');
-      await this.projectManager.loadProjects();
-      return this.projectManager.getProjects();
-    });
-
-    ipcMain.handle('projects:open', async (event, projectId) => {
-      console.log('IPC: projects:open chiamato con:', projectId);
-      try {
-        const project = this.projectManager.getProject(projectId);
-        if (!project) {
-          return { success: false, error: 'Project not found' };
-        }
-        
-        const mainHtmlPath = this.projectManager.getProjectMainHtml(projectId);
-        if (!mainHtmlPath) {
-          return { success: false, error: 'Project main HTML not found' };
-        }
-        
-        console.log('Opening project window with HTML:', mainHtmlPath);
-        const projectWindow = this.windowManager.createProjectWindow(mainHtmlPath);
-        
-        return { success: true };
-      } catch (error) {
-        console.error('Errore apertura progetto:', error);
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle('projects:runScript', async (event, projectId, scriptName, args = []) => {
-      console.log('IPC: projects:runScript chiamato con:', projectId, scriptName, args);
-      try {
-        const scriptPath = this.projectManager.getProjectPythonScript(projectId, scriptName);
-        if (!scriptPath) {
-          return { success: false, error: 'Script not found' };
-        }
-        
-        return await this.pythonManager.runPythonScript(scriptPath, args);
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
-    });
-    
-    ipcMain.handle('projects:loadContent', async (event, projectId) => {
-      console.log('IPC: projects:loadContent chiamato con:', projectId);
-      try {
-        const project = this.projectManager.getProject(projectId);
-        if (!project) {
-          return { success: false, error: 'Project not found' };
-        }
-        
-        const mainHtmlPath = this.projectManager.getProjectMainHtml(projectId);
-        if (!mainHtmlPath) {
-          return { success: false, error: 'Project main HTML not found' };
-        }
-        
-        const fs = require('fs');
-        const htmlContent = fs.readFileSync(mainHtmlPath, 'utf8');
-        
-        return { success: true, html: htmlContent };
-      } catch (error) {
-        console.error('Errore caricamento contenuto progetto:', error);
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle('dialog:selectDirectory', async (event) => {
-      const win = BrowserWindow.fromWebContents(event.sender);
-      const result = await dialog.showOpenDialog(win, {
-        properties: ['openDirectory']
-      });
-      if (result.canceled || !result.filePaths.length) return null;
-      return result.filePaths[0];
-    });
-
-    ipcMain.handle('files:listThumbs', async (event, thumbsDir) => {
-      try {
-          const fs = require('fs');
-          const path = require('path');
-          // Usa thumbsDir passato dal renderer, fallback su output/thumbs se non fornito
-          const dir = thumbsDir || path.join(process.cwd(), 'output', 'thumbs');
-          if (!fs.existsSync(dir)) return [];
-          const files = fs.readdirSync(dir)
-              .filter(f => f.toLowerCase().endsWith('.jpg'))
-              .map(f => path.join(dir, f).replace(/\\/g, '/'));
-          return files;
-      } catch (e) {
-          return [];
-      }
-    });
-
-    ipcMain.handle('files:listQualityFiles', async (event, qualityDir) => {
-        try {
-            const fs = require('fs');
-            const path = require('path');
-            if (!fs.existsSync(qualityDir)) return [];
-            return fs.readdirSync(qualityDir)
-                .filter(f => f.toLowerCase().endsWith('.json'))
-                .map(f => path.join(qualityDir, f).replace(/\\/g, '/'));
-        } catch (e) {
-            return [];
-        }
-    });
-
-    ipcMain.handle('files:readFile', async (event, filePath) => {
-        try {
-            const fs = require('fs');
-            return fs.readFileSync(filePath, 'utf8');
-        } catch (e) {
-            return '';
-        }
-    });
-
-    ipcMain.handle('files:writeFile', async (event, filePath, content) => {
-        try {
-            const fs = require('fs');
-            fs.writeFileSync(filePath, content, 'utf8');
-            return true;
-        } catch (e) {
-            return false;
-        }
-    });
-
-    // Generic logging handler
-    ipcMain.on('log:fromRenderer', (event, msg) => {
-        console.log('Log from renderer:', msg);
-    });
-
-    console.log('IPC handlers configurati');
-  }
-}
-
-const appInstance = new App();
-
-app.whenReady().then(() => {
-  appInstance.setupIPC();
-  appInstance.initialize();
+  logger.info('App ready event');
+  setupIPC(managers); // Passa i manager agli handler IPC
+  await initializeApp({ ...managers, logger }); 
 });
 
 // Kill any active Python process before the app quits
 app.on('before-quit', () => {
-  if (appInstance.pythonManager) {
-    appInstance.pythonManager.killActiveProcess();
+  logger.info('App before-quit event');
+
+  if (managers.pythonManager) {
+    managers.pythonManager.killActiveProcess();
+    logger.info('Python process killed');
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      execSync(`pkill -f vite`, { stdio: 'ignore' });
+      logger.info('Processo Vite terminato');
+    } catch (e) {
+      logger.warn('Nessun processo Vite da terminare');
+    }
   }
 });
 
 // existing window-all-closed and activate handlers
 app.on('window-all-closed', () => {
+  logger.info('window-all-closed event');
   if (process.platform !== 'darwin') {
     app.quit();
+    logger.info('App quit');
   }
 });
 
 app.on('activate', () => {
+  logger.info('App activate event');
   if (BrowserWindow.getAllWindows().length === 0) {
-    appInstance.initialize();
+    initializeApp({ ...managers, logger });
+    logger.info('App re-initialized');
   }
 });

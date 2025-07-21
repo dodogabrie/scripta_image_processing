@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         return ipcRenderer.invoke('python:install');
     },
 
+    getProjectIconData: (projectId) => {
+        return ipcRenderer.invoke('projects:getIconData', projectId);
+    },
+
     openFile: () => {
         console.log('Open file requested');
         return Promise.resolve(null);

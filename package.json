@@ -4,20 +4,29 @@
   "description": "Image processing application built with Electron",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "prebuild": "node scripts/download-libvips-win.js",
+    "start": "NODE_ENV=production electron .",
+    "dev": "NODE_ENV=development vite & NODE_ENV=development electron . --dev",
+    "prebuild": "vite build && node scripts/download-libvips-win.js",
     "build": "electron-builder",
+    "vite:build": "vite build",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json",
     "create-project": "node scripts/create-project.js"
   },
   "devDependencies": {
     "electron": "^35.2.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "electron-devtools-installer": "^4.0.0"
   },
   "dependencies": {
-    "unzipper": "^0.12.3"
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
+    "unzipper": "^0.12.3",
+    "uuid": "^11.1.0",
+    "vite": "^7.0.1",
+    "vue": "^3.5.17"
   },
   "author": "Edoardo",
   "license": "MIT",
@@ -31,6 +40,8 @@
     "files": [
       "**/*",
       "!src/python-env/**",
+      "!src/renderer/**",
+      "dist/renderer/**/*",
       "requirements.txt"
     ],
     "asarUnpack": [
@@ -47,11 +58,16 @@
     "win": {
       "target": "nsis"
     },
+    "linux": {
+      "target": "AppImage",
+      "category": "Graphics"
+    },
     "nsis": {
       "oneClick": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
     }
   },
-  "publish": "never"
+  "publish": "never",
+  "type": "module"
 }

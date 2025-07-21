@@ -1,10 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
-const unzipper = require('unzipper');
+import fs from 'fs';
+import path from 'path';
+import https from 'https';
+import unzipper from 'unzipper';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const vipsVersion = '8.17.0';
-const vipsUrl = `https://github.com/libvips/build-win64-mxe/releases/download/v8.17.0/vips-dev-w64-all-8.17.0.zip`;
+const vipsUrl = `https://github.com/libvips/build-win64-mxe/releases/download/v${vipsVersion}/vips-dev-w64-all-${vipsVersion}.zip`;
 const destDir = path.join(__dirname, '..', 'src', 'python-embed', 'vips-bin');
 const destZip = path.join(destDir, `vips.zip`);
 const expectedDll = path.join(destDir, `vips-dev-w64-all-${vipsVersion}`, 'bin', 'libvips-42.dll');
@@ -19,8 +24,7 @@ fs.mkdirSync(destDir, { recursive: true });
 function download(url, dest, cb) {
   const file = fs.createWriteStream(dest);
   https.get(url, response => {
-    if (response.statusCode === 302 || response.statusCode === 301) {
-      // Segui il redirect
+    if ([301, 302].includes(response.statusCode)) {
       download(response.headers.location, dest, cb);
       return;
     }

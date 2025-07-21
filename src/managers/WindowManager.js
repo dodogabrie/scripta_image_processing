@@ -1,7 +1,11 @@
-const { BrowserWindow } = require('electron');
-const path = require('path');
+import { BrowserWindow } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-class WindowManager {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default class WindowManager {
+
   constructor() {
     this.mainWindow = null;
     this.loadingWindow = null;
@@ -15,11 +19,18 @@ class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '../preload/main-preload.js')
+        preload: path.join(__dirname, '../preload/main-preload.cjs')
       }
     });
 
-    this.mainWindow.loadFile(path.join(__dirname, '../renderer/main.html'));
+    const isDev = process.env.NODE_ENV === 'development';
+    const rendererPath = isDev ? 'http://localhost:5173' : path.join(__dirname, '../renderer/index.html');
+    console.log(isDev ? 'Loading renderer in development mode' : 'Loading renderer in production mode');
+    if (isDev) {
+      this.mainWindow.loadURL(rendererPath);
+    } else {
+      this.mainWindow.loadFile(rendererPath);
+    }
 
     this.mainWindow.once('ready-to-show', () => {
       if (this.loadingWindow) {
@@ -27,12 +38,10 @@ class WindowManager {
         this.loadingWindow = null;
       }
       this.mainWindow.show();
+      if (isDev) {
+        this.mainWindow.webContents.openDevTools({ mode: 'bottom' }); 
+      }
     });
-
-    if (process.argv.includes('--dev')) {
-      this.mainWindow.webContents.openDevTools();
-    }
-
     return this.mainWindow;
   }
 
@@ -51,12 +60,10 @@ class WindowManager {
     });
 
     this.loadingWindow.loadFile(path.join(__dirname, '../renderer/loading.html'));
-    
     // Wait for DOM to be ready before allowing messages
     this.loadingWindow.webContents.once('dom-ready', () => {
       console.log('Loading window DOM ready');
     });
-
     return this.loadingWindow;
   }
 
@@ -80,7 +87,6 @@ class WindowManager {
     });
 
     errorWindow.loadFile(path.join(__dirname, '../renderer/error.html'));
-    
     errorWindow.webContents.once('dom-ready', () => {
       errorWindow.webContents.send('error-message', errorMessage);
     });
@@ -99,13 +105,10 @@ class WindowManager {
     });
 
     projectWindow.loadFile(projectHtmlPath);
-    
     projectWindow.webContents.once('dom-ready', () => {
       console.log('Project window DOM ready');
     });
-
     return projectWindow;
   }
 }
 
-module.exports = WindowManager;

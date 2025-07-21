@@ -1,0 +1,14 @@
+{
+  "name": "Digiscripta Builder",
+  "description": "Crea campi di progetto compatibili  il software Digiscripta",
+  "icon": "renderer/assets/icon.svg",
+  "version": "1.0.0",
+  "main": "renderer/ProjectProject3Component.vue",
+  "python_scripts": [
+    "python/main.py"
+  ],
+  "requirements": [
+    "opencv-python==4.10.0.84",
+    "numpy==2.2.1"
+  ]
+}

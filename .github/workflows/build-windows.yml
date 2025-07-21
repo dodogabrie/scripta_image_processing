@@ -88,6 +88,10 @@ jobs:
         if: steps.check-release.outputs.release-exists == 'false'
         run: node scripts/embed-python-win.js
 
+      - name: Build Vue renderer
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: npm run vite:build
+
       - name: Build Electron app
         if: steps.check-release.outputs.release-exists == 'false'
         run: npm run build

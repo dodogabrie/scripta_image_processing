@@ -1,3 +1,6 @@
 [submodule "src/projects/project1/python/microperspective-corrector"]
 	path = src/projects/project1/python/microperspective-corrector
 	url = git@github.com:dodogabrie/microperspective-corrector.git
+[submodule "src/projects/project4/rust/space_media_optimizer"]
+	path = src/projects/project4/rust/space_media_optimizer
+	url = git@github.com:dodogabrie/space_media_optimizer.git

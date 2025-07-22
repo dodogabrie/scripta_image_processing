@@ -18,6 +18,16 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
+      - name: Validate GitHub Token
+        shell: bash
+        run: |
+          if ! gh auth status >/dev/null 2>&1; then
+            echo "Invalid GitHub token. Exiting..." >&2
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Set RELEASE_VERSION env var
         shell: bash
         run: |

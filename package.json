@@ -12,6 +12,7 @@
     "vite:build": "vite build",
     "build-rust": "./build-rust.sh",
     "build-rust:win": "build-rust-simple.bat",
+    "build:win": "npm run prebuild:win && electron-builder --win",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json",
     "create-project": "node scripts/create-project.js"

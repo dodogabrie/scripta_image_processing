@@ -157,7 +157,7 @@ jobs:
 
       - name: Build Electron app
         if: steps.check-release.outputs.release-exists == 'false'
-        run: npm run prebuild:win && npm run build
+        run: npm run build:win
         env:
           ELECTRON_REBUILD: false
           npm_config_rebuild: false

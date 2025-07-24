@@ -23,7 +23,7 @@ const TOOLS_CONFIG = {
   // WebP tools
   cwebp: {
     windows: {
-      url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2-windows-x64.zip',
+      url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-2.3.2-windows-x64.zip',
       binary: 'bin/cwebp.exe',
       extract: true
     },
@@ -40,17 +40,23 @@ const TOOLS_CONFIG = {
   },
 
   // JPEG optimization tools
-  mozjpeg: {
+  jpegoptim: {
     windows: {
-      url: 'https://github.com/mozilla/mozjpeg/releases/download/v4.1.5/mozjpeg-4.1.5-windows.zip',
-      binary: 'bin/cjpeg.exe',
+      url: 'https://github.com/tjko/jpegoptim/releases/download/v1.5.5/jpegoptim-1.5.5-x64-windows.zip',
+      binary: 'jpegoptim.exe',
       extract: true
     },
     linux: {
       // Use system tools on Linux - user must install them
       useSystemTools: true,
-      requiredCommands: ['cjpeg', 'djpeg', 'jpegtran'],
-      installInstructions: 'sudo apt-get install libjpeg-progs'
+      requiredCommands: ['jpegoptim'],
+      installInstructions: 'sudo apt-get install jpegoptim'
+    },
+    darwin: {
+      // Use system tools on macOS - user must install them
+      useSystemTools: true,
+      requiredCommands: ['jpegoptim'],
+      installInstructions: 'brew install jpegoptim'
     }
   },
 

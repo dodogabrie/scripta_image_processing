@@ -30,7 +30,7 @@ const TOOLS = [
   },
 ];
 
-const TOOLS_DIR = path.join(__dirname, '..', 'src', 'tools', 'win32');
+const TOOLS_DIR = path.join(__dirname, '..', 'src', 'tools', 'windows');
 
 if (process.platform !== 'win32') {
   console.log('This script only supports Windows. Skipping.');

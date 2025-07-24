@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Scripta Image Processing
+Comment=Image processing application built with Electron
+Exec=/home/edoardo/Work/Projects/scripta_image_processing/dist/Scripta Image Processing-1.0.3.AppImage
+Icon=scripta-image-processing
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;
+StartupNotify=true

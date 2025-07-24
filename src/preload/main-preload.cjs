@@ -85,6 +85,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
         console.log('Chiamata logToMain dal preload:', msg);
         ipcRenderer.send('log:fromRenderer', msg);
     },
+
+    // New streaming version
+    runProjectScriptStreaming: (projectId, scriptName, args) => {
+        console.log('Chiamata runProjectScriptStreaming dal preload:', projectId, scriptName, args);
+        return ipcRenderer.invoke('projects:runScriptStreaming', projectId, scriptName, args);
+    },
+
+    // Listen for real-time output from Python scripts
+    onPythonOutput: (callback) => {
+        const subscription = (event, data) => callback(data);
+        ipcRenderer.on('python:output', subscription);
+        
+        // Return unsubscribe function
+        return () => {
+            ipcRenderer.removeListener('python:output', subscription);
+        };
+    },
+    
 });
 
 console.log('Main preload script caricato');

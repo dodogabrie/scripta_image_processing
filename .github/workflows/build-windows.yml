@@ -70,6 +70,47 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Setup Rust
+        if: steps.check-release.outputs.release-exists == 'false'
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install ImageMagick (for Rust binary)
+        if: steps.check-release.outputs.release-exists == 'false'
+        shell: pwsh
+        run: |
+          # Download and install ImageMagick portable
+          $url = "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.1-45-portable-Q16-x64.zip"
+          $output = "$env:TEMP\imagemagick.zip"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath "C:\ImageMagick" -Force
+          # Add to PATH for current session
+          $env:PATH = "C:\ImageMagick;$env:PATH"
+          echo "C:\ImageMagick" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install libvips (for Rust binary)
+        if: steps.check-release.outputs.release-exists == 'false'
+        shell: pwsh
+        run: |
+          # Download and install libvips
+          $url = "https://github.com/libvips/libvips/releases/download/v8.17.0/vips-dev-w64-all-8.17.0.zip"
+          $output = "$env:TEMP\vips.zip"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath "C:\vips" -Force
+          # Add to PATH for current session
+          $env:PATH = "C:\vips\vips-dev-8.17\bin;$env:PATH"
+          echo "C:\vips\vips-dev-8.17\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build Rust binary
+        if: steps.check-release.outputs.release-exists == 'false'
+        shell: bash
+        run: |
+          cd src/projects/project4/rust/space_media_optimizer
+          cargo build --release
+
+      - name: Download optimization tools
+        if: steps.check-release.outputs.release-exists == 'false'
+        run: node scripts/download-optimization-tools.js
+
       - name: Workaround node-gyp python path (symlink)
         if: steps.check-release.outputs.release-exists == 'false'
         shell: pwsh

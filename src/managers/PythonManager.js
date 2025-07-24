@@ -104,7 +104,7 @@ export default class PythonManager {
         const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
         const fs = require('fs');
         if (fs.existsSync(embeddedPath)) {
-          this.logger.info('Using embedded Python, skipping version check');
+          this.logger.info('Using embedded Python, skipping venv creation');
           this.status.pythonInstalled = true;
           return resolve(true);
         }
@@ -541,6 +541,110 @@ export default class PythonManager {
         if (finished) return;
         finished = true;
         this.activeProcess = null;
+        resolve({ success: false, error: `Failed to run Python: ${err.message}` });
+      });
+    });
+  }
+
+  async runPythonScriptWithStreaming(scriptPath, args = [], event = null) {
+    return new Promise((resolve, reject) => {
+      let finished = false;
+      let output = '';
+      let error = '';
+
+      // Costruisci il path delle DLL di vips
+      const isWindows = process.platform === 'win32';
+      let vipsBinDir = null;
+      if (isWindows) {
+        // In produzione: cerca in app.asar.unpacked
+        let baseDir;
+        if (app.isPackaged) {
+          baseDir = path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'python-embed', 'vips-bin', 'vips-dev-8.17', 'bin');
+        } else {
+          // In sviluppo: path relativo al progetto
+          baseDir = path.join(__dirname, '..', '..', 'python-embed', 'vips-bin', 'vips-dev-8.17', 'bin');
+        }
+        vipsBinDir = baseDir;
+      }
+  
+      // Prepara l'env per il processo Python
+      const env = { ...process.env };
+      if (isWindows && vipsBinDir) {
+        env.PATH = vipsBinDir + ';' + env.PATH;
+      }
+  
+      let py;
+      try {
+        py = spawn(this.pythonExecutable, ['-u', scriptPath, ...args], { 
+          env,
+          stdio: ['inherit', 'pipe', 'pipe']  // Unbuffered stdio
+        });
+        this.activeProcess = py; // Track the active process
+      } catch (spawnErr) {
+        return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
+      }
+
+      // Stream stdout data in real-time
+      py.stdout.on('data', (data) => { 
+        const chunk = data.toString();
+        output += chunk;
+        
+        // Split by lines and send each line immediately
+        const lines = chunk.split('\n');
+        lines.forEach(line => {
+          if (line.trim() && event && event.sender) {
+            // Send each non-empty line immediately
+            setImmediate(() => {
+              event.sender.send('python:output', { type: 'stdout', data: line + '\n' });
+            });
+          }
+        });
+      });
+
+      // Stream stderr data in real-time
+      py.stderr.on('data', (data) => { 
+        const chunk = data.toString();
+        error += chunk;
+        // Send real-time error to frontend if event is available
+        if (event && event.sender) {
+          event.sender.send('python:output', { type: 'stderr', data: chunk });
+        }
+      });
+  
+      py.on('close', (code) => {
+        if (finished) return;
+        finished = true;
+        this.activeProcess = null; // Clear on exit
+        
+        // Send completion signal to frontend
+        if (event && event.sender) {
+          event.sender.send('python:output', { 
+            type: 'complete', 
+            success: code === 0,
+            code: code 
+          });
+        }
+        
+        if (code === 0) {
+          resolve({ success: true, output });
+        } else {
+          resolve({ success: false, error: error || output || `Python exited with code ${code}` });
+        }
+      });
+  
+      py.on('error', (err) => {
+        if (finished) return;
+        finished = true;
+        this.activeProcess = null;
+        
+        // Send error signal to frontend
+        if (event && event.sender) {
+          event.sender.send('python:output', { 
+            type: 'error', 
+            data: err.message 
+          });
+        }
+        
         resolve({ success: false, error: `Failed to run Python: ${err.message}` });
       });
     });

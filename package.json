@@ -6,9 +6,11 @@
   "scripts": {
     "start": "NODE_ENV=production electron .",
     "dev": "NODE_ENV=development vite & NODE_ENV=development electron . --dev",
-    "prebuild": "vite build && node scripts/download-libvips-win.js",
+    "prebuild": "vite build && node scripts/download-libvips-win.js && node scripts/download-optimization-tools.js && npm run build-rust",
     "build": "electron-builder",
     "vite:build": "vite build",
+    "build-rust": "./build-rust.sh",
+    "build-rust-win": "cd src/projects/project4/rust/space_media_optimizer && cargo build --release --target x86_64-pc-windows-gnu",
     "install-deps": "npm install",
     "clean": "rm -rf node_modules package-lock.json",
     "create-project": "node scripts/create-project.js"
@@ -41,18 +43,31 @@
       "**/*",
       "!src/python-env/**",
       "!src/renderer/**",
+      "!.venv",
+      "!.git/**",
+      "!.github/**",
+      "!node_modules/**",
       "dist/renderer/**/*",
+      "src/renderer/*.html",
+      "src/renderer/scripts/**/*",
+      "src/renderer/styles/**/*",
       "requirements.txt"
     ],
     "asarUnpack": [
       "src/projects/**/*.py",
+      "src/projects/project4/rust/space_media_optimizer/target/release/media-optimizer*",
       "requirements.txt",
-      "src/python-embed/vips-bin/vips-dev-8.17/bin/*"
+      "src/python-embed/vips-bin/vips-dev-8.17/bin/*",
+      "src/tools/**/*"
     ],
     "extraFiles": [
       {
         "from": "src/python-embed",
         "to": "python-embed"
+      },
+      {
+        "from": "src/tools",
+        "to": "tools"
       }
     ],
     "win": {

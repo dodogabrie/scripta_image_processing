@@ -1,14 +1,24 @@
 {
   "name": "Leggio Massive Builder",
-  "description": "Riorganizza i file multimediali di una istanza di Leggio in modo tale da ottimizzarne il caricamento sul server",
+  "description": "Riorganizza e ottimizza i file multimediali usando il potente Space Media Optimizer (Rust)",
   "icon": "renderer/assets/icon.svg",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "renderer/ProjectProject4Component.vue",
   "python_scripts": [
-    "python/main.py"
+    "python/main.py",
+    "python/rust_optimizer.py"
   ],
+  "rust_binary": "rust/space_media_optimizer/target/release/media-optimizer",
   "requirements": [
     "opencv-python==4.10.0.84",
     "numpy==2.2.1"
+  ],
+  "features": [
+    "High-performance media optimization",
+    "JPEG/WebP compression",
+    "Video optimization",
+    "Parallel processing",
+    "Duplicate detection",
+    "Smart size threshold"
   ]
 }

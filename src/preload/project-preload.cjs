@@ -5,6 +5,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
         console.log('Chiamata runProjectScript dal preload:', projectId, scriptName, args);
         return ipcRenderer.invoke('projects:runScript', projectId, scriptName, args);
     },
+
+    // New streaming version
+    runProjectScriptStreaming: (projectId, scriptName, args) => {
+        console.log('Chiamata runProjectScriptStreaming dal preload:', projectId, scriptName, args);
+        return ipcRenderer.invoke('projects:runScriptStreaming', projectId, scriptName, args);
+    },
+
+    // Listen for real-time output from Python scripts
+    onPythonOutput: (callback) => {
+        const subscription = (event, data) => callback(data);
+        ipcRenderer.on('python:output', subscription);
+        
+        // Return unsubscribe function
+        return () => {
+            ipcRenderer.removeListener('python:output', subscription);
+        };
+    },
     
     saveImageToTemp: (file) => {
         console.log('Chiamata saveImageToTemp dal preload');

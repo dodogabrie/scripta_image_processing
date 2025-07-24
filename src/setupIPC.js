@@ -80,6 +80,22 @@ export function setupIPC(managers) {
       }
     });
 
+    // New streaming version of runScript
+    ipcMain.handle('projects:runScriptStreaming', async (event, projectId, scriptName, args = []) => {
+      console.log('IPC: projects:runScriptStreaming chiamato con:', projectId, scriptName, args);
+      try {
+        const scriptPath = projectManager.getProjectPythonScript(projectId, scriptName);
+        if (!scriptPath) {
+          return { success: false, error: 'Script not found' };
+        }
+
+        // Use the new streaming method that passes the event for real-time updates
+        return await pythonManager.runPythonScriptWithStreaming(scriptPath, args, event);
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    });
+
     ipcMain.handle('projects:loadContent', async (event, projectId) => {
       console.log('IPC: projects:loadContent chiamato con:', projectId);
       try {

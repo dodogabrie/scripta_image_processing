@@ -143,10 +143,6 @@ jobs:
         if: steps.check-release.outputs.release-exists == 'false'
         run: npm install --ignore-scripts
 
-      - name: Install vips dependencies
-        if: steps.check-release.outputs.release-exists == 'false'
-        run: node scripts/download-libvips-win.js
-
       - name: Setup Python embedded
         if: steps.check-release.outputs.release-exists == 'false'
         run: node scripts/embed-python-win.js

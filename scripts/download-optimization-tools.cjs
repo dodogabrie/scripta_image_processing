@@ -42,7 +42,8 @@ fs.mkdirSync(TOOLS_DIR, { recursive: true });
 function download(url, dest, cb) {
   const file = fs.createWriteStream(dest);
   https.get(url, response => {
-    if ([301, 302].includes(response.statusCode)) {
+    // Handle all redirect status codes
+    if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
       download(response.headers.location, dest, cb);
       return;
     }

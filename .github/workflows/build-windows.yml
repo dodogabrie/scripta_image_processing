@@ -123,19 +123,6 @@ jobs:
             Write-Error "libvips installation failed - vips.exe not found"
           }
 
-      - name: Build Rust binary
-        if: steps.check-release.outputs.release-exists == 'false'
-        shell: bash
-        run: |
-          echo "Verifying tools are in PATH before building Rust binary..."
-          which magick || echo "Warning: magick not found in PATH"
-          which vips || echo "Warning: vips not found in PATH"
-          echo "Building Rust binary..."
-          cd src/projects/project4/rust/space_media_optimizer
-          cargo build --release
-          echo "Testing Rust binary..."
-          ./target/release/media-optimizer.exe --help || echo "Rust binary help completed"
-
       - name: Download optimization tools
         if: steps.check-release.outputs.release-exists == 'false'
         shell: pwsh
@@ -218,6 +205,11 @@ jobs:
       - name: Build Vue renderer
         if: steps.check-release.outputs.release-exists == 'false'
         run: npm run vite:build
+
+      - name: Build Rust binary  
+        if: steps.check-release.outputs.release-exists == 'false'
+        shell: cmd
+        run: npm run build-rust:win
 
       - name: Build Electron app
         if: steps.check-release.outputs.release-exists == 'false'

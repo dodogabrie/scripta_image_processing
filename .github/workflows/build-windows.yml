@@ -103,18 +103,18 @@ jobs:
         shell: pwsh
         run: |
           # Download and install libvips
-          $url = "https://github.com/libvips/libvips/releases/download/v8.17.0/vips-dev-w64-all-8.17.0.zip"
+          $url = "https://github.com/libvips/build-win64-mxe/releases/download/v8.17.1/vips-dev-arm64-web-8.17.1-static-ffi.zip"
           $output = "$env:TEMP\vips.zip"
           Write-Host "Downloading libvips from $url"
           Invoke-WebRequest -Uri $url -OutFile $output
-                
+
           # Extract to temporary folder and flatten
           $tempDir = "C:\vips-temp"
           $finalDir = "C:\vips"
           Expand-Archive -Path $output -DestinationPath $tempDir -Force
           Move-Item "$tempDir\*" $finalDir -Force
           Remove-Item $tempDir -Recurse -Force
-                
+
           # Find vips.exe path dynamically
           $vipsExe = Get-ChildItem -Path $finalDir -Recurse -Filter "vips.exe" | Select-Object -First 1
           if ($vipsExe) {
@@ -125,7 +125,7 @@ jobs:
           } else {
             Write-Error "libvips installation failed - vips.exe not found"
           }
-                
+
 
       - name: Build Rust binary
         if: steps.check-release.outputs.release-exists == 'false'

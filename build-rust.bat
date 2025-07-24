@@ -1,4 +1,6 @@
 @echo off
+setloREM Find all Rust projects in src/projects/*/rust/*/
+echo 🔍 Searching for Rust projects...l enabledelayedexpansion
 REM Build script for all Rust binaries in projects (Windows)
 
 echo 🦀 Building Rust projects...
@@ -52,14 +54,14 @@ for /d %%i in (src\projects\*) do (
 
 echo.
 echo =============================
-if %PROJECTS_BUILT% equ 0 (
+if !PROJECTS_BUILT! equ 0 (
     echo ⚠️  No Rust projects found to build
     exit /b 0
 ) else (
-    echo ✅ Built %PROJECTS_BUILT% Rust project(s)
+    echo ✅ Built !PROJECTS_BUILT! Rust project(s)
 )
 
-if %BUILD_FAILED% equ 1 (
+if !BUILD_FAILED! equ 1 (
     echo ❌ Some builds failed!
     exit /b 1
 ) else (

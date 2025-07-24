@@ -10,7 +10,7 @@ const unzipper = require('unzipper');
 const TOOLS = [
   {
     name: 'cwebp',
-    url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-2.3.2-windows-x64.zip',
+    url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0-windows-x64.zip',
     zipSubPath: 'bin/cwebp.exe',
   },
   {

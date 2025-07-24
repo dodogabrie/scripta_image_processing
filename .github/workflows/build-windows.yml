@@ -78,14 +78,23 @@ jobs:
         if: steps.check-release.outputs.release-exists == 'false'
         shell: pwsh
         run: |
-          # Download and install ImageMagick portable
-          $url = "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.1-45-portable-Q16-x64.zip"
+          # Download and install ImageMagick portable (latest version)
+          $url = "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.2-0-portable-Q16-x64.zip"
           $output = "$env:TEMP\imagemagick.zip"
+          Write-Host "Downloading ImageMagick from $url"
           Invoke-WebRequest -Uri $url -OutFile $output
+          Write-Host "Extracting ImageMagick to C:\ImageMagick"
           Expand-Archive -Path $output -DestinationPath "C:\ImageMagick" -Force
           # Add to PATH for current session
           $env:PATH = "C:\ImageMagick;$env:PATH"
           echo "C:\ImageMagick" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # Verify installation
+          if (Test-Path "C:\ImageMagick\magick.exe") {
+            Write-Host "ImageMagick installed successfully"
+            & "C:\ImageMagick\magick.exe" -version
+          } else {
+            Write-Error "ImageMagick installation failed - magick.exe not found"
+          }
 
       - name: Install libvips (for Rust binary)
         if: steps.check-release.outputs.release-exists == 'false'
@@ -94,18 +103,33 @@ jobs:
           # Download and install libvips
           $url = "https://github.com/libvips/libvips/releases/download/v8.17.0/vips-dev-w64-all-8.17.0.zip"
           $output = "$env:TEMP\vips.zip"
+          Write-Host "Downloading libvips from $url"
           Invoke-WebRequest -Uri $url -OutFile $output
+          Write-Host "Extracting libvips to C:\vips"
           Expand-Archive -Path $output -DestinationPath "C:\vips" -Force
           # Add to PATH for current session
           $env:PATH = "C:\vips\vips-dev-8.17\bin;$env:PATH"
           echo "C:\vips\vips-dev-8.17\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # Verify installation
+          if (Test-Path "C:\vips\vips-dev-8.17\bin\vips.exe") {
+            Write-Host "libvips installed successfully"
+            & "C:\vips\vips-dev-8.17\bin\vips.exe" --version
+          } else {
+            Write-Error "libvips installation failed - vips.exe not found"
+          }
 
       - name: Build Rust binary
         if: steps.check-release.outputs.release-exists == 'false'
         shell: bash
         run: |
+          echo "Verifying tools are in PATH before building Rust binary..."
+          which magick || echo "Warning: magick not found in PATH"
+          which vips || echo "Warning: vips not found in PATH"
+          echo "Building Rust binary..."
           cd src/projects/project4/rust/space_media_optimizer
           cargo build --release
+          echo "Testing Rust binary..."
+          ./target/release/media-optimizer.exe --help || echo "Rust binary help completed"
 
       - name: Download optimization tools
         if: steps.check-release.outputs.release-exists == 'false'

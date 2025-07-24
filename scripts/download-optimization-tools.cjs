@@ -26,7 +26,7 @@ const TOOLS = [
   {
     name: 'ffmpeg',
     url: 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip',
-    zipSubPath: 'ffmpeg-release-essentials/bin/ffmpeg.exe',
+    zipSubPath: 'bin/ffmpeg.exe',
   },
 ];
 

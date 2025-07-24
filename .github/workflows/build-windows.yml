@@ -138,7 +138,54 @@ jobs:
 
       - name: Download optimization tools
         if: steps.check-release.outputs.release-exists == 'false'
-        run: node scripts/download-optimization-tools.js
+        shell: pwsh
+        run: |
+          # Create tools directory structure
+          New-Item -ItemType Directory -Force -Path "src\tools\windows" | Out-Null
+          
+          Write-Host "Downloading WebP tools..."
+          $webpUrl = "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2-windows-x64.zip"
+          $webpZip = "$env:TEMP\webp.zip"
+          Invoke-WebRequest -Uri $webpUrl -OutFile $webpZip -TimeoutSec 60
+          Expand-Archive -Path $webpZip -DestinationPath "$env:TEMP\webp" -Force
+          Copy-Item "$env:TEMP\webp\libwebp-1.3.2-windows-x64\bin\cwebp.exe" -Destination "src\tools\windows\cwebp.exe" -Force
+          
+          Write-Host "Downloading mozjpeg..."
+          $mozjpegUrl = "https://github.com/mozilla/mozjpeg/releases/download/v4.1.5/mozjpeg-4.1.5-windows.zip"
+          $mozjpegZip = "$env:TEMP\mozjpeg.zip"
+          Invoke-WebRequest -Uri $mozjpegUrl -OutFile $mozjpegZip -TimeoutSec 60
+          Expand-Archive -Path $mozjpegZip -DestinationPath "$env:TEMP\mozjpeg" -Force
+          Copy-Item "$env:TEMP\mozjpeg\mozjpeg-4.1.5-windows\bin\cjpeg.exe" -Destination "src\tools\windows\cjpeg.exe" -Force
+          Copy-Item "$env:TEMP\mozjpeg\mozjpeg-4.1.5-windows\bin\djpeg.exe" -Destination "src\tools\windows\djpeg.exe" -Force
+          
+          Write-Host "Downloading oxipng..."
+          $oxipngUrl = "https://github.com/shssoichiro/oxipng/releases/download/v9.0.0/oxipng-9.0.0-x86_64-pc-windows-msvc.zip"
+          $oxipngZip = "$env:TEMP\oxipng.zip"
+          Invoke-WebRequest -Uri $oxipngUrl -OutFile $oxipngZip -TimeoutSec 60
+          Expand-Archive -Path $oxipngZip -DestinationPath "$env:TEMP\oxipng" -Force
+          Copy-Item "$env:TEMP\oxipng\oxipng.exe" -Destination "src\tools\windows\oxipng.exe" -Force
+          
+          Write-Host "Downloading FFmpeg..."
+          $ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+          $ffmpegZip = "$env:TEMP\ffmpeg.zip"
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile $ffmpegZip -TimeoutSec 120
+          Expand-Archive -Path $ffmpegZip -DestinationPath "$env:TEMP\ffmpeg" -Force
+          $ffmpegExe = Get-ChildItem -Path "$env:TEMP\ffmpeg" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
+          if ($ffmpegExe) {
+            Copy-Item $ffmpegExe.FullName -Destination "src\tools\windows\ffmpeg.exe" -Force
+          }
+          
+          # Create manifest for Windows tools
+          $manifest = @{
+            platform = "windows"
+            arch = "x64"
+            tools = @("cwebp", "cjpeg", "djpeg", "oxipng", "ffmpeg")
+            generated = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+          } | ConvertTo-Json
+          $manifest | Out-File -FilePath "src\tools\windows\manifest.json" -Encoding UTF8
+          
+          Write-Host "Tools downloaded successfully:"
+          Get-ChildItem -Path "src\tools\windows" -Name
 
       - name: Workaround node-gyp python path (symlink)
         if: steps.check-release.outputs.release-exists == 'false'

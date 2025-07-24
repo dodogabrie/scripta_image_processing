@@ -28,14 +28,14 @@ const TOOLS_CONFIG = {
       extract: true
     },
     linux: {
-      // We'll use package manager or compile
-      package: 'webp',
-      binary: 'cwebp'
+      url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2-linux-x86-64.tar.gz',
+      binary: 'bin/cwebp',
+      extract: true
     },
     darwin: {
-      // Use homebrew or compile
-      package: 'webp',
-      binary: 'cwebp'
+      url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.3.2-mac-x86-64.tar.gz',
+      binary: 'bin/cwebp',
+      extract: true
     }
   },
 
@@ -47,9 +47,10 @@ const TOOLS_CONFIG = {
       extract: true
     },
     linux: {
-      compile: true,
-      repo: 'https://github.com/mozilla/mozjpeg.git',
-      tag: 'v4.1.5'
+      // Use system tools on Linux - user must install them
+      useSystemTools: true,
+      requiredCommands: ['cjpeg', 'djpeg', 'jpegtran'],
+      installInstructions: 'sudo apt-get install libjpeg-progs'
     }
   },
 
@@ -80,12 +81,15 @@ const TOOLS_CONFIG = {
       extract: true
     },
     linux: {
-      package: 'ffmpeg',
-      binary: 'ffmpeg'
+      // Use system tools on Linux - user must install them
+      useSystemTools: true,
+      requiredCommands: ['ffmpeg', 'ffprobe'],
+      installInstructions: 'sudo apt-get install ffmpeg'
     },
     darwin: {
-      package: 'ffmpeg',
-      binary: 'ffmpeg'
+      url: 'https://evermeet.cx/ffmpeg/ffmpeg-latest.zip',
+      binary: 'ffmpeg',
+      extract: true
     }
   }
 };
@@ -197,6 +201,7 @@ async function downloadWithRetry(url, outputPath, maxRetries = 3) {
  */
 function extractArchive(archivePath, extractDir) {
   const ext = path.extname(archivePath).toLowerCase();
+  const basename = path.basename(archivePath).toLowerCase();
   
   try {
     if (ext === '.zip') {
@@ -205,8 +210,13 @@ function extractArchive(archivePath, extractDir) {
       } else {
         execSync(`unzip -o "${archivePath}" -d "${extractDir}"`);
       }
-    } else if (ext === '.gz' || archivePath.includes('.tar.')) {
+    } else if (ext === '.gz' || archivePath.includes('.tar.gz')) {
       execSync(`tar -xzf "${archivePath}" -C "${extractDir}"`);
+    } else if (ext === '.xz' || archivePath.includes('.tar.xz')) {
+      execSync(`tar -xJf "${archivePath}" -C "${extractDir}"`);
+    } else if (archivePath.includes('.tar.')) {
+      // Generic tar file
+      execSync(`tar -xf "${archivePath}" -C "${extractDir}"`);
     }
     
     // Remove archive after extraction
@@ -293,6 +303,28 @@ function installWithPackageManager(packageName) {
 }
 
 /**
+ * Copy system binaries to tools directory
+ */
+function copySystemBinaries(toolDir, binaryNames) {
+  let copied = 0;
+  for (const binaryName of binaryNames) {
+    try {
+      const systemPath = execSync(`which ${binaryName}`, { encoding: 'utf8' }).trim();
+      if (systemPath && fs.existsSync(systemPath)) {
+        const targetPath = path.join(toolDir, binaryName);
+        fs.copyFileSync(systemPath, targetPath);
+        fs.chmodSync(targetPath, '755');
+        console.log(`Copied system binary: ${systemPath} -> ${targetPath}`);
+        copied++;
+      }
+    } catch (error) {
+      console.warn(`System binary ${binaryName} not found`);
+    }
+  }
+  return copied;
+}
+
+/**
  * Download and setup a specific tool
  */
 async function setupTool(toolName, config) {
@@ -302,10 +334,34 @@ async function setupTool(toolName, config) {
     return;
   }
 
+  console.log(`Setting up ${toolName} for ${platform}...`);
+
+  if (platformConfig.useSystemTools) {
+    // For Linux/system tools - just check if they're available and inform user
+    console.log(`Checking system tools for ${toolName}...`);
+    const missingTools = [];
+    
+    for (const cmd of platformConfig.requiredCommands) {
+      try {
+        execSync(`which ${cmd}`, { stdio: 'pipe' });
+        console.log(`✅ Found system tool: ${cmd}`);
+      } catch {
+        missingTools.push(cmd);
+      }
+    }
+    
+    if (missingTools.length > 0) {
+      console.warn(`❌ Missing system tools: ${missingTools.join(', ')}`);
+      console.warn(`Please install them with: ${platformConfig.installInstructions}`);
+    } else {
+      console.log(`✅ All system tools for ${toolName} are available`);
+    }
+    return;
+  }
+
+  // For Windows/Mac - download and bundle tools
   const toolDir = path.join(TOOLS_DIR, platform, toolName);
   fs.mkdirSync(toolDir, { recursive: true });
-
-  console.log(`Setting up ${toolName} for ${platform}...`);
 
   if (platformConfig.url) {
     // Download binary
@@ -335,16 +391,6 @@ async function setupTool(toolName, config) {
         console.log(`Made ${binaryPath} executable`);
       }
     }
-  } else if (platformConfig.package) {
-    // Install via package manager
-    const installed = installWithPackageManager(platformConfig.package);
-    if (!installed) {
-      console.warn(`Failed to install ${toolName} via package manager`);
-    }
-  } else if (platformConfig.compile) {
-    // Compile from source (for tools like mozjpeg)
-    console.log(`Compiling ${toolName} from source...`);
-    // Implementation would go here
   }
 
   console.log(`✅ ${toolName} setup completed`);

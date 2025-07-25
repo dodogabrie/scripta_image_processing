@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// Download optimization tools for Windows (cwebp, jpegoptim, oxipng, ffmpeg)
-// Style: callback-based, CommonJS, Windows-only, modeled after download-libvips-win.js
+// Download optimization tools for Windows (cwebp, jpegoptim, oxipng, ffmpeg, ffprobe, exiftool)
 
 const fs = require('fs');
 const path = require('path');
@@ -9,24 +8,27 @@ const unzipper = require('unzipper');
 
 const TOOLS = [
   {
-    name: 'cwebp',
     url: 'https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0-windows-x64.zip',
-    zipSubPath: 'bin/cwebp.exe',
+    files: [{ zipSubPath: 'bin/cwebp.exe', outName: 'cwebp.exe' }],
   },
   {
-    name: 'jpegoptim',
     url: 'https://github.com/tjko/jpegoptim/releases/download/v1.5.5/jpegoptim-1.5.5-x64-windows.zip',
-    zipSubPath: 'jpegoptim.exe',
+    files: [{ zipSubPath: 'jpegoptim.exe', outName: 'jpegoptim.exe' }],
   },
   {
-    name: 'oxipng',
     url: 'https://github.com/shssoichiro/oxipng/releases/download/v9.0.0/oxipng-9.0.0-x86_64-pc-windows-msvc.zip',
-    zipSubPath: 'oxipng.exe',
+    files: [{ zipSubPath: 'oxipng.exe', outName: 'oxipng.exe' }],
   },
   {
-    name: 'ffmpeg',
     url: 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip',
-    zipSubPath: 'bin/ffmpeg.exe',
+    files: [
+      { zipSubPath: 'bin/ffmpeg.exe', outName: 'ffmpeg.exe' },
+      { zipSubPath: 'bin/ffprobe.exe', outName: 'ffprobe.exe' },
+    ],
+  },
+  {
+    url: 'https://exiftool.org/exiftool-13.32_64.zip',
+    files: [{ zipSubPath: 'exiftool(-k).exe', outName: 'exiftool.exe' }],
   },
 ];
 
@@ -42,7 +44,6 @@ fs.mkdirSync(TOOLS_DIR, { recursive: true });
 function download(url, dest, cb) {
   const file = fs.createWriteStream(dest);
   https.get(url, response => {
-    // Handle all redirect status codes
     if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
       download(response.headers.location, dest, cb);
       return;
@@ -58,51 +59,62 @@ function download(url, dest, cb) {
   });
 }
 
-function extractAndCopy(zipPath, subPath, outPath, cb) {
-  let found = false;
+function extractAndCopyMultiple(zipPath, files, cb) {
+  const remaining = new Set(files.map(f => f.zipSubPath));
   fs.createReadStream(zipPath)
     .pipe(unzipper.Parse())
     .on('entry', entry => {
       const entryPath = entry.path.replace(/\\/g, '/');
-      if (entryPath.endsWith(subPath)) {
-        found = true;
-        entry.pipe(fs.createWriteStream(outPath))
+      const match = files.find(f => entryPath.endsWith(f.zipSubPath));
+      if (match) {
+        remaining.delete(match.zipSubPath);
+        const outPath = path.join(TOOLS_DIR, match.outName);
+        const tmpPath = match.zipSubPath === 'exiftool(-k).exe'
+          ? outPath.replace(/\.exe$/, '-k.exe')
+          : outPath;
+        entry.pipe(fs.createWriteStream(tmpPath))
           .on('finish', () => {
+            if (tmpPath !== outPath) fs.renameSync(tmpPath, outPath);
             fs.chmodSync(outPath, 0o755);
-            cb();
+            if (remaining.size === 0) cb();
           });
       } else {
         entry.autodrain();
       }
     })
     .on('close', () => {
-      if (!found) cb(new Error(`Did not find ${subPath} in archive`));
+      if (remaining.size > 0) {
+        const missing = [...remaining].join(', ');
+        cb(new Error(`Missing from archive: ${missing}`));
+      }
     })
     .on('error', cb);
 }
 
 function setupTool(tool, cb) {
-  const outExe = path.join(TOOLS_DIR, tool.name + '.exe');
-  if (fs.existsSync(outExe)) {
-    console.log(`${tool.name} already present, skipping.`);
+  const needFiles = tool.files.filter(f =>
+    !fs.existsSync(path.join(TOOLS_DIR, f.outName))
+  );
+  if (needFiles.length === 0) {
+    console.log(`${tool.files.map(f => f.outName).join(', ')} already present, skipping.`);
     cb();
     return;
   }
-  const zipPath = path.join(TOOLS_DIR, tool.name + '.zip');
-  console.log(`Downloading ${tool.name}...`);
+  const zipPath = path.join(TOOLS_DIR, path.basename(tool.url));
+  console.log(`Downloading from ${tool.url}...`);
   download(tool.url, zipPath, err => {
     if (err) {
-      console.error(`Download failed for ${tool.name}:`, err);
+      console.error(`Download failed:`, err);
       process.exit(1);
     }
-    console.log(`Extracting ${tool.name}...`);
-    extractAndCopy(zipPath, tool.zipSubPath, outExe, err2 => {
+    console.log(`Extracting ${needFiles.map(f => f.outName).join(', ')}...`);
+    extractAndCopyMultiple(zipPath, needFiles, err2 => {
       fs.unlinkSync(zipPath);
       if (err2) {
-        console.error(`Extraction failed for ${tool.name}:`, err2);
+        console.error(`Extraction failed:`, err2);
         process.exit(1);
       }
-      console.log(`${tool.name} ready.`);
+      console.log(`✔ Ready: ${needFiles.map(f => f.outName).join(', ')}`);
       cb();
     });
   });

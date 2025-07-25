@@ -13,6 +13,8 @@ import signal
 import atexit
 from pathlib import Path
 
+CREATE_NO_WINDOW = 0x08000000 if os.name == 'nt' else 0
+
 # Global variable to track the current process
 current_process = None
 
@@ -157,7 +159,8 @@ def run_optimizer(input_dir, output_dir, **kwargs):
             text=True,
             bufsize=0,  # No buffering - immediate output
             universal_newlines=True,
-            cwd=os.path.dirname(binary_path)
+            cwd=os.path.dirname(binary_path),
+            creationflags=CREATE_NO_WINDOW  
         )
         
         # Read output line by line in real-time

@@ -84,7 +84,7 @@ export default class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '../preload/loading-preload.js')
+        preload: path.join(__dirname, '../preload/loading-preload.cjs')
       }
     });
 
@@ -117,7 +117,7 @@ export default class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '../preload/error-preload.js')
+        preload: path.join(__dirname, '../preload/error-preload.cjs')
       }
     });
 
@@ -135,7 +135,7 @@ export default class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '../preload/project-preload.js')
+        preload: path.join(__dirname, '../preload/project-preload.cjs')
       }
     });
 

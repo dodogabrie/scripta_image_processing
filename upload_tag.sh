@@ -7,12 +7,17 @@ if [ -z "$TAG" ]; then
   exit 1
 fi
 
-# Rimuove il tag se esiste
+# Rimuove tag locale e remoto se esiste
 if git rev-parse "$TAG" >/dev/null 2>&1; then
   git tag -d "$TAG"
   git push origin ":refs/tags/$TAG"
 fi
 
-# Ricrea e pusha
+# Rimuove release GitHub se esiste
+if gh release view "$TAG" >/dev/null 2>&1; then
+  gh release delete "$TAG" -y
+fi
+
+# Crea e pusha nuovo tag
 git tag "$TAG"
 git push origin "$TAG"

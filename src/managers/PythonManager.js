@@ -527,12 +527,11 @@ export default class PythonManager {
       } catch (spawnErr) {
         return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
       }
-  
+
       py.stdout.on('data', (data) => { output += data.toString(); });
       py.stderr.on('data', (data) => { error += data.toString(); });
 
       // Aggiungi info sul Python usato all'inizio dell'output
-      const isWindows = os.platform() === 'win32';
       let debugInfo = `🐍 Python executable: ${this.pythonExecutable}\n`;
 
       if (isWindows) {

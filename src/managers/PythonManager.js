@@ -517,9 +517,10 @@ export default class PythonManager {
         env.PATH = vipsBinDir + ';' + env.PATH;
       }
 
+      const pythonExecutablePath = path.join(path.dirname(process.resourcesPath), 'python-embed', 'python.exe');
       let py;
       try {
-        py = spawn(this.pythonExecutable, [scriptPath, ...args], { env });
+        py = spawn(pythonExecutablePath, [scriptPath, ...args], { env });
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({ success: false, error: `Failed to start Python: ${spawnErr.message}` });
@@ -529,7 +530,7 @@ export default class PythonManager {
       py.stderr.on('data', (data) => { error += data.toString(); });
 
       // Aggiungi info sul Python usato all'inizio dell'output
-      let debugInfo = `🐍 Python executable: ${this.pythonExecutable}\n`;
+      let debugInfo = `🐍 Python executable: ${pythonExecutablePath}\n`;
 
       if (isWindows) {
         const appDir = path.dirname(app.getAppPath());
@@ -589,9 +590,11 @@ export default class PythonManager {
         env.PATH = vipsBinDir + ';' + env.PATH;
       }
   
+      
+      const pythonExecutablePath = path.join(path.dirname(process.resourcesPath), 'python-embed', 'python.exe');
       let py;
       try {
-        py = spawn(this.pythonExecutable, ['-u', scriptPath, ...args], { 
+        py = spawn(pythonExecutablePath, ['-u', scriptPath, ...args], { 
           env,
           stdio: ['inherit', 'pipe', 'pipe']  // Unbuffered stdio
         });

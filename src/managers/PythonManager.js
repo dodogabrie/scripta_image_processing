@@ -532,7 +532,19 @@ export default class PythonManager {
       py.stderr.on('data', (data) => { error += data.toString(); });
 
       // Aggiungi info sul Python usato all'inizio dell'output
-      output = `🐍 Python executable: ${this.pythonExecutable}\n📜 Script: ${path.basename(scriptPath)}\n\n`;
+      const isWindows = os.platform() === 'win32';
+      let debugInfo = `🐍 Python executable: ${this.pythonExecutable}\n`;
+
+      if (isWindows) {
+        const appDir = path.dirname(process.execPath);
+        const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
+        debugInfo += `📁 App directory: ${appDir}\n`;
+        debugInfo += `🔍 Looking for embedded at: ${embeddedPath}\n`;
+        debugInfo += `✅ Embedded exists: ${require('fs').existsSync(embeddedPath)}\n`;
+      }
+
+      debugInfo += `📜 Script: ${path.basename(scriptPath)}\n\n`;
+      output = debugInfo;
   
       py.on('close', (code) => {
         if (finished) return;

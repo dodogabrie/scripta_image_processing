@@ -7,7 +7,7 @@
     "start": "NODE_ENV=production electron .",
     "dev": "NODE_ENV=development vite & NODE_ENV=development electron . --dev",
     "prebuild": "vite build && node scripts/download-libvips-win.js && npm run build-rust",
-    "prebuild:win": "vite build && npm run build-rust:win",
+    "prebuild:win": "vite build",
     "build": "npm run prebuild && electron-builder",
     "vite:build": "vite build",
     "build-rust": "./build-rust.sh",

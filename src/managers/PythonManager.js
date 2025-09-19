@@ -1,5 +1,6 @@
 import { spawn, exec } from 'child_process';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import os from 'os';
 import Logger from '../utils/Logger.js';
@@ -32,8 +33,7 @@ export default class PythonManager {
       // Il Python embedded ora è nella root dell'app grazie a extraFiles
       const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
       try {
-        const fs = require('fs');
-        if (fs.existsSync(embedded)) {
+        if (fsSync.existsSync(embedded)) {
           this.logger.info('Using embedded Python:', embedded);
           return embedded;
         }
@@ -55,8 +55,7 @@ export default class PythonManager {
       const embeddedPython = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
 
       try {
-        const fs = require('fs');
-        if (fs.existsSync(embeddedPython)) {
+        if (fsSync.existsSync(embeddedPython)) {
           // Usa "python -m pip" invece di pip.exe diretto
           this.logger.info('Using embedded Python pip module');
           return embeddedPython; // Ritorna python.exe, userai -m pip
@@ -104,8 +103,7 @@ export default class PythonManager {
       const isWindows = os.platform() === 'win32';
       if (isWindows) {
         const embeddedPath = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
-        const fs = require('fs');
-        if (fs.existsSync(embeddedPath)) {
+        if (fsSync.existsSync(embeddedPath)) {
           this.logger.info('Using embedded Python, skipping venv creation');
           this.status.pythonInstalled = true;
           return resolve(true);
@@ -151,8 +149,7 @@ export default class PythonManager {
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
       const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
-      const fs = require('fs');
-      if (fs.existsSync(embedded)) {
+      if (fsSync.existsSync(embedded)) {
         this.status.venvExists = true;
         this.logger.info('Using embedded Python, skipping venv setup');
         if (this.currentProgressCallback) {
@@ -392,7 +389,7 @@ export default class PythonManager {
 
       let pipProcess; // ← RINOMINA da 'process' a 'pipProcess'
 
-      if (isWindows && require('fs').existsSync(embeddedPython)) {
+      if (isWindows && fsSync.existsSync(embeddedPython)) {
         // Usa python -m pip per embedded
         pipProcess = spawn(embeddedPython, ['-m', 'pip', 'install', '-r', requirementsPath], {
           stdio: ['pipe', 'pipe', 'pipe'],
@@ -539,7 +536,7 @@ export default class PythonManager {
         const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
         debugInfo += `📁 App directory: ${appDir}\n`;
         debugInfo += `🔍 Looking for embedded at: ${embeddedPath}\n`;
-        debugInfo += `✅ Embedded exists: ${require('fs').existsSync(embeddedPath)}\n`;
+        debugInfo += `✅ Embedded exists: ${fsSync.existsSync(embeddedPath)}\n`;
       }
 
       debugInfo += `📜 Script: ${path.basename(scriptPath)}\n\n`;

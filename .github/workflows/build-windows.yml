@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. 1.0.3)'
+        description: "Release version (e.g. 1.0.3)"
         required: false
 
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build-and-release:
@@ -68,60 +68,60 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Setup Rust
-        if: steps.check-release.outputs.release-exists == 'false'
-        uses: dtolnay/rust-toolchain@stable
+      # - name: Setup Rust
+      #   if: steps.check-release.outputs.release-exists == 'false'
+      #   uses: dtolnay/rust-toolchain@stable
 
-      - name: Install ImageMagick (for Rust binary)
-        if: steps.check-release.outputs.release-exists == 'false'
-        shell: pwsh
-        run: |
-          # Download and install ImageMagick portable (latest version)
-          $url = "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.2-0-portable-Q16-x64.zip"
-          $output = "$env:TEMP\imagemagick.zip"
-          Write-Host "Downloading ImageMagick from $url"
-          Invoke-WebRequest -Uri $url -OutFile $output
-          Write-Host "Extracting ImageMagick to C:\ImageMagick"
-          Expand-Archive -Path $output -DestinationPath "C:\ImageMagick-temp" -Force
-          Move-Item "C:\ImageMagick-temp\*" "C:\ImageMagick" -Force
-          Remove-Item "C:\ImageMagick-temp" -Recurse -Force
-          # Add to PATH for current session
-          $env:PATH = "C:\ImageMagick;$env:PATH"
-          echo "C:\ImageMagick" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          # Verify installation
-          if (Test-Path "C:\ImageMagick\magick.exe") {
-            Write-Host "ImageMagick installed successfully"
-            & "C:\ImageMagick\magick.exe" -version
-          } else {
-            Write-Error "ImageMagick installation failed - magick.exe not found"
-          }
+      # - name: Install ImageMagick (for Rust binary)
+      #   if: steps.check-release.outputs.release-exists == 'false'
+      #   shell: pwsh
+      #   run: |
+      #     # Download and install ImageMagick portable (latest version)
+      #     $url = "https://download.imagemagick.org/ImageMagick/download/binaries/ImageMagick-7.1.2-0-portable-Q16-x64.zip"
+      #     $output = "$env:TEMP\imagemagick.zip"
+      #     Write-Host "Downloading ImageMagick from $url"
+      #     Invoke-WebRequest -Uri $url -OutFile $output
+      #     Write-Host "Extracting ImageMagick to C:\ImageMagick"
+      #     Expand-Archive -Path $output -DestinationPath "C:\ImageMagick-temp" -Force
+      #     Move-Item "C:\ImageMagick-temp\*" "C:\ImageMagick" -Force
+      #     Remove-Item "C:\ImageMagick-temp" -Recurse -Force
+      #     # Add to PATH for current session
+      #     $env:PATH = "C:\ImageMagick;$env:PATH"
+      #     echo "C:\ImageMagick" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      #     # Verify installation
+      #     if (Test-Path "C:\ImageMagick\magick.exe") {
+      #       Write-Host "ImageMagick installed successfully"
+      #       & "C:\ImageMagick\magick.exe" -version
+      #     } else {
+      #       Write-Error "ImageMagick installation failed - magick.exe not found"
+      #     }
 
-      - name: Install libvips (for Rust binary)
-        if: steps.check-release.outputs.release-exists == 'false'
-        shell: pwsh
-        run: |
-          # Download and install libvips
-          $url = "https://github.com/libvips/build-win64-mxe/releases/download/v8.17.1/vips-dev-w64-web-8.17.1.zip"
-          $output = "$env:TEMP\vips.zip"
-          $tempDir = "C:\vips-temp"
-          $finalDir = "C:\vips"
+      # - name: Install libvips (for Rust binary)
+      #   if: steps.check-release.outputs.release-exists == 'false'
+      #   shell: pwsh
+      #   run: |
+      #     # Download and install libvips
+      #     $url = "https://github.com/libvips/build-win64-mxe/releases/download/v8.17.1/vips-dev-w64-web-8.17.1.zip"
+      #     $output = "$env:TEMP\vips.zip"
+      #     $tempDir = "C:\vips-temp"
+      #     $finalDir = "C:\vips"
 
-          Invoke-WebRequest -Uri $url -OutFile $output
-          Expand-Archive -Path $output -DestinationPath $tempDir -Force
-          Move-Item "$tempDir\*" $finalDir -Force
-          Remove-Item $tempDir -Recurse -Force
+      #     Invoke-WebRequest -Uri $url -OutFile $output
+      #     Expand-Archive -Path $output -DestinationPath $tempDir -Force
+      #     Move-Item "$tempDir\*" $finalDir -Force
+      #     Remove-Item $tempDir -Recurse -Force
 
-          $vipsExe = Get-ChildItem -Path $finalDir -Recurse -Filter "vips.exe" | Select-Object -First 1
-          if ($vipsExe) {
-            $vipsBin = $vipsExe.Directory.FullName
-            echo $vipsBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            Write-Host "libvips installed successfully"
-            & "$vipsExe" --version
-          } else {
-            Write-Error "libvips installation failed - vips.exe not found"
-          }
+      #     $vipsExe = Get-ChildItem -Path $finalDir -Recurse -Filter "vips.exe" | Select-Object -First 1
+      #     if ($vipsExe) {
+      #       $vipsBin = $vipsExe.Directory.FullName
+      #       echo $vipsBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      #       Write-Host "libvips installed successfully"
+      #       & "$vipsExe" --version
+      #     } else {
+      #       Write-Error "libvips installation failed - vips.exe not found"
+      #     }
 
       - name: Workaround node-gyp python path (symlink)
         if: steps.check-release.outputs.release-exists == 'false'
@@ -176,4 +176,3 @@ jobs:
       - name: Skip build - release exists
         if: steps.check-release.outputs.release-exists == 'true'
         run: echo "Skipping build as release $RELEASE_VERSION already exists"
-

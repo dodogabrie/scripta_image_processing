@@ -21,17 +21,21 @@ export default class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-
+    console.log('PythonManager: Determining Python executable path...');
+    console.log('PythonManager: isWindows:', isWindows);
+    console.log('PythonManager: venvPath:', this.venvPath);
+    console.log('PythonManager: app.getAppPath():', app.getAppPath());
+    console.log('PythonManager: app.isPackaged:', app.isPackaged);
+    console.log('PythonManager: app.getPath("userData"):', app.getPath('userData'));
+    // Usa l'interprete embedded se presente (sync check)
     if (isWindows) {
-      // In produzione: python-embed è copiato accanto all'eseguibile dell'app
-      const appDir = path.dirname(process.execPath); // Directory dell'eseguibile
-      const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
-
+      // Il Python embedded ora è nella root dell'app grazie a extraFiles
+      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
       try {
         const fs = require('fs');
-        if (fs.existsSync(embeddedPath)) {
-          this.logger.info('Using embedded Python:', embeddedPath);
-          return embeddedPath;
+        if (fs.existsSync(embedded)) {
+          this.logger.info('Using embedded Python:', embedded);
+          return embedded;
         }
       } catch (e) {
         this.logger.warn('Error checking embedded Python:', e.message);
@@ -48,8 +52,7 @@ export default class PythonManager {
     const isWindows = os.platform() === 'win32';
 
     if (isWindows) {
-      const appDir = path.dirname(process.execPath);
-      const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
+      const embeddedPython = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
 
       try {
         const fs = require('fs');
@@ -100,8 +103,7 @@ export default class PythonManager {
       // Se stiamo usando Python embedded su Windows, salta il check della versione
       const isWindows = os.platform() === 'win32';
       if (isWindows) {
-        const appDir = path.dirname(process.execPath);
-        const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
+        const embeddedPath = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
         const fs = require('fs');
         if (fs.existsSync(embeddedPath)) {
           this.logger.info('Using embedded Python, skipping venv creation');
@@ -148,8 +150,7 @@ export default class PythonManager {
     // If using embedded Python on Windows, skip venv creation
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
-      const appDir = path.dirname(process.execPath);
-      const embedded = path.join(appDir, 'python-embed', 'python.exe');
+      const embedded = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
       const fs = require('fs');
       if (fs.existsSync(embedded)) {
         this.status.venvExists = true;
@@ -387,8 +388,7 @@ export default class PythonManager {
   
     return new Promise((resolve, reject) => {
       const isWindows = os.platform() === 'win32';
-      const appDir = path.dirname(process.execPath);
-      const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
+      const embeddedPython = path.join(path.dirname(app.getAppPath()), 'python-embed', 'python.exe');
 
       let pipProcess; // ← RINOMINA da 'process' a 'pipProcess'
 
@@ -535,7 +535,7 @@ export default class PythonManager {
       let debugInfo = `🐍 Python executable: ${this.pythonExecutable}\n`;
 
       if (isWindows) {
-        const appDir = path.dirname(process.execPath);
+        const appDir = path.dirname(app.getAppPath());
         const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
         debugInfo += `📁 App directory: ${appDir}\n`;
         debugInfo += `🔍 Looking for embedded at: ${embeddedPath}\n`;

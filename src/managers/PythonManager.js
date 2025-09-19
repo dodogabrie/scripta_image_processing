@@ -21,12 +21,12 @@ export default class PythonManager {
 
   getPythonExecutable() {
     const isWindows = os.platform() === 'win32';
-    
+
     if (isWindows) {
-      // Path corretto: affianco a resources, non dentro
-      const appDir = path.dirname(process.resourcesPath); // Programs/Scripta.../
+      // In produzione: python-embed è copiato accanto all'eseguibile dell'app
+      const appDir = path.dirname(process.execPath); // Directory dell'eseguibile
       const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
-      
+
       try {
         const fs = require('fs');
         if (fs.existsSync(embeddedPath)) {
@@ -46,11 +46,11 @@ export default class PythonManager {
 
   getPipExecutable() {
     const isWindows = os.platform() === 'win32';
-    
+
     if (isWindows) {
-      const appDir = path.dirname(process.resourcesPath);
+      const appDir = path.dirname(process.execPath);
       const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
-      
+
       try {
         const fs = require('fs');
         if (fs.existsSync(embeddedPython)) {
@@ -100,7 +100,7 @@ export default class PythonManager {
       // Se stiamo usando Python embedded su Windows, salta il check della versione
       const isWindows = os.platform() === 'win32';
       if (isWindows) {
-        const appDir = path.dirname(process.resourcesPath);
+        const appDir = path.dirname(process.execPath);
         const embeddedPath = path.join(appDir, 'python-embed', 'python.exe');
         const fs = require('fs');
         if (fs.existsSync(embeddedPath)) {
@@ -148,7 +148,7 @@ export default class PythonManager {
     // If using embedded Python on Windows, skip venv creation
     const isWindows = os.platform() === 'win32';
     if (isWindows) {
-      const appDir = path.dirname(process.resourcesPath);
+      const appDir = path.dirname(process.execPath);
       const embedded = path.join(appDir, 'python-embed', 'python.exe');
       const fs = require('fs');
       if (fs.existsSync(embedded)) {
@@ -387,11 +387,11 @@ export default class PythonManager {
   
     return new Promise((resolve, reject) => {
       const isWindows = os.platform() === 'win32';
-      const appDir = path.dirname(process.resourcesPath);
+      const appDir = path.dirname(process.execPath);
       const embeddedPython = path.join(appDir, 'python-embed', 'python.exe');
-      
+
       let pipProcess; // ← RINOMINA da 'process' a 'pipProcess'
-      
+
       if (isWindows && require('fs').existsSync(embeddedPython)) {
         // Usa python -m pip per embedded
         pipProcess = spawn(embeddedPython, ['-m', 'pip', 'install', '-r', requirementsPath], {

@@ -494,6 +494,11 @@ export default class PythonManager {
       let output = '';
       let error = '';
 
+      // Log del path Python usato
+      this.logger.info(`🐍 Executing Python at: ${this.pythonExecutable}`);
+      this.logger.info(`📜 Script path: ${scriptPath}`);
+      this.logger.info(`📋 Arguments: ${JSON.stringify(args)}`);
+
       // Costruisci il path delle DLL di vips
       const isWindows = process.platform === 'win32';
       let vipsBinDir = null;
@@ -508,13 +513,13 @@ export default class PythonManager {
         }
         vipsBinDir = baseDir;
       }
-  
+
       // Prepara l'env per il processo Python
       const env = { ...process.env };
       if (isWindows && vipsBinDir) {
         env.PATH = vipsBinDir + ';' + env.PATH;
       }
-  
+
       let py;
       try {
         py = spawn(this.pythonExecutable, [scriptPath, ...args], { env });
@@ -525,6 +530,9 @@ export default class PythonManager {
   
       py.stdout.on('data', (data) => { output += data.toString(); });
       py.stderr.on('data', (data) => { error += data.toString(); });
+
+      // Aggiungi info sul Python usato all'inizio dell'output
+      output = `🐍 Python executable: ${this.pythonExecutable}\n📜 Script: ${path.basename(scriptPath)}\n\n`;
   
       py.on('close', (code) => {
         if (finished) return;

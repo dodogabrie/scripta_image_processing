@@ -68,6 +68,7 @@ export function setupIPC(managers) {
 
     ipcMain.handle('projects:runScript', async (event, projectId, scriptName, args = []) => {
       console.log('IPC: projects:runScript chiamato con:', projectId, scriptName, args);
+      console.log('🐍 Python executable path:', pythonManager.pythonExecutable);
       try {
         const scriptPath = projectManager.getProjectPythonScript(projectId, scriptName);
         if (!scriptPath) {

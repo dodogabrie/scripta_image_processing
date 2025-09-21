@@ -1,0 +1,15 @@
+{
+  "name": "Pipeline Manager",
+  "description": "Crea ed esegui workflow di elaborazione di immagini multipli combinando progetti esistenti.",
+  "icon": "renderer/assets/icon.svg",
+  "version": "1.0.0",
+  "type": "pipeline",
+  "main": "renderer/ProjectPipelineComponent.vue",
+  "python_scripts": ["python/pipeline_orchestrator.py"],
+  "requirements": ["opencv-python==4.10.0.84", "numpy==2.2.1", "pathlib"],
+  "pipeline_config": {
+    "supports_all_projects": true,
+    "max_steps": 10,
+    "temp_dir_prefix": "pipeline_temp_"
+  }
+}

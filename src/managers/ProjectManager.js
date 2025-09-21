@@ -88,7 +88,59 @@ export default class ProjectManager {
     } else {
       // In development: use normal path
       scriptPath = path.join(project.path, 'python', scriptName);
-    } 
+    }
     return scriptPath;
+  }
+
+  // Pipeline-specific methods
+  isPipelineProject(projectId) {
+    const project = this.getProject(projectId);
+    return project && project.config.type === 'pipeline';
+  }
+
+  getRegularProjects() {
+    return Array.from(this.projects.values()).filter(p => p.config.type !== 'pipeline');
+  }
+
+  getPipelineProjects() {
+    return Array.from(this.projects.values()).filter(p => p.config.type === 'pipeline');
+  }
+
+  validatePipelineConfig(pipelineConfig) {
+    if (!pipelineConfig || typeof pipelineConfig !== 'object') {
+      return { valid: false, error: 'Pipeline configuration is required' };
+    }
+
+    if (!Array.isArray(pipelineConfig.steps) || pipelineConfig.steps.length === 0) {
+      return { valid: false, error: 'Pipeline must have at least one step' };
+    }
+
+    if (!pipelineConfig.inputDir || !pipelineConfig.outputDir) {
+      return { valid: false, error: 'Input and output directories are required' };
+    }
+
+    // Validate each step
+    for (let i = 0; i < pipelineConfig.steps.length; i++) {
+      const step = pipelineConfig.steps[i];
+      if (!step.projectId) {
+        return { valid: false, error: `Step ${i + 1} is missing projectId` };
+      }
+
+      const project = this.getProject(step.projectId);
+      if (!project) {
+        return { valid: false, error: `Step ${i + 1}: Project '${step.projectId}' not found` };
+      }
+
+      if (project.config.type === 'pipeline') {
+        return { valid: false, error: `Step ${i + 1}: Cannot include pipeline projects in pipeline` };
+      }
+    }
+
+    return { valid: true };
+  }
+
+  generateTempDirectoryName(pipelineConfig, stepIndex) {
+    const timestamp = Date.now();
+    return path.join(pipelineConfig.outputDir, `pipeline_temp_step${stepIndex}_${timestamp}`);
   }
 }

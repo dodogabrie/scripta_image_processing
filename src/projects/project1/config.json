@@ -5,12 +5,14 @@
   "version": "1.0.0",
   "main": "renderer/Project1Component.vue",
   "renderer_script": "renderer/Project1.js",
-  "python_scripts": [
-    "python/microperspective_wrapper.py"
-  ],
+  "python_scripts": ["python/microperspective-corrector/main.py"],
   "requirements": [
     "opencv-python==4.10.0.84",
     "numpy==2.2.1",
     "matplotlib==3.10.0"
-  ]
+  ],
+  "pipeline_parameters": {
+    "borderPixels": "--border",
+    "imageFormat": "--image-input-format"
+  }
 }

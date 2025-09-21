@@ -173,5 +173,60 @@ export function setupIPC(managers) {
       logger.info('Log from renderer:', msg);
     });
 
+    // Pipeline-specific IPC handlers
+    ipcMain.handle('pipeline:validate', async (event, pipelineConfig) => {
+      console.log('IPC: pipeline:validate chiamato');
+      try {
+        const validation = projectManager.validatePipelineConfig(pipelineConfig);
+        return validation;
+      } catch (error) {
+        return { valid: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle('pipeline:run', async (event, pipelineConfig) => {
+      console.log('IPC: pipeline:run chiamato con:', pipelineConfig);
+      try {
+        // Validate pipeline configuration
+        const validation = projectManager.validatePipelineConfig(pipelineConfig);
+        if (!validation.valid) {
+          return { success: false, error: validation.error };
+        }
+
+        // Get pipeline script path
+        const scriptPath = projectManager.getProjectPythonScript('pipeline', 'pipeline_orchestrator.py');
+        if (!scriptPath) {
+          return { success: false, error: 'Pipeline orchestrator script not found' };
+        }
+
+        // Execute pipeline
+        return await pythonManager.runPythonScript(scriptPath, [JSON.stringify(pipelineConfig)]);
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle('pipeline:runStreaming', async (event, pipelineConfig) => {
+      console.log('IPC: pipeline:runStreaming chiamato');
+      try {
+        // Validate pipeline configuration
+        const validation = projectManager.validatePipelineConfig(pipelineConfig);
+        if (!validation.valid) {
+          return { success: false, error: validation.error };
+        }
+
+        // Get pipeline script path
+        const scriptPath = projectManager.getProjectPythonScript('pipeline', 'pipeline_orchestrator.py');
+        if (!scriptPath) {
+          return { success: false, error: 'Pipeline orchestrator script not found' };
+        }
+
+        // Execute pipeline with streaming
+        return await pythonManager.runPythonScriptWithStreaming(scriptPath, [JSON.stringify(pipelineConfig)], event);
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    });
+
     console.log('IPC handlers configurati');
 }

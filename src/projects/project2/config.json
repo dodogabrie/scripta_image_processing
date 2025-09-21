@@ -10,5 +10,8 @@
   "requirements": [
     "opencv-python==4.10.0.84",
     "numpy==2.2.1"
-  ]
+  ],
+  "pipeline_parameters": {
+    "imageFormat": "--image_input_format"
+  }
 }

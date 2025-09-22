@@ -74,20 +74,33 @@ def process_image(img, side, debug=False, debug_dir=None, apply_rotation=False, 
     Processa l'immagine: rileva la piega, applica split con rotazione opzionale e crop intelligente opzionale.
     Ritorna: (immagine_sinistra, immagine_destra, info_debug)
     """
-    x_fold, angle, a, b = detect_fold_brightness_profile(img, side, debug=debug, debug_dir=debug_dir)
-    left_side, right_side = apply_crop_and_split(img, x_fold, angle, side, 
-                                                apply_rotation=apply_rotation, 
-                                                smart_crop=smart_crop, 
-                                                debug=debug, 
+    x_fold, angle, a, b, confidence = detect_fold_brightness_profile(img, side, debug=debug, debug_dir=debug_dir)
+
+    # Additional background analysis debug (separate from fold detection)
+    if debug and debug_dir:
+        from .fold_detection import analyze_background_page_brightness
+        from . import fold_debug
+
+        bg_analysis = analyze_background_page_brightness(img)
+        if bg_analysis is not None:
+            import cv2
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            fold_debug.save_background_analysis_debug(bg_analysis, debug_dir, gray)
+
+    left_side, right_side = apply_crop_and_split(img, x_fold, angle, side,
+                                                apply_rotation=apply_rotation,
+                                                smart_crop=smart_crop,
+                                                debug=debug,
                                                 debug_dir=debug_dir)
-    
+
     debug_info = {
         'x_fold': x_fold,
         'angle': angle,
         'slope': a,
         'intercept': b,
+        'confidence': confidence,
         'rotation_applied': apply_rotation,
         'smart_crop_applied': smart_crop
     }
-    
+
     return left_side, right_side, debug_info

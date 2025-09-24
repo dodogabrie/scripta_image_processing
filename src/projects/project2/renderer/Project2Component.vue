@@ -336,8 +336,8 @@ export default {
                 return;
             }
 
-            // Parse fold detection results
-            const foldMatch = line.match(/✅ (fold detected|no fold), (\d+) files renamed/);
+            // Parse fold detection results - formato: [OK] fold_status, N files renamed
+            const foldMatch = line.match(/\s*\[OK\] (fold detected|no fold), (\d+) files renamed/);
             if (foldMatch) {
                 const foldDetected = foldMatch[1] === 'fold detected';
                 const filesRenamed = parseInt(foldMatch[2]);

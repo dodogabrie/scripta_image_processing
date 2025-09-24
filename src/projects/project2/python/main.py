@@ -504,7 +504,8 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
                         fold_detected=True,
                         left_file=left_file,
                         right_file=right_file,
-                        original_filename=mapping.original_filename
+                        original_filename=mapping.original_filename,
+                        original_file_path=original_image
                     )
                 else:
                     # No fold - file singolo
@@ -513,7 +514,8 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
                     crop_result = CropResult(
                         fold_detected=False,
                         single_file=single_file,
-                        original_filename=mapping.original_filename
+                        original_filename=mapping.original_filename,
+                        original_file_path=original_image
                     )
 
                 # Applica renaming ICCD
@@ -530,9 +532,9 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
 
                     renamings = renamer.handle_page_splitting(mapping, crop_result)
 
-                    for source_file, target_filename in renamings:
+                    for source_file, target_filename, original_file_path in renamings:
                         success = renamer.apply_naming_convention(
-                            source_file, target_filename, final_target_dir
+                            source_file, target_filename, final_target_dir, original_file_path
                         )
 
                         if success:

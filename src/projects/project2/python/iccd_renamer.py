@@ -20,6 +20,7 @@ class CropResult:
     single_file: Optional[str] = None
     processing_logs: str = ""
     original_filename: str = ""
+    original_file_path: str = ""  # Path to original file for metadata preservation
 
 
 class ICCDRenamer:
@@ -44,6 +45,7 @@ class ICCDRenamer:
         Returns:
             Filename ICCD formattato con estensione originale
         """
+        print(f"[DEBUG] Generating ICCD filename - File: {mapping.original_filename}, Page: {mapping.page_number}, Side: {side}, Fold: {crop_result.fold_detected}")
         # Estrai estensione originale
         original_ext = os.path.splitext(mapping.original_filename)[1]
 
@@ -93,6 +95,7 @@ class ICCDRenamer:
         page_number = self._calculate_page_number(mapping.page_number, crop_result, side)
 
         filename = f"ICCD_{fascicolo}-{oggetto}_{progressive_num:02d}_{doc_type}{doc_number}_{page_number:02d}{original_ext}"
+        print(f"[DEBUG] Generated filename: {filename}")
         return filename
 
     def _get_progressive_number(self, document_type: str) -> int:
@@ -127,12 +130,12 @@ class ICCDRenamer:
             # Pagina N → (N*2, N*2+1)
             return (original_page * 2) if side == 'left' else (original_page * 2 + 1)
 
-    def handle_page_splitting(self, mapping: ImageMapping, crop_result: CropResult) -> List[Tuple[str, str]]:
+    def handle_page_splitting(self, mapping: ImageMapping, crop_result: CropResult) -> List[Tuple[str, str, str]]:
         """
         Gestisce split delle pagine quando fold è rilevato
 
         Returns:
-            Lista di tuple (source_file, target_filename)
+            Lista di tuple (source_file, target_filename, original_file_path)
         """
         renamings = []
 
@@ -140,28 +143,29 @@ class ICCDRenamer:
             # Fold rilevato - genera nomi per left e right
             if crop_result.left_file:
                 left_name = self.generate_iccd_filename(mapping, crop_result, 'left')
-                renamings.append((crop_result.left_file, left_name))
+                renamings.append((crop_result.left_file, left_name, crop_result.original_file_path))
 
             if crop_result.right_file:
                 right_name = self.generate_iccd_filename(mapping, crop_result, 'right')
-                renamings.append((crop_result.right_file, right_name))
+                renamings.append((crop_result.right_file, right_name, crop_result.original_file_path))
         else:
             # No fold - rinomina file singolo
             if crop_result.single_file:
                 single_name = self.generate_iccd_filename(mapping, crop_result)
-                renamings.append((crop_result.single_file, single_name))
+                renamings.append((crop_result.single_file, single_name, crop_result.original_file_path))
 
         return renamings
 
     def apply_naming_convention(self, source_file: str, target_filename: str,
-                              output_dir: str) -> bool:
+                              output_dir: str, original_file_for_metadata: str = "") -> bool:
         """
         Applica effettivamente la rinomina del file
 
         Args:
-            source_file: File sorgente
+            source_file: File sorgente (processato)
             target_filename: Nome target ICCD
             output_dir: Directory di output
+            original_file_for_metadata: File originale per preservare metadati
 
         Returns:
             True se rinomina riuscita
@@ -178,12 +182,12 @@ class ICCDRenamer:
                 print(f"[ERROR] Source file not found: {source_file}")
                 return False
 
-            # Controlla conflitti naming
+            # Check for conflicts but don't auto-resolve - ICCD logic should prevent conflicts
             if os.path.exists(target_path):
-                print(f"[WARNING] Target file already exists: {target_path}")
-                # Genera nome alternativo
-                target_path = self._generate_unique_filename(target_path)
-                target_filename = os.path.basename(target_path)
+                print(f"[WARNING] Target file already exists: {target_path} - will OVERWRITE")
+                # Remove existing file to prevent conflicts
+                os.remove(target_path)
+                print(f"[INFO] Removed existing file to avoid conflicts")
 
             # Save with metadata preservation
             try:
@@ -200,11 +204,16 @@ class ICCDRenamer:
                 # Load image and save with metadata preservation
                 image_array = cv2.imread(source_file)
                 if image_array is not None:
-                    # For ICCD files, we want the original file for metadata
-                    original_file = source_file  # The processed file is our source
+                    # Use original file for metadata if provided, otherwise use processed file
+                    metadata_source = original_file_for_metadata if original_file_for_metadata and os.path.exists(original_file_for_metadata) else source_file
                     metadata_info = save_image_with_metadata(
-                        image_array, target_path, original_file, use_compression=True
+                        image_array, target_path, metadata_source, use_compression=True
                     )
+
+                    if original_file_for_metadata and metadata_source == original_file_for_metadata:
+                        print(f"[OK] Metadata preserved from original file: {os.path.basename(original_file_for_metadata)}")
+                    elif original_file_for_metadata:
+                        print(f"[WARNING] Original file not found, using processed file for metadata: {os.path.basename(source_file)}")
 
                     if metadata_info.get("saved_successfully", False):
                         print(f"[OK] Renamed with metadata: {os.path.basename(source_file)} -> {target_filename}")
@@ -319,7 +328,7 @@ class ICCDRenamer:
 
 
 def analyze_crop_output(output_path: str, was_cropped: bool,
-                       original_filename: str) -> CropResult:
+                       original_filename: str, original_file_path: str = "") -> CropResult:
     """
     Analizza output del crop per determinare se fold è stato rilevato
     Si basa sui file _left/_right generati dal crop.py
@@ -328,6 +337,7 @@ def analyze_crop_output(output_path: str, was_cropped: bool,
         output_path: Path del file processato
         was_cropped: Se il crop ha rilevato fold
         original_filename: Nome file originale
+        original_file_path: Path del file originale per preservare metadati
 
     Returns:
         CropResult con informazioni sui file generati
@@ -351,14 +361,16 @@ def analyze_crop_output(output_path: str, was_cropped: bool,
             fold_detected=True,
             left_file=left_file,
             right_file=right_file,
-            original_filename=original_filename
+            original_filename=original_filename,
+            original_file_path=original_file_path
         )
     else:
         # No fold - file singolo
         return CropResult(
             fold_detected=False,
             single_file=output_path,
-            original_filename=original_filename
+            original_filename=original_filename,
+            original_file_path=original_file_path
         )
 
 

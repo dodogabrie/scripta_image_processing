@@ -720,6 +720,9 @@ class XMLProcessor:
 
             print(f"   [INFO] Found {len(objects)} objects in fascicolo {fascicolo_num}")
 
+            # Global counters for sequence numbers by document type within fascicolo
+            fascicolo_sequence_counters = {'S': 0, 'A': 0, 'F': 0, 'P': 0}
+
             # Process each object
             for obj_num, object_files in enumerate(objects, 1):
                 print(f"   [INFO] Processing object {obj_num}")
@@ -749,13 +752,17 @@ class XMLProcessor:
                     progressive_num = type_order[doc_type]
 
                     for doc_instance_num, instance_files in enumerate(document_instances, 1):
+                        # Increment global counter for this document type
+                        fascicolo_sequence_counters[doc_type] += 1
+                        global_sequence_num = fascicolo_sequence_counters[doc_type]
+
                         for file_data in instance_files:
                             mapping = ImageMapping(
                                 original_filename=file_data['filename'],
                                 fascicolo_number=fascicolo_num,
                                 oggetto_number=f"{obj_num:04d}",  # Object number within fascicolo
                                 document_type=doc_type,
-                                sequence_number=f"{doc_instance_num:04d}",  # Progressive within doc type
+                                sequence_number=f"{global_sequence_num:04d}",  # Progressive within fascicolo by doc type
                                 page_number=file_data['page_number'],  # Original page from XML
                                 busta_folder=folder_path,
                                 full_path=file_data.get('full_path', file_data['filename']),
@@ -763,7 +770,7 @@ class XMLProcessor:
                             )
 
                             mappings.append(mapping)
-                            print(f"      [INFO] {file_data['filename']} -> Object:{obj_num:04d} {doc_type}{doc_instance_num:04d}_{file_data['page_number']:02d}")
+                            print(f"      [INFO] {file_data['filename']} -> Object:{obj_num:04d} {doc_type}{global_sequence_num:04d}_{file_data['page_number']:02d}")
 
         return mappings
 

@@ -16,6 +16,7 @@ jobs:
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: false
 
     steps:
       - name: Validate GitHub Token

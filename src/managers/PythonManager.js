@@ -258,9 +258,11 @@ export default class PythonManager {
         });
       }
 
-      const process = spawn(systemPython, ["-m", "venv", this.venvPath], {
-        windowsHide: true  // Hide console window on Windows
-      });
+      const spawnOptions = {};
+      if (os.platform() === 'win32') {
+        spawnOptions.windowsHide = true;
+      }
+      const process = spawn(systemPython, ["-m", "venv", this.venvPath], spawnOptions);
 
       process.stdout.on("data", (data) => {
         const output = data.toString().trim();
@@ -335,11 +337,14 @@ export default class PythonManager {
         });
       }
 
-      const process = spawn(this.pythonExecutable, ["-m", "ensurepip"], {
+      const spawnOptions = {
         cwd: this.venvPath,
-        stdio: ["pipe", "pipe", "pipe"],
-        windowsHide: true  // Hide console window on Windows
-      });
+        stdio: ["pipe", "pipe", "pipe"]
+      };
+      if (os.platform() === 'win32') {
+        spawnOptions.windowsHide = true;
+      }
+      const process = spawn(this.pythonExecutable, ["-m", "ensurepip"], spawnOptions);
 
       process.stdout.on("data", (data) => {
         const output = data.toString().trim();
@@ -447,25 +452,31 @@ export default class PythonManager {
 
       if (isWindows && fsSync.existsSync(embeddedPython)) {
         // Usa python -m pip per embedded
+        const spawnOptions = {
+          stdio: ["pipe", "pipe", "pipe"],
+          env: process.env
+        };
+        if (os.platform() === 'win32') {
+          spawnOptions.windowsHide = true;
+        }
         pipProcess = spawn(
           embeddedPython,
           ["-m", "pip", "install", "-r", requirementsPath],
-          {
-            stdio: ["pipe", "pipe", "pipe"],
-            env: process.env,
-            windowsHide: true  // Hide console window on Windows
-          },
+          spawnOptions
         );
       } else {
         // Usa pip normale per venv
+        const spawnOptions = {
+          stdio: ["pipe", "pipe", "pipe"],
+          env: process.env
+        };
+        if (os.platform() === 'win32') {
+          spawnOptions.windowsHide = true;
+        }
         pipProcess = spawn(
           this.pipExecutable,
           ["install", "-r", requirementsPath],
-          {
-            stdio: ["pipe", "pipe", "pipe"],
-            env: process.env,
-            windowsHide: true  // Hide console window on Windows
-          },
+          spawnOptions
         );
       }
 
@@ -601,10 +612,11 @@ export default class PythonManager {
 
       let py;
       try {
-        py = spawn(this.pythonExecutable, [scriptPath, ...args], {
-          env,
-          windowsHide: true  // Hide console window on Windows
-        });
+        const spawnOptions = { env };
+        if (os.platform() === 'win32') {
+          spawnOptions.windowsHide = true; // Hide console window on Windows only
+        }
+        py = spawn(this.pythonExecutable, [scriptPath, ...args], spawnOptions);
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({
@@ -705,11 +717,14 @@ export default class PythonManager {
 
       let py;
       try {
-        py = spawn(this.pythonExecutable, ["-u", scriptPath, ...args], {
+        const spawnOptions = {
           env,
-          stdio: ["inherit", "pipe", "pipe"], // Unbuffered stdio
-          windowsHide: true  // Hide console window on Windows
-        });
+          stdio: ["inherit", "pipe", "pipe"] // Unbuffered stdio
+        };
+        if (os.platform() === 'win32') {
+          spawnOptions.windowsHide = true; // Hide console window on Windows only
+        }
+        py = spawn(this.pythonExecutable, ["-u", scriptPath, ...args], spawnOptions);
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({

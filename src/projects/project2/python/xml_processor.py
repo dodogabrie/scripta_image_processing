@@ -64,9 +64,9 @@ class XMLProcessor:
             if os.path.isdir(folder_path):
                 folder_pairs.append((folder_path, xml_file))
             else:
-                print(f"⚠️  Warning: Found {xml_file} but no corresponding folder {folder_path}")
+                print(f"[WARNING] Found {xml_file} but no corresponding folder {folder_path}")
 
-        print(f"📁 Discovered {len(folder_pairs)} folder-XML pairs")
+        print(f"[INFO] Discovered {len(folder_pairs)} folder-XML pairs")
         return folder_pairs
 
     def parse_busta_xml(self, xml_file_path: str) -> Dict:
@@ -148,21 +148,21 @@ class XMLProcessor:
 
             # Step 1: Parse fascicoli from <stru> elements
             fascicoli = self._parse_fascicoli_direct(root, ns)
-            print(f"📋 Found {len(fascicoli)} fascicoli in XML")
+            print(f"[INFO] Found {len(fascicoli)} fascicoli in XML")
 
             # Step 2: Parse images from <img> elements
             xml_image_mappings = self._parse_images_direct(root, ns)
-            print(f"🖼️  Found {len(xml_image_mappings)} image mappings in XML")
+            print(f"[INFO] Found {len(xml_image_mappings)} image mappings in XML")
 
             # Step 3: Get actual files in folder
             actual_files = self._get_image_files(folder_path, process_jpg, process_tiff)
-            print(f"📁 Found {len(actual_files)} actual files in folder")
+            print(f"[INFO] Found {len(actual_files)} actual files in folder")
 
             # Step 4: Create progressive mappings by fascicolo and document type
             mappings = self._create_progressive_mappings(actual_files, xml_image_mappings, fascicoli, folder_path)
 
         except Exception as e:
-            print(f"❌ Error in direct XML parsing: {e}")
+            print(f"[ERROR] Error in direct XML parsing: {e}")
 
         return mappings
 
@@ -210,7 +210,7 @@ class XMLProcessor:
                 if (os.path.isdir(item_path) and
                     item.lower() == subdir_name.lower()):
 
-                    print(f"   📁 Scanning subdirectory: {item}")
+                    print(f"   [INFO] Scanning subdirectory: {item}")
 
                     # Search for images in this subdirectory
                     for ext in image_extensions:
@@ -224,7 +224,7 @@ class XMLProcessor:
                             })
                     break  # Found matching subdirectory
 
-        print(f"   📁 Scanning {folder_path} for images (JPG: {process_jpg}, TIFF: {process_tiff})")
+        print(f"   [INFO] Scanning {folder_path} for images (JPG: {process_jpg}, TIFF: {process_tiff})")
 
         # Group by subdirectory for reporting
         by_subdir = {}
@@ -235,7 +235,7 @@ class XMLProcessor:
             by_subdir[subdir].append(file_info['filename'])
 
         for subdir, files in by_subdir.items():
-            print(f"   📁 {subdir}: {len(files)} files - {files[:3]}{'...' if len(files) > 3 else ''}")
+            print(f"   [INFO] {subdir}: {len(files)} files - {files[:3]}{'...' if len(files) > 3 else ''}")
 
         return image_files
 
@@ -445,11 +445,11 @@ class XMLProcessor:
         for mapping in xml_mappings:
             xml_filename = mapping.get('filename')
             if xml_filename and xml_filename == filename:
-                print(f"   ✅ Exact match: {filename} ↔ {xml_filename} (seq {mapping.get('sequence_number')})")
+                print(f"   [OK] Exact match: {filename} <-> {xml_filename} (seq {mapping.get('sequence_number')})")
                 return mapping
 
         # Debug: show what we were trying to match
-        print(f"   ❌ No exact match for {filename}")
+        print(f"   [WARNING] No exact match for {filename}")
         return None
 
     def _find_fascicolo_for_sequence(self, sequence_number: int, fascicoli: List[Dict]) -> Optional[Dict]:
@@ -579,7 +579,7 @@ class XMLProcessor:
                     # Validate and add
                     if all(file_info[key] is not None for key in ['sequence_number', 'page_number', 'document_type']):
                         image_mappings.append(file_info)
-                        print(f"   📁 Added {filename} → seq {file_info['sequence_number']}")
+                        print(f"   [INFO] Added {filename} -> seq {file_info['sequence_number']}")
 
         except Exception as e:
             print(f"Error parsing images: {e}")
@@ -630,7 +630,7 @@ class XMLProcessor:
         if current_instance:
             document_instances.append(current_instance)
 
-        print(f"   📋 Grouped {len(files_of_type)} files into {len(document_instances)} document instances")
+        print(f"   [INFO] Grouped {len(files_of_type)} files into {len(document_instances)} document instances")
         for i, instance in enumerate(document_instances, 1):
             pages = [f['page_number'] for f in instance]
             print(f"      Instance {i}: pages {pages}")
@@ -676,19 +676,19 @@ class XMLProcessor:
                     file_groups[fascicolo_num][doc_type].append(file_data)
 
                     subdir_info = f" ({file_info.get('subdir', 'main')})" if isinstance(file_info, dict) and file_info.get('subdir') else ""
-                    print(f"✅ Grouped {filename}{subdir_info} → fascicolo {fascicolo_num} (seq {xml_mapping['sequence_number']}), type {doc_type}, page {xml_mapping['page_number']}")
+                    print(f"[OK] Grouped {filename}{subdir_info} -> fascicolo {fascicolo_num} (seq {xml_mapping['sequence_number']}), type {doc_type}, page {xml_mapping['page_number']}")
                 else:
-                    print(f"⚠️  No fascicolo found for {filename} (sequence {xml_mapping['sequence_number']})")
+                    print(f"[WARNING] No fascicolo found for {filename} (sequence {xml_mapping['sequence_number']})")
                     print(f"      Available fascicolo ranges:")
                     for fasc in fascicoli[:3]:  # Show first 3 fascicoli
                         print(f"      - Fascicolo {fasc['number']}: seq {fasc['start_sequence']}-{fasc['stop_sequence']}")
                     print(f"      ... (showing first 3 of {len(fascicoli)} total)")
             else:
-                print(f"⚠️  No XML mapping found for {filename}")
+                print(f"[WARNING] No XML mapping found for {filename}")
 
         # Step 2: Create progressive mappings by fascicolo, then by object, then by document type
         for fascicolo_num, doc_types in file_groups.items():
-            print(f"📋 Processing fascicolo {fascicolo_num}")
+            print(f"[INFO] Processing fascicolo {fascicolo_num}")
 
             # First, we need to determine object boundaries by looking at Pagina sequences
             # Every time Pagina sequence resets to 1, it's a new object
@@ -718,11 +718,11 @@ class XMLProcessor:
             if current_object:
                 objects.append(current_object)
 
-            print(f"   📦 Found {len(objects)} objects in fascicolo {fascicolo_num}")
+            print(f"   [INFO] Found {len(objects)} objects in fascicolo {fascicolo_num}")
 
             # Process each object
             for obj_num, object_files in enumerate(objects, 1):
-                print(f"   📦 Processing object {obj_num}")
+                print(f"   [INFO] Processing object {obj_num}")
 
                 # Group files by document type within this object
                 object_doc_types = {}
@@ -763,7 +763,7 @@ class XMLProcessor:
                             )
 
                             mappings.append(mapping)
-                            print(f"      📝 {file_data['filename']} → Object:{obj_num:04d} {doc_type}{doc_instance_num:04d}_{file_data['page_number']:02d}")
+                            print(f"      [INFO] {file_data['filename']} -> Object:{obj_num:04d} {doc_type}{doc_instance_num:04d}_{file_data['page_number']:02d}")
 
         return mappings
 
@@ -785,7 +785,7 @@ class XMLProcessor:
         folder_pairs = self.discover_busta_files(input_dir)
 
         for folder_path, xml_file in folder_pairs:
-            print(f"📄 Processing {os.path.basename(xml_file)}...")
+            print(f"[INFO] Processing {os.path.basename(xml_file)}...")
 
             try:
                 # Parsa XML
@@ -794,19 +794,19 @@ class XMLProcessor:
                 # Estrai mappings
                 mappings = self.extract_image_mappings(xml_data, folder_path, process_jpg, process_tiff)
 
-                print(f"✅ Extracted {len(mappings)} image mappings from {os.path.basename(xml_file)}")
+                print(f"[OK] Extracted {len(mappings)} image mappings from {os.path.basename(xml_file)}")
 
                 all_mappings.extend(mappings)
 
             except XMLProcessorError as e:
-                print(f"❌ Error processing {xml_file}: {e}")
+                print(f"[ERROR] Error processing {xml_file}: {e}")
                 continue
             except Exception as e:
-                print(f"❌ Unexpected error processing {xml_file}: {e}")
+                print(f"[ERROR] Unexpected error processing {xml_file}: {e}")
                 continue
 
         self.mappings = all_mappings
-        print(f"🎯 Total mappings extracted: {len(all_mappings)}")
+        print(f"[INFO] Total mappings extracted: {len(all_mappings)}")
 
         return all_mappings
 
@@ -837,15 +837,30 @@ def has_busta_structure(input_dir: str) -> bool:
         folder_path = os.path.join(input_dir, folder_name)
 
         if os.path.isdir(folder_path):
-            # Verifica che la cartella contenga immagini
+            # Verifica che la cartella contenga immagini (root o sottocartelle standard)
             image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tiff', '*.tif']
             has_images = False
 
+            # 1. Cerca immagini nella cartella principale
             for ext in image_extensions:
                 pattern = os.path.join(folder_path, ext)
                 if glob.glob(pattern) or glob.glob(pattern.upper()):
                     has_images = True
                     break
+
+            # 2. Se non trovate, cerca nelle sottocartelle standard ICCD
+            if not has_images:
+                standard_subdirs = ['tiff', 'tif', 'jpeg300', 'jpeg150']
+                for subdir in standard_subdirs:
+                    subdir_path = os.path.join(folder_path, subdir)
+                    if os.path.isdir(subdir_path):
+                        for ext in image_extensions:
+                            pattern = os.path.join(subdir_path, ext)
+                            if glob.glob(pattern) or glob.glob(pattern.upper()):
+                                has_images = True
+                                break
+                        if has_images:
+                            break
 
             if has_images:
                 return True
@@ -866,4 +881,4 @@ if __name__ == "__main__":
     mappings = processor.process_all_bustas(input_dir)
 
     for mapping in mappings:
-        print(f"{mapping.original_filename} → {mapping.fascicolo_number} {mapping.document_type}")
+        print(f"{mapping.original_filename} -> {mapping.fascicolo_number} {mapping.document_type}")

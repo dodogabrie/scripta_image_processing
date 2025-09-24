@@ -258,7 +258,9 @@ export default class PythonManager {
         });
       }
 
-      const process = spawn(systemPython, ["-m", "venv", this.venvPath]);
+      const process = spawn(systemPython, ["-m", "venv", this.venvPath], {
+        windowsHide: true  // Hide console window on Windows
+      });
 
       process.stdout.on("data", (data) => {
         const output = data.toString().trim();
@@ -336,6 +338,7 @@ export default class PythonManager {
       const process = spawn(this.pythonExecutable, ["-m", "ensurepip"], {
         cwd: this.venvPath,
         stdio: ["pipe", "pipe", "pipe"],
+        windowsHide: true  // Hide console window on Windows
       });
 
       process.stdout.on("data", (data) => {
@@ -450,6 +453,7 @@ export default class PythonManager {
           {
             stdio: ["pipe", "pipe", "pipe"],
             env: process.env,
+            windowsHide: true  // Hide console window on Windows
           },
         );
       } else {
@@ -460,6 +464,7 @@ export default class PythonManager {
           {
             stdio: ["pipe", "pipe", "pipe"],
             env: process.env,
+            windowsHide: true  // Hide console window on Windows
           },
         );
       }
@@ -596,7 +601,10 @@ export default class PythonManager {
 
       let py;
       try {
-        py = spawn(this.pythonExecutable, [scriptPath, ...args], { env });
+        py = spawn(this.pythonExecutable, [scriptPath, ...args], {
+          env,
+          windowsHide: true  // Hide console window on Windows
+        });
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({
@@ -700,6 +708,7 @@ export default class PythonManager {
         py = spawn(this.pythonExecutable, ["-u", scriptPath, ...args], {
           env,
           stdio: ["inherit", "pipe", "pipe"], // Unbuffered stdio
+          windowsHide: true  // Hide console window on Windows
         });
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {

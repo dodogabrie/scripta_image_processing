@@ -181,7 +181,7 @@ def detect_document_format(image_path, debug=False, document_contour=None):
 
         if debug:
             print(
-                f"Step 1 - Physical dimensions check: {'✅ A3 landscape' if is_a3_physical else '❌ Not A3 landscape'}"
+                f"Step 1 - Physical dimensions check: {'[OK] A3 landscape' if is_a3_physical else '[NO] Not A3 landscape'}"
             )
 
         # STEP 2: If step 1 fails, try aspect ratio fallback
@@ -201,7 +201,7 @@ def detect_document_format(image_path, debug=False, document_contour=None):
                 print(f"  A3 landscape target: {a3_landscape_ratio:.3f}")
                 print(f"  Acceptable range: {min_ratio:.3f} - {max_ratio:.3f}")
                 print(
-                    f"  Result: {'✅ A3 landscape (by aspect ratio)' if is_a3_aspect else '❌ Not A3 landscape'}"
+                    f"  Result: {'[OK] A3 landscape (by aspect ratio)' if is_a3_aspect else '[NO] Not A3 landscape'}"
                 )
 
         # Final result: A3 detected by either method
@@ -216,14 +216,14 @@ def detect_document_format(image_path, debug=False, document_contour=None):
             is_a4_portrait = w_diff <= 0.15 and h_diff <= 0.15
 
         if debug:
-            print("\n🎯 FINAL RESULT:")
+            print("\n[RESULT] FINAL RESULT:")
             if is_a3_detected:
                 method = "physical dimensions" if is_a3_physical else "aspect ratio"
-                print(f"✅ DETECTED: A3 landscape format (by {method})")
+                print(f"[OK] DETECTED: A3 landscape format (by {method})")
             elif is_a4_portrait:
-                print("📄 DETECTED: A4 portrait format (not A3 landscape)")
+                print("[INFO] DETECTED: A4 portrait format (not A3 landscape)")
             else:
-                print("❌ NOT A3 landscape format")
+                print("[NO] NOT A3 landscape format")
 
         return is_a3_detected
 
@@ -316,7 +316,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             # Border too small - apply rotation only, no crop
             if debug:
                 print(
-                    f"⚠️  Available border ({min_available_border}px) below threshold ({min_border_threshold}px)"
+                    f"[WARNING] Available border ({min_available_border}px) below threshold ({min_border_threshold}px)"
                 )
                 print("🔄 Applying rotation-only mode (no crop)")
 
@@ -336,11 +336,11 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             adjusted_border = min(contour_border, min_available_border)
 
             if debug:
-                print("✅ Sufficient space available - applying normal crop")
+                print("[OK] Sufficient space available - applying normal crop")
                 print(f"Adjusted border: {adjusted_border}px")
                 if adjusted_border < contour_border:
                     print(
-                        f"⚠️  Border reduced from {contour_border}px to {adjusted_border}px due to document boundaries"
+                        f"[WARNING] Border reduced from {contour_border}px to {adjusted_border}px due to document boundaries"
                     )
 
             warped, _ = warp_image(
@@ -356,7 +356,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             actual_border_used = adjusted_border
 
         if debug:
-            print("✅ Successfully processed document")
+            print("[OK] Successfully processed document")
             print(f"Original size: {img.shape[1]}x{img.shape[0]}")
             print(f"Processed size: {warped.shape[1]}x{warped.shape[0]}")
             print(f"Final border used: {actual_border_used}px")

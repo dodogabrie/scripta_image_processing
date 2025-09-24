@@ -169,9 +169,9 @@ def save_background_analysis_debug(analysis_result, debug_dir, gray_img):
 
     # Mark rises and drops
     if len(rises) > 0:
-        ax2.scatter(rises, gradient[rises], color='green', s=50, label='Rises (BG→Page)', zorder=5)
+        ax2.scatter(rises, gradient[rises], color='green', s=50, label='Rises (BG->Page)', zorder=5)
     if len(drops) > 0:
-        ax2.scatter(drops, gradient[drops], color='red', s=50, label='Drops (Page→BG)', zorder=5)
+        ax2.scatter(drops, gradient[drops], color='red', s=50, label='Drops (Page->BG)', zorder=5)
 
     ax2.set_xlabel('X Position (pixels)')
     ax2.set_ylabel('Gradient')
@@ -211,8 +211,8 @@ def save_background_analysis_debug(analysis_result, debug_dir, gray_img):
     • Gradient Threshold: ±{gradient_threshold:.3f}
 
     Detected Transitions:
-    • Rises (BG→Page): {len(rises)} at positions {list(rises[:3])}{'...' if len(rises) > 3 else ''}
-    • Drops (Page→BG): {len(drops)} at positions {list(drops[:3])}{'...' if len(drops) > 3 else ''}
+    - Rises (BG->Page): {len(rises)} at positions {list(rises[:3])}{'...' if len(rises) > 3 else ''}
+    - Drops (Page->BG): {len(drops)} at positions {list(drops[:3])}{'...' if len(drops) > 3 else ''}
 
     Background Region ({analysis_result['background_side']} side):
     • Position: {bg_region[0]}-{bg_region[1]} px
@@ -260,11 +260,11 @@ def save_background_analysis_debug(analysis_result, debug_dir, gray_img):
     if len(rises) > 0:
         for i, rise in enumerate(rises):
             ax.axvline(rise, color='yellow', linewidth=3, alpha=0.6,
-                      label='Rise (BG→Page)' if i == 0 else '')
+                      label='Rise (BG->Page)' if i == 0 else '')
     if len(drops) > 0:
         for i, drop in enumerate(drops):
             ax.axvline(drop, color='orange', linewidth=3, alpha=0.6,
-                      label='Drop (Page→BG)' if i == 0 else '')
+                      label='Drop (Page->BG)' if i == 0 else '')
 
     ax.set_title(f'Detected Boundaries Overlay\nPage: {page_start}-{page_end}px | Background ({analysis_result["background_side"]}): {bg_start}-{bg_end}px',
                 fontsize=14)

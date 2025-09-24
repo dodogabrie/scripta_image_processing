@@ -126,7 +126,7 @@ def test_lab(image_path):
                     if detected_contour is not None:
                         contour_area_px = cv2.contourArea(detected_contour)
                         contour_rect = cv2.boundingRect(detected_contour)
-                        print("  ✅ Document contour detected!")
+                        print("  [OK] Document contour detected!")
                         print(f"     Contour area: {contour_area_px:.0f} pixels²")
                         print(
                             f"     Bounding box: {contour_rect[2]} x {contour_rect[3]} pixels"
@@ -134,11 +134,11 @@ def test_lab(image_path):
                         if contour_angle is not None:
                             print(f"     Document rotation: {contour_angle:.1f}°")
                     else:
-                        print("  ❌ No document contour detected")
+                        print("  [NO] No document contour detected")
                 else:
-                    print("  ❌ Could not load image with OpenCV")
+                    print("  [ERROR] Could not load image with OpenCV")
             except Exception as contour_error:
-                print(f"  ❌ Error during contour detection: {contour_error}")
+                print(f"  [ERROR] Error during contour detection: {contour_error}")
 
             # Calculate physical dimensions in cm if DPI is available
             if dpi_x and dpi_y:
@@ -156,7 +156,7 @@ def test_lab(image_path):
                     height_cm = height_inches * 2.54
 
                     print("\n📏 PHYSICAL DIMENSIONS:")
-                    print("\n🖼️  FULL IMAGE:")
+                    print("\n[INFO] FULL IMAGE:")
                     print(f"  Size in pixels: {width_px} x {height_px}")
                     print(f"  DPI: {dpi_x_float:.1f} x {dpi_y_float:.1f}")
                     print(
@@ -176,7 +176,7 @@ def test_lab(image_path):
                             )
                         )
                         if doc_width_cm is not None:
-                            print("\n📄 DETECTED DOCUMENT:")
+                            print("\n[INFO] DETECTED DOCUMENT:")
                             contour_rect = cv2.boundingRect(detected_contour)
                             doc_width_px, doc_height_px = (
                                 contour_rect[2],
@@ -201,15 +201,15 @@ def test_lab(image_path):
                             )
                         else:
                             print(
-                                "\n📄 DETECTED DOCUMENT: Unable to calculate dimensions"
+                                "\n[INFO] DETECTED DOCUMENT: Unable to calculate dimensions"
                             )
                     else:
                         print(
-                            "\n📄 DETECTED DOCUMENT: No contour detected, using full image"
+                            "\n[INFO] DETECTED DOCUMENT: No contour detected, using full image"
                         )
 
                     # Standard paper sizes for reference
-                    print("\n📄 REFERENCE SIZES:")
+                    print("\n[INFO] REFERENCE SIZES:")
                     print("  A4: 21.0 x 29.7 cm")
                     print("  A3: 29.7 x 42.0 cm")
                     print("  A2: 42.0 x 59.4 cm")
@@ -245,7 +245,7 @@ def test_lab(image_path):
                     if is_portrait and matches_size(
                         width_cm, height_cm, a4_w, a4_h, tolerance
                     ):
-                        print("  ✅ MATCHES: A4 Vertical (Portrait)")
+                        print("  [OK] MATCHES: A4 Vertical (Portrait)")
                         print(f"     Expected: {a4_w} x {a4_h} cm")
                         print(f"     Actual:   {width_cm:.1f} x {height_cm:.1f} cm")
 
@@ -253,13 +253,13 @@ def test_lab(image_path):
                     elif is_landscape and matches_size(
                         width_cm, height_cm, a3_h, a3_w, tolerance
                     ):
-                        print("  ✅ MATCHES: A3 Horizontal (Landscape)")
+                        print("  [OK] MATCHES: A3 Horizontal (Landscape)")
                         print(f"     Expected: {a3_h} x {a3_w} cm")
                         print(f"     Actual:   {width_cm:.1f} x {height_cm:.1f} cm")
 
                     # Check other possibilities
                     else:
-                        print("  ❌ No exact match found")
+                        print("  [NO] No exact match found")
 
                         # Check if close to A4 vertical
                         if is_portrait:

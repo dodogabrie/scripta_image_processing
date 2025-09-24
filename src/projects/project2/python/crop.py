@@ -149,9 +149,9 @@ def main():
         contour_border=args.contour_border
     )
     if was_processed:
-        print(f"✅ Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
+        print(f"[OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
     else:
-        print("ℹ️  Processing pagina saltato (formato non A3 landscape)")
+        print("[INFO] Processing pagina saltato (formato non A3 landscape)")
 
     left_side, right_side, debug_info = process_image(
         processed_img,

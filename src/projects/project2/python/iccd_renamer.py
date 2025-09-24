@@ -175,12 +175,12 @@ class ICCDRenamer:
 
             # Verifica che source file esista
             if not os.path.exists(source_file):
-                print(f"❌ Source file not found: {source_file}")
+                print(f"[ERROR] Source file not found: {source_file}")
                 return False
 
             # Controlla conflitti naming
             if os.path.exists(target_path):
-                print(f"⚠️  Target file already exists: {target_path}")
+                print(f"[WARNING] Target file already exists: {target_path}")
                 # Genera nome alternativo
                 target_path = self._generate_unique_filename(target_path)
                 target_filename = os.path.basename(target_path)
@@ -207,18 +207,18 @@ class ICCDRenamer:
                     )
 
                     if metadata_info.get("saved_successfully", False):
-                        print(f"✅ Renamed with metadata: {os.path.basename(source_file)} → {target_filename}")
+                        print(f"[OK] Renamed with metadata: {os.path.basename(source_file)} -> {target_filename}")
                     else:
-                        print(f"⚠️ Renamed but metadata issue: {os.path.basename(source_file)} → {target_filename}")
+                        print(f"[WARNING] Renamed but metadata issue: {os.path.basename(source_file)} -> {target_filename}")
                 else:
                     raise Exception("Could not load image with cv2")
 
             except Exception as e:
                 # Fallback to simple copy
-                print(f"⚠️ Metadata preservation failed ({e}), using fallback copy")
+                print(f"[WARNING] Metadata preservation failed ({e}), using fallback copy")
                 import shutil
                 shutil.copy2(source_file, target_path)
-                print(f"✅ Renamed (fallback): {os.path.basename(source_file)} → {target_filename}")
+                print(f"[OK] Renamed (fallback): {os.path.basename(source_file)} -> {target_filename}")
 
             # Traccia rinomina
             self.renamed_files.append({
@@ -230,7 +230,7 @@ class ICCDRenamer:
             return True
 
         except Exception as e:
-            print(f"❌ Error renaming {source_file}: {e}")
+            print(f"[ERROR] Error renaming {source_file}: {e}")
             return False
 
     def _generate_unique_filename(self, filepath: str) -> str:
@@ -267,7 +267,7 @@ class ICCDRenamer:
             if dir_name not in fascicolo_dirs:
                 os.makedirs(dir_path, exist_ok=True)
                 fascicolo_dirs[dir_name] = dir_path
-                print(f"📁 Created directory: {dir_name}")
+                print(f"[INFO] Created directory: {dir_name}")
 
         return fascicolo_dirs
 
@@ -315,7 +315,7 @@ class ICCDRenamer:
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
-        print(f"📊 Processing report saved: {output_file}")
+        print(f"[INFO] Processing report saved: {output_file}")
 
 
 def analyze_crop_output(output_path: str, was_cropped: bool,

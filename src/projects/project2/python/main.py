@@ -130,9 +130,9 @@ def process_single_image(input_path, output_dir, input_base_dir, side=None, outp
             contour_border=contour_border
         )
         if verbose and was_processed:
-            print(f"  ✅ Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
+            print(f"  [OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
         elif verbose:
-            print("  ℹ️  Processing pagina saltato (formato non A3 landscape)")
+            print("  [INFO] Processing pagina saltato (formato non A3 landscape)")
 
         # Processa l'immagine
         left_side, right_side, debug_info = process_image(
@@ -248,9 +248,9 @@ def main(input_dir, output_dir, side=None, output_format=None, image_input_forma
         enable_file_listener (bool): Se abilitare il file listener per rinominazioni
         rename_map (dict): Mappa di rinominazione per il file listener
     """
-    print(f"🚀 Avvio elaborazione doppia pagina...")
-    print(f"📁 Input directory: {input_dir}")
-    print(f"📁 Output directory: {output_dir}")
+    print(f"[INFO] Avvio elaborazione doppia pagina...")
+    print(f"[INFO] Input directory: {input_dir}")
+    print(f"[INFO] Output directory: {output_dir}")
 
     # Check if input contains ICCD Folder+XML structure
     try:
@@ -263,7 +263,7 @@ def main(input_dir, output_dir, side=None, output_format=None, image_input_forma
         from xml_processor import has_busta_structure
 
         if has_busta_structure(input_dir):
-            print("🏷️  Detected ICCD Folder+XML structure - using XML-based processing")
+            print("[INFO] Detected ICCD Folder+XML structure - using XML-based processing")
             return process_iccd_bustas(
                 input_dir, output_dir, side, output_format,
                 apply_rotation, smart_crop, debug, verbose,
@@ -271,11 +271,11 @@ def main(input_dir, output_dir, side=None, output_format=None, image_input_forma
                 process_jpg, process_tiff
             )
         else:
-            print("📄 Standard batch processing mode (no Folder+XML pairs found)")
+            print("[INFO] Standard batch processing mode (no Folder+XML pairs found)")
     except ImportError as e:
-        print(f"⚠️  XML processor not available: {e}, using standard processing")
+        print(f"[WARNING] XML processor not available: {e}, using standard processing")
     except Exception as e:
-        print(f"⚠️  Error checking Folder+XML structure: {e}, using standard processing")
+        print(f"[WARNING] Error checking Folder+XML structure: {e}, using standard processing")
 
     # Avvia il file listener se richiesto
     file_listener = None
@@ -420,29 +420,29 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
     start_time = time.time()
     start_datetime = datetime.now().isoformat()
 
-    print("\n📋 Phase 1: XML Processing and Discovery")
+    print("\n[PHASE 1] XML Processing and Discovery")
 
     # Inizializza processors
     xml_processor = XMLProcessor()
     renamer = ICCDRenamer()
 
     # Processa tutti gli XML e estrai mappings
-    print(f"📝 File processing settings: JPG={process_jpg}, TIFF={process_tiff}")
+    print(f"[INFO] File processing settings: JPG={process_jpg}, TIFF={process_tiff}")
     mappings = xml_processor.process_all_bustas(input_dir, process_jpg, process_tiff)
 
     if not mappings:
-        print("❌ No valid ICCD mappings found. Check XML files and image folders.")
+        print("[ERROR] No valid ICCD mappings found. Check XML files and image folders.")
         return
 
     total_images = len(mappings)
-    print(f"📊 Found {total_images} images to process across Bustas")
+    print(f"[INFO] Found {total_images} images to process across Bustas")
 
     # Phase 2: Crea struttura directory output ICCD
-    print("\n📁 Phase 2: Creating ICCD Output Directory Structure")
+    print("\n[PHASE 2] Creating ICCD Output Directory Structure")
     fascicolo_dirs = renamer.create_iccd_directory_structure(output_dir, mappings)
 
     # Phase 3: Process images con XML mapping
-    print(f"\n🖼️  Phase 3: Processing Images with ICCD Renaming")
+    print(f"\n[PHASE 3] Processing Images with ICCD Renaming")
 
     processed_count = 0
     renamed_count = 0
@@ -468,7 +468,7 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
 
                 if not os.path.exists(original_image):
                     error_count += 1
-                    print(f"❌ Image not found: {original_image}")
+                    print(f"[ERROR] Image not found: {original_image}")
                     continue
 
                 # Process image usando la logica esistente
@@ -486,7 +486,7 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
 
                 if not success:
                     error_count += 1
-                    print(f"❌ Processing failed: {message}")
+                    print(f"[ERROR] Processing failed: {message}")
                     continue
 
                 processed_count += 1
@@ -526,7 +526,7 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
                         final_target_dir = os.path.join(base_target_dir, mapping.subdir)
                         os.makedirs(final_target_dir, exist_ok=True)
                         if verbose:
-                            print(f"  📁 Created subdirectory: {mapping.subdir}")
+                            print(f"  [INFO] Created subdirectory: {mapping.subdir}")
 
                     renamings = renamer.handle_page_splitting(mapping, crop_result)
 
@@ -541,33 +541,33 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
                 # Status update
                 if verbose:
                     fold_status = "fold detected" if fold_detected else "no fold"
-                    print(f"  ✅ {fold_status}, {len(renamings) if 'renamings' in locals() else 0} files renamed")
+                    print(f"  [OK] {fold_status}, {len(renamings) if 'renamings' in locals() else 0} files renamed")
 
             except Exception as e:
                 error_count += 1
-                print(f"❌ Error processing {mapping.original_filename}: {e}")
+                print(f"[ERROR] Error processing {mapping.original_filename}: {e}")
 
     # Phase 4: Final reporting
-    print(f"\n📊 Phase 4: Final Report")
+    print(f"\n[PHASE 4] Final Report")
 
     end_time = time.time()
     duration_seconds = round(end_time - start_time, 2)
 
     print("="*60)
-    print("📊 ICCD PROCESSING SUMMARY")
+    print("[SUMMARY] ICCD PROCESSING SUMMARY")
     print("="*60)
-    print(f"🖼️  Total images found: {total_images}")
-    print(f"✂️  Successfully processed: {processed_count}")
-    print(f"📝 Successfully renamed: {renamed_count}")
-    print(f"❌ Errors: {error_count}")
+    print(f"Total images found: {total_images}")
+    print(f"Successfully processed: {processed_count}")
+    print(f"Successfully renamed: {renamed_count}")
+    print(f"Errors: {error_count}")
 
     if total_images > 0:
         success_rate = (processed_count / total_images) * 100
         rename_rate = (renamed_count / total_images) * 100
-        print(f"📈 Processing success rate: {success_rate:.1f}%")
-        print(f"📈 Renaming success rate: {rename_rate:.1f}%")
+        print(f"Processing success rate: {success_rate:.1f}%")
+        print(f"Renaming success rate: {rename_rate:.1f}%")
 
-    print(f"⏱️  Total processing time: {duration_seconds} seconds")
+    print(f"Total processing time: {duration_seconds} seconds")
 
     # Generate reports
     try:
@@ -592,17 +592,17 @@ def process_iccd_bustas(input_dir, output_dir, side=None, output_format=None,
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(general_report, f, indent=2, ensure_ascii=False)
 
-        print(f"📄 Reports saved to: {output_dir}")
+        print(f"Reports saved to: {output_dir}")
 
     except Exception as e:
-        print(f"⚠️  Could not generate reports: {e}")
+        print(f"[WARNING] Could not generate reports: {e}")
 
     print("="*60)
 
     if error_count == 0:
-        print("✅ ICCD processing completed successfully!")
+        print("[SUCCESS] ICCD processing completed successfully!")
     else:
-        print(f"⚠️  ICCD processing completed with {error_count} errors")
+        print(f"[WARNING] ICCD processing completed with {error_count} errors")
 
     return error_count == 0
 

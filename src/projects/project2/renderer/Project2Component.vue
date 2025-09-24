@@ -43,79 +43,13 @@
                                     Nessuna cartella di output selezionata.
                                 </div>
                             </div>
-                            <!-- Add your custom parameters here -->
+                            <!-- Processing Parameters -->
                             <div class="mt-3">
-                                <label for="imageFormat" class="form-label">Formato immagini da elaborare:</label>
-                                <select id="imageFormat" class="form-select" v-model="imageFormat">
-                                    <option value="">Tutti i formati</option>
-                                    <option value="tiff">TIFF</option>
-                                    <option value="jpg">JPG</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <label for="outputFormat" class="form-label">Formato di output:</label>
-                                <select id="outputFormat" class="form-select" v-model="outputFormat">
-                                    <option value="">Mantieni originale</option>
-                                    <option value="tiff">TIFF</option>
-                                    <option value="jpg">JPG</option>
-                                    <option value="png">PNG</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <label for="sideDetection" class="form-label">Rilevamento piega:</label>
-                                <select id="sideDetection" class="form-select" v-model="sideDetection">
-                                    <option value="">Auto-detect</option>
-                                    <option value="left">Sinistra</option>
-                                    <option value="right">Destra</option>
-                                    <option value="center">Centro</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="applyRotation" v-model="applyRotation">
-                                    <label class="form-check-label" for="applyRotation">
-                                        Applica rotazione per raddrizzare la piega
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="smartCrop" v-model="smartCrop">
-                                    <label class="form-check-label" for="smartCrop">
-                                        Crop intelligente (rileva bordi documento)
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="enableDebug" v-model="enableDebug">
-                                    <label class="form-check-label" for="enableDebug">
-                                        Genera file di debug
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="enableFileListener" v-model="enableFileListener">
-                                    <label class="form-check-label" for="enableFileListener">
-                                        Abilita rinominazione automatica file
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div v-if="enableFileListener" class="mt-3">
-                                <label for="renameMap" class="form-label">Mappa di rinominazione (JSON):</label>
-                                <textarea id="renameMap" class="form-control" rows="6" v-model="renameMapText" 
-                                         placeholder='{"_01_right": "_01", "_01_left": "_04", "_02_left": "_02", "_02_right": "_03"}'>
-                                </textarea>
+                                <label for="contourBorder" class="form-label">Border per correzione prospettiva (pixel):</label>
+                                <input id="contourBorder" type="number" class="form-control" v-model.number="contourBorder"
+                                       min="0" max="500" placeholder="150">
                                 <small class="form-text text-muted">
-                                    Formato: {"pattern_da_sostituire": "sostituzione"}. Lascia vuoto per usare la mappa di default.
+                                    Pixels di bordo per la correzione prospettiva del contorno. Default: 150
                                 </small>
                             </div>
                         </div>
@@ -135,38 +69,164 @@
                                 <p>Seleziona le cartelle e clicca "Elabora" per processare</p>
                             </div>
                             
-                            <!-- Progress bar during processing -->
-                            <div v-else-if="processing" class="text-center py-5">
-                                <div v-if="progressInfo" class="mt-4">
-                                    <div class="progress mb-3" style="height: 20px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
-                                             :style="{width: progressPercentage + '%'}" 
-                                             :aria-valuenow="progressInfo.processed" 
-                                             :aria-valuemin="0" 
+                            <!-- Enhanced progress display during processing -->
+                            <div v-else-if="processing" class="py-4">
+                                <!-- Main progress bar -->
+                                <div v-if="progressInfo" class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">Progresso Generale</h6>
+                                        <small class="text-muted">{{ progressPercentage }}%</small>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 24px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                             :style="{width: progressPercentage + '%'}"
+                                             :aria-valuenow="progressInfo.processed"
+                                             :aria-valuemin="0"
                                              :aria-valuemax="progressInfo.total_images">
-                                             {{ progressPercentage }}%
+                                             {{ progressInfo.processed }} / {{ progressInfo.total_images }}
                                         </div>
                                     </div>
-                                    <h5 class="text-muted">
-                                        {{ progressInfo.processed }} / {{ progressInfo.total_images }} immagini elaborate
-                                    </h5>
-                                    <div class="small text-muted mt-2">
-                                        <div>Formato: {{ progressInfo.primary_format }}</div>
-                                        <div>Dimensione totale: {{ progressInfo.total_size_gb }} GB</div>
+                                </div>
+
+                                <!-- Current file and stage -->
+                                <div v-if="realTimeProgress.current_file" class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                        <strong class="me-2">File corrente:</strong>
+                                        <code class="text-primary">{{ realTimeProgress.current_file }}</code>
+                                    </div>
+                                    <div v-if="realTimeProgress.current_stage" class="small text-muted ms-4">
+                                        {{ realTimeProgress.current_stage }}
                                     </div>
                                 </div>
+
+                                <!-- Processing statistics -->
+                                <div class="row text-center mb-3">
+                                    <div class="col-md-3">
+                                        <div class="small text-muted">Con Piega</div>
+                                        <div class="h6 text-success">{{ realTimeProgress.fold_detected_count }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="small text-muted">Senza Piega</div>
+                                        <div class="h6 text-info">{{ realTimeProgress.no_fold_count }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="small text-muted">File Salvati</div>
+                                        <div class="h6 text-primary">{{ realTimeProgress.files_renamed }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="small text-muted" v-if="progressInfo">Dimensione</div>
+                                        <div class="h6 text-secondary" v-if="progressInfo">{{ progressInfo.total_size_gb }} GB</div>
+                                    </div>
+                                </div>
+
+                                <!-- Speed and time estimates -->
+                                <div v-if="processingSpeed || estimatedTimeRemaining" class="text-center">
+                                    <div class="row">
+                                        <div class="col-md-6" v-if="processingSpeed">
+                                            <small class="text-muted">Velocità: {{ processingSpeed }}</small>
+                                        </div>
+                                        <div class="col-md-6" v-if="estimatedTimeRemaining">
+                                            <small class="text-muted">{{ estimatedTimeRemaining }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fallback for initial state -->
                                 <div v-else class="text-center">
                                     <div class="spinner-border text-primary mb-3" role="status">
                                         <span class="visually-hidden">Elaborazione...</span>
                                     </div>
-                                    <h5 class="text-muted">Avvio elaborazione...</h5>
+                                    <h5 class="text-muted">{{ realTimeProgress.current_stage || 'Avvio elaborazione...' }}</h5>
                                 </div>
                             </div>
                             
-                            <div v-else-if="elaborazioneCompletata" class="alert alert-success py-2 px-3">
-                                <strong>Elaborazione completata!</strong><br>
-                                <span>Risultati salvati in:</span>
-                                <div class="small text-break">{{ outputDir }}</div>
+                            <!-- Completion summary with detailed statistics -->
+                            <div v-else-if="elaborazioneCompletata" class="">
+                                <div class="alert alert-success py-3 px-3 mb-3">
+                                    <h5 class="alert-heading mb-2">
+                                        <i class="bi bi-check-circle"></i> Elaborazione Completata!
+                                    </h5>
+                                    <p class="mb-1">Risultati salvati in:</p>
+                                    <div class="small text-break font-monospace bg-light p-2 rounded">{{ outputDir }}</div>
+                                </div>
+
+                                <!-- Processing summary -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="bi bi-graph-up"></i> Resoconto Elaborazione</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Main statistics -->
+                                        <div class="row mb-3">
+                                            <div class="col-md-6" v-if="progressInfo">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Immagini totali:</span>
+                                                    <strong>{{ progressInfo.total_images }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Elaborate con successo:</span>
+                                                    <strong class="text-success">{{ progressInfo.summary?.processed_successfully || progressInfo.processed }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between" v-if="progressInfo.summary?.errors > 0">
+                                                    <span>Errori:</span>
+                                                    <strong class="text-danger">{{ progressInfo.summary.errors }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between" v-if="progressInfo.summary?.success_rate">
+                                                    <span>Tasso di successo:</span>
+                                                    <strong>{{ progressInfo.summary.success_rate }}%</strong>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Con piega rilevata:</span>
+                                                    <strong class="text-success">{{ realTimeProgress.fold_detected_count }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Senza piega:</span>
+                                                    <strong class="text-info">{{ realTimeProgress.no_fold_count }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span>File salvati totali:</span>
+                                                    <strong class="text-primary">{{ realTimeProgress.files_renamed }}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Technical details -->
+                                        <div class="row" v-if="progressInfo">
+                                            <div class="col-md-6">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Formato principale:</span>
+                                                    <span class="badge bg-secondary">{{ progressInfo.primary_format }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Dimensione totale:</span>
+                                                    <span>{{ progressInfo.total_size_gb }} GB</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" v-if="progressInfo.duration_seconds">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Tempo di elaborazione:</span>
+                                                    <span>{{ formatDuration(progressInfo.duration_seconds) }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between" v-if="processingSpeed">
+                                                    <span>Velocità media:</span>
+                                                    <span>{{ processingSpeed }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Error details if any -->
+                                        <div v-if="progressInfo?.summary?.errors > 0" class="mt-3">
+                                            <div class="alert alert-warning py-2">
+                                                <strong><i class="bi bi-exclamation-triangle"></i> Attenzione:</strong>
+                                                {{ progressInfo.summary.errors }} immagini non sono state elaborate correttamente.
+                                                Controlla i log nella console per dettagli.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer" v-if="inputDir && outputDir">
@@ -211,21 +271,50 @@ export default {
             // Progress tracking
             progressInfo: null,
             progressInterval: null,
+            // Enhanced real-time progress tracking
+            realTimeProgress: {
+                current_file: null,
+                current_stage: null,
+                fold_detected_count: 0,
+                no_fold_count: 0,
+                files_renamed: 0,
+                processing_start_time: null,
+                last_processed_time: null
+            },
             // Processing parameters
-            imageFormat: '',
-            outputFormat: '',
-            sideDetection: '',
-            applyRotation: false,
-            smartCrop: true,  // Default enabled
-            enableDebug: false,
-            enableFileListener: true,  // Default enabled
-            renameMapText: '{"_01_right": "_01", "_01_left": "_04", "_02_left": "_02", "_02_right": "_03"}',
+            contourBorder: 150,  // Default border for contour detection
+            // Real-time output
+            outputUnsubscribe: null  // Function to unsubscribe from Python output
         };
     },
     computed: {
         progressPercentage() {
             if (!this.progressInfo || !this.progressInfo.total_images) return 0;
             return Math.round((this.progressInfo.processed / this.progressInfo.total_images) * 100);
+        },
+        processingSpeed() {
+            if (!this.realTimeProgress.processing_start_time || !this.progressInfo || this.progressInfo.processed <= 0) {
+                return null;
+            }
+            const elapsed = (Date.now() - this.realTimeProgress.processing_start_time) / 1000; // seconds
+            const speed = this.progressInfo.processed / elapsed * 60; // files per minute
+            return speed > 1 ? `${speed.toFixed(1)} file/min` : `${(speed * 60).toFixed(1)} file/ora`;
+        },
+        estimatedTimeRemaining() {
+            if (!this.realTimeProgress.processing_start_time || !this.progressInfo || this.progressInfo.processed <= 0) {
+                return null;
+            }
+            const elapsed = (Date.now() - this.realTimeProgress.processing_start_time) / 1000;
+            const remaining = this.progressInfo.total_images - this.progressInfo.processed;
+            const avgTimePerFile = elapsed / this.progressInfo.processed;
+            const remainingSeconds = remaining * avgTimePerFile;
+
+            if (remainingSeconds < 60) return `${Math.round(remainingSeconds)}s rimanenti`;
+            if (remainingSeconds < 3600) return `${Math.round(remainingSeconds / 60)}min rimanenti`;
+            return `${Math.round(remainingSeconds / 3600)}h rimanenti`;
+        },
+        totalFilesProcessed() {
+            return this.realTimeProgress.fold_detected_count + this.realTimeProgress.no_fold_count;
         }
     },
     methods: {
@@ -236,6 +325,50 @@ export default {
                 const el = document.getElementById('console-output');
                 if (el) el.scrollTop = el.scrollHeight;
             });
+        },
+        parseProgressInfo(line) {
+            // Parse current file being processed: [4/8] Processing: filename
+            const processingMatch = line.match(/\[(\d+)\/(\d+)\] Processing: (.+)/);
+            if (processingMatch) {
+                this.realTimeProgress.current_file = processingMatch[3];
+                this.realTimeProgress.current_stage = 'Elaborazione immagine...';
+                this.realTimeProgress.last_processed_time = Date.now();
+                return;
+            }
+
+            // Parse fold detection results
+            const foldMatch = line.match(/✅ (fold detected|no fold), (\d+) files renamed/);
+            if (foldMatch) {
+                const foldDetected = foldMatch[1] === 'fold detected';
+                const filesRenamed = parseInt(foldMatch[2]);
+
+                if (foldDetected) {
+                    this.realTimeProgress.fold_detected_count++;
+                } else {
+                    this.realTimeProgress.no_fold_count++;
+                }
+                this.realTimeProgress.files_renamed += filesRenamed;
+                this.realTimeProgress.current_stage = `Completato: ${filesRenamed} file salvati`;
+                return;
+            }
+
+            // Parse processing stages
+            if (line.includes('Kernel size:')) {
+                this.realTimeProgress.current_stage = 'Rilevamento contorni...';
+            } else if (line.includes('Inclinazione')) {
+                this.realTimeProgress.current_stage = 'Correzione prospettiva...';
+            } else if (line.includes('Successfully saved')) {
+                this.realTimeProgress.current_stage = 'Salvataggio file...';
+            } else if (line.includes('Renamed with metadata')) {
+                this.realTimeProgress.current_stage = 'Rinominazione ICCD...';
+            }
+        },
+        formatDuration(seconds) {
+            if (seconds < 60) return `${seconds.toFixed(1)}s`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
         },
         async selectInputDir() {
             this.addConsoleLine('Selezione cartella di input...', 'info');
@@ -299,6 +432,18 @@ export default {
             this.processing = true;
             this.elaborazioneCompletata = false;
             this.progressInfo = null;
+
+            // Initialize real-time progress tracking
+            this.realTimeProgress = {
+                current_file: null,
+                current_stage: 'Inizializzazione...',
+                fold_detected_count: 0,
+                no_fold_count: 0,
+                files_renamed: 0,
+                processing_start_time: Date.now(),
+                last_processed_time: null
+            };
+
             this.startProgressPolling();
 
             this.addConsoleLine(`Input: ${this.inputDir}`, 'info');
@@ -308,62 +453,31 @@ export default {
                 // Costruisci gli argomenti per lo script Python
                 const args = [this.inputDir, this.outputDir];
 
-                // Aggiungi parametri opzionali
-                if (this.sideDetection) {
-                    args.push('--side', this.sideDetection);
-                    this.addConsoleLine(`Lato piega: ${this.sideDetection}`, 'info');
-                }
+                // Aggiungi contour_border parameter
+                args.push('--contour_border', this.contourBorder.toString());
+                this.addConsoleLine(`Border correzione prospettiva: ${this.contourBorder} pixel`, 'info');
 
-                if (this.outputFormat) {
-                    args.push('--output_format', this.outputFormat);
-                    this.addConsoleLine(`Formato output: ${this.outputFormat.toUpperCase()}`, 'info');
-                }
-
-                if (this.imageFormat) {
-                    args.push('--image_input_format', this.imageFormat);
-                    this.addConsoleLine(`Formato input: ${this.imageFormat.toUpperCase()}`, 'info');
-                }
-
-                if (this.applyRotation) {
-                    args.push('--rotate');
-                    this.addConsoleLine('Rotazione abilitata', 'info');
-                }
-
-                if (this.smartCrop) {
-                    args.push('--smart_crop');
-                    this.addConsoleLine('Crop intelligente abilitato', 'info');
-                }
-
-                if (this.enableDebug) {
-                    args.push('--debug');
-                    this.addConsoleLine('Debug abilitato', 'info');
-                }
-                
-                if (this.enableFileListener) {
-                    args.push('--enable_file_listener');
-                    this.addConsoleLine('File listener abilitato', 'info');
-                    
-                    // Valida e salva la mappa di rinominazione se fornita
-                    if (this.renameMapText.trim()) {
-                        try {
-                            const renameMap = JSON.parse(this.renameMapText);
-                            
-                            // Salva la mappa in un file temporaneo
-                            const mapPath = this.outputDir + '/rename_map.json';
-                            if (window.electronAPI && window.electronAPI.writeFile) {
-                                await window.electronAPI.writeFile(mapPath, this.renameMapText);
-                                args.push('--rename_map_file', mapPath);
-                                this.addConsoleLine(`Mappa di rinominazione: ${JSON.stringify(renameMap)}`, 'info');
-                            }
-                        } catch (e) {
-                            this.addConsoleLine('Errore nel parsing della mappa di rinominazione, uso default', 'warning');
-                        }
-                    }
-                }
-                
+                // Always enable verbose to capture output
                 args.push('--verbose');
 
-                const result = await window.electronAPI.runProjectScript(
+                this.addConsoleLine('Utilizzo impostazioni di default per tutti gli altri parametri', 'info');
+
+                // Set up real-time output listener with progress parsing
+                if (window.electronAPI.onPythonOutput) {
+                    this.outputUnsubscribe = window.electronAPI.onPythonOutput((data) => {
+                        if (data.type === 'stdout' || data.type === 'stderr') {
+                            const lines = data.data.toString().split('\n');
+                            lines.forEach(line => {
+                                if (line.trim()) {
+                                    this.addConsoleLine(line.trim(), data.type === 'stderr' ? 'error' : 'normal');
+                                    this.parseProgressInfo(line.trim());
+                                }
+                            });
+                        }
+                    });
+                }
+
+                const result = await window.electronAPI.runProjectScriptStreaming(
                     'project2',
                     'main.py',
                     args
@@ -372,11 +486,6 @@ export default {
                 if (result.success) {
                     this.addConsoleLine('Elaborazione completata con successo!', 'success');
                     this.elaborazioneCompletata = true;
-                    if (result.output) {
-                        result.output.toString().split('\n').forEach(line => {
-                            if (line.trim()) this.addConsoleLine(line.trim(), 'normal');
-                        });
-                    }
                 } else {
                     this.addConsoleLine('Errore durante l\'elaborazione: ' + result.error, 'error');
                     this.elaborazioneCompletata = false;
@@ -385,6 +494,11 @@ export default {
                 this.addConsoleLine('Errore JS: ' + error.message, 'error');
                 this.elaborazioneCompletata = false;
             } finally {
+                // Clean up output listener
+                if (this.outputUnsubscribe) {
+                    this.outputUnsubscribe();
+                    this.outputUnsubscribe = null;
+                }
                 this.processing = false;
                 this.stopProgressPolling();
                 this.loadProgress();
@@ -399,6 +513,11 @@ export default {
             } catch (e) {
                 this.addConsoleLine('Errore durante lo stop: ' + e.message, 'error');
             }
+            // Clean up output listener
+            if (this.outputUnsubscribe) {
+                this.outputUnsubscribe();
+                this.outputUnsubscribe = null;
+            }
             this.processing = false;
         },
         goBack() {
@@ -407,6 +526,13 @@ export default {
     },
     mounted() {
         // Initialize component
+    },
+    beforeUnmount() {
+        // Clean up any active listeners
+        if (this.outputUnsubscribe) {
+            this.outputUnsubscribe();
+            this.outputUnsubscribe = null;
+        }
     }
 }
 </script>

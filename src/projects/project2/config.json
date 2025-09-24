@@ -1,16 +1,11 @@
 {
-  "name": "Ritaglio doppia pagina",
-  "description": "Ritaglia un doppio foglio A4 sulla piega e aggiorna l'ordine delle pagine generate dal ritaglio",
+  "name": "ICCD: Ritaglio doppia pagina",
+  "description": "Ritaglia un doppio foglio A4 sulla piega e aggiorna l'ordine delle pagine generate dal ritaglio (ICCD)",
   "icon": "renderer/assets/icon.svg",
   "version": "1.0.0",
   "main": "renderer/Project2Component.vue",
-  "python_scripts": [
-    "python/main.py"
-  ],
-  "requirements": [
-    "opencv-python==4.10.0.84",
-    "numpy==2.2.1"
-  ],
+  "python_scripts": ["python/main.py"],
+  "requirements": ["opencv-python==4.10.0.84", "numpy==2.2.1"],
   "pipeline_parameters": {
     "imageFormat": "--image_input_format"
   }

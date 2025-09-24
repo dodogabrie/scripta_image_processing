@@ -1,6 +1,6 @@
 {
-  "name": "MAGLIB",
-  "description": "Tool per elaborazione xml MAG standard",
+  "name": "Digiscripta Builder",
+  "description": "Crea campi di progetto compatibili  il software Digiscripta",
   "icon": "renderer/assets/icon.svg",
   "version": "1.0.0",
   "main": "renderer/ProjectProject3Component.vue",

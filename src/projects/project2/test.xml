@@ -1,0 +1,4043 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<metadigit xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.iccu.sbn.it/metaAG1.pdf" xsi:schemaLocation="http://www.iccu.sbn.it/metaAG1.pdf metadigit.xsd">
+  <gen creation="2025-05-22T07:23:34Z" last_update="2025-05-22T10:16:36Z"/>
+  <stru>
+    <sequence_number>1</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1333</issue>
+        <stpiece_per>(00000000)0:1333</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="1"/>
+      <stop sequence_number="24"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>2</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1334</issue>
+        <stpiece_per>(00000000)0:1334</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="25"/>
+      <stop sequence_number="72"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>3</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1335</issue>
+        <stpiece_per>(00000000)0:1335</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="73"/>
+      <stop sequence_number="96"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>4</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1336</issue>
+        <stpiece_per>(00000000)0:1336</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="97"/>
+      <stop sequence_number="116"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>5</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1337</issue>
+        <stpiece_per>(00000000)0:1337</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="117"/>
+      <stop sequence_number="120"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>6</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1338</issue>
+        <stpiece_per>(00000000)0:1338</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="121"/>
+      <stop sequence_number="136"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>7</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1339</issue>
+        <stpiece_per>(00000000)0:1339</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="137"/>
+      <stop sequence_number="156"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>8</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1340</issue>
+        <stpiece_per>(00000000)0:1340</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="157"/>
+      <stop sequence_number="192"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>9</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1341</issue>
+        <stpiece_per>(00000000)0:1341</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="193"/>
+      <stop sequence_number="208"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>10</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1342</issue>
+        <stpiece_per>(00000000)0:1342</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="209"/>
+      <stop sequence_number="214"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>11</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1343</issue>
+        <stpiece_per>(00000000)0:1343</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="215"/>
+      <stop sequence_number="230"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>12</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1344</issue>
+        <stpiece_per>(00000000)0:1344</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="231"/>
+      <stop sequence_number="236"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>13</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1345</issue>
+        <stpiece_per>(00000000)0:1345</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="237"/>
+      <stop sequence_number="240"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>14</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1346</issue>
+        <stpiece_per>(00000000)0:1346</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="241"/>
+      <stop sequence_number="246"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>15</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1347</issue>
+        <stpiece_per>(00000000)0:1347</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="247"/>
+      <stop sequence_number="254"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>16</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1348</issue>
+        <stpiece_per>(00000000)0:1348</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="255"/>
+      <stop sequence_number="256"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>17</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1349</issue>
+        <stpiece_per>(00000000)0:1349</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="257"/>
+      <stop sequence_number="356"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>18</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1350</issue>
+        <stpiece_per>(00000000)0:1350</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="357"/>
+      <stop sequence_number="372"/>
+    </element>
+  </stru>
+  <stru>
+    <sequence_number>19</sequence_number>
+    <element>
+      <piece>
+        <issue>fasc. 1351</issue>
+        <stpiece_per>(00000000)0:1351</stpiece_per>
+      </piece>
+      <resource>img</resource>
+      <start sequence_number="373"/>
+      <stop sequence_number="380"/>
+    </element>
+  </stru>
+  <img>
+    <sequence_number>1</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0001.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0001.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>2</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0003.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0003.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>3</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0004.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0004.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>4</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0005.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0005.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>5</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0006.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0006.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>6</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0007.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0007.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>7</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0008.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0008.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>8</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0009.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0009.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>9</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0010.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0010.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>10</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0011.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0011.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>11</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0012.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0012.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>12</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0013.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0013.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>13</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0014.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0014.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>14</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0015.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0015.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>15</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0016.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0016.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>16</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0017.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0017.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>17</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0018.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0018.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>18</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0019.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0019.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>19</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0020.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0020.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>20</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0021.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0021.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>21</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0022.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0022.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>22</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0023.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0023.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>23</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0024.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0024.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>24</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0025.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0025.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>25</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0027.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0027.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>26</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0031.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0031.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>27</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0032.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0032.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>28</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0033.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0033.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>29</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0034.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0034.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>30</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0035.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0035.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>31</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0036.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0036.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>32</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0037.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0037.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>33</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0038.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0038.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>34</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0039.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0039.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>35</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0040.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0040.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>36</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0041.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0041.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>37</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0042.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0042.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>38</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0043.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0043.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>39</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0044.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0044.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>40</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0045.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0045.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>41</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0046.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0046.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>42</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0047.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0047.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>43</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0048.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0048.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>44</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0049.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0049.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>45</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0050.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0050.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>46</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0051.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0051.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>47</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0052.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0052.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>48</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0053.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0053.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>49</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0054.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0054.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>50</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0055.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0055.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>51</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0056.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0056.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>52</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0057.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0057.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>53</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0058.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0058.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>54</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0059.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0059.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>55</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0060.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0060.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>56</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0061.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0061.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>57</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0062.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0062.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>58</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0063.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0063.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>59</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0064.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0064.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>60</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0065.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0065.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>61</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0066.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0066.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>62</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0067.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0067.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>63</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0068.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0068.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>64</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0069.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0069.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>65</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0070.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0070.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>66</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0071.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0071.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>67</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0072.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0072.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>68</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0073.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0073.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>69</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0074.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0074.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>70</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0075.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0075.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>71</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0076.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0076.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>72</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0077.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0077.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>73</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0078.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0078.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>74</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0079.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0079.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>75</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0080.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0080.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>76</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0081.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0081.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>77</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0082.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0082.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>78</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0083.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0083.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>79</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0084.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0084.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>80</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0085.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0085.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>81</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0086.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0086.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>82</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0087.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0087.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>83</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0088.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0088.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>84</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0089.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0089.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>85</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0090.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0090.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>86</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0091.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0091.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>87</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0092.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0092.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>88</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0093.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0093.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>89</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0094.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0094.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>90</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0095.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0095.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>91</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0096.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0096.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>92</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0097.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0097.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>93</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0098.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0098.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>94</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0099.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0099.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>95</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0100.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0100.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>96</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0101.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0101.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>97</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0102.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0102.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>98</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0103.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0103.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>99</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0104.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0104.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>100</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0105.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0105.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>101</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0106.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0106.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>102</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0107.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0107.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>103</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0108.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0108.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>104</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0109.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0109.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>105</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0110.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0110.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>106</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0111.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0111.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>107</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0112.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0112.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>108</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0113.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0113.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>109</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0114.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0114.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>110</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0115.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0115.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>111</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0116.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0116.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>112</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0117.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0117.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>113</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0118.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0118.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>114</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0119.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0119.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>115</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0120.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0120.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>116</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0121.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0121.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>117</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0122.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0122.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>118</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0123.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0123.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>119</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0124.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0124.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>120</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0125.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0125.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>121</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0126.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0126.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>122</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0127.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0127.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>123</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0128.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0128.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>124</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0129.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0129.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>125</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0130.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0130.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>126</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0131.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0131.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>127</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0132.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0132.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>128</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0133.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0133.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>129</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0134.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0134.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>130</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0135.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0135.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>131</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0136.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0136.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>132</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0137.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0137.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>133</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0138.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0138.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>134</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0139.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0139.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>135</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0140.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0140.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>136</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0141.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0141.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>137</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0142.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0142.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>138</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0143.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0143.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>139</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0144.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0144.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>140</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0145.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0145.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>141</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0146.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0146.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>142</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0147.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0147.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>143</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0148.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0148.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>144</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0149.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0149.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>145</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0150.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0150.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>146</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0151.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0151.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>147</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0152.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0152.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>148</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0153.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0153.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>149</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0154.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0154.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>150</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0155.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0155.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>151</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0156.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0156.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>152</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0157.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0157.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>153</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0158.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0158.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>154</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0159.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0159.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>155</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0160.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0160.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>156</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0161.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0161.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>157</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0162.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0162.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>158</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0163.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0163.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>159</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0164.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0164.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>160</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0165.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0165.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>161</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0166.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0166.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>162</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0167.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0167.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>163</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0168.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0168.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>164</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0169.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0169.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>165</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0170.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0170.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>166</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0171.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0171.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>167</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0172.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0172.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>168</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0173.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0173.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>169</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0174.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0174.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>170</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0175.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0175.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>171</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0176.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0176.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>172</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0177.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0177.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>173</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0178.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0178.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>174</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0179.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0179.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>175</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0180.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0180.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>176</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0181.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0181.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>177</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0182.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0182.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>178</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0183.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0183.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>179</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0184.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0184.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>180</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0185.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0185.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>181</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0186.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0186.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>182</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0187.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0187.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>183</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0188.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0188.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>184</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0189.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0189.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>185</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0190.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0190.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>186</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0191.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0191.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>187</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0192.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0192.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>188</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0193.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0193.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>189</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0194.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0194.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>190</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0195.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0195.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>191</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0196.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0196.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>192</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0197.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0197.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>193</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0198.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0198.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>194</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0199.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0199.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>195</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0200.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0200.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>196</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0201.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0201.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>197</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0202.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0202.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>198</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0203.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0203.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>199</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0204.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0204.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>200</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0205.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0205.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>201</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0206.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0206.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>202</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0207.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0207.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>203</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0208.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0208.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>204</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0209.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0209.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>205</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0210.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0210.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>206</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0211.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0211.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>207</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0212.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0212.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>208</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0213.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0213.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>209</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0216.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0216.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>210</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0217.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0217.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>211</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0218.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0218.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>212</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0219.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0219.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>213</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0219a.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0219a.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>214</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0219b.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0219b.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>215</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0220.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0220.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>216</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0221.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0221.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>217</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0222.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0222.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>218</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0223.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0223.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>219</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0224.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0224.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>220</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0227.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0227.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>221</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0228.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0228.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>222</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0229.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0229.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>223</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0230.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0230.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>224</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0231.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0231.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>225</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0232.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0232.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>226</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0233.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0233.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>227</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0234.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0234.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>228</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0235.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0235.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>229</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0236.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0236.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>230</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0237.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0237.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>231</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0238.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0238.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>232</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0239.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0239.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>233</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0240.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0240.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>234</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0241.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0241.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>235</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0242.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0242.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>236</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0243.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0243.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>237</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0244.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0244.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>238</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0245.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0245.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>239</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0246.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0246.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>240</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0247.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0247.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>241</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0248.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0248.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>242</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0249.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0249.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>243</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0250.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0250.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>244</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0251.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0251.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>245</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0252.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0252.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>246</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0253.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0253.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>247</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0254.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0254.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>248</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0255.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0255.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>249</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0256.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0256.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>250</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0257.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0257.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>251</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0258.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0258.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>252</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0259.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0259.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>253</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0260.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0260.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>254</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0261.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0261.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>255</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0262.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0262.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>256</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0263.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0263.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>257</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0264.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0264.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>258</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0265.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0265.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>259</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0266.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0266.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>260</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0267.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0267.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>261</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0268.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0268.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>262</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0269.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0269.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>263</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0270.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0270.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>264</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0271.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0271.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>265</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0272.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0272.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>266</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0273.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0273.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>267</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0274.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0274.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>268</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0275.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0275.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>269</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0276.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0276.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>270</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0277.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0277.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>271</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0278.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0278.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>272</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0279.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0279.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>273</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0280.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0280.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>274</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0281.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0281.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>275</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0282.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0282.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>276</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0283.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0283.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>277</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0284.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0284.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>278</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0285.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0285.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>279</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0286.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0286.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>280</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0287.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0287.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>281</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0288.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0288.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>282</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0289.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0289.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>283</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0290.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0290.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>284</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0291.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0291.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>285</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0292.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0292.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>286</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0295.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0295.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>287</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0296.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0296.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>288</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0297.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0297.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>289</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0298.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0298.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>290</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0299.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0299.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>291</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0300.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0300.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>292</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0301.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0301.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>293</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0302.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0302.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>294</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0303.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0303.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>295</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0304.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0304.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>296</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0305.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0305.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>297</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0306.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0306.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>298</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0307.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0307.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>299</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0308.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0308.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>300</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0309.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0309.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>301</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0310.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0310.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>302</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0311.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0311.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>303</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0312.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0312.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>304</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0313.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0313.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>305</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0314.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0314.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>306</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0315.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0315.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>307</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0316.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0316.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>308</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0317.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0317.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>309</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0318.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0318.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>310</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0319.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0319.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>311</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0320.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0320.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>312</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0321.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0321.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>313</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0322.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0322.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>314</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0323.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0323.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>315</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0324.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0324.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>316</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0325.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0325.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>317</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0326.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0326.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>318</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0327.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0327.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>319</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0328.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0328.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>320</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0329.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0329.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>321</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0330.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0330.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>322</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0331.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0331.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>323</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0332.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0332.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>324</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0333.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0333.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>325</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0334.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0334.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>326</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0335.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0335.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>327</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0336.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0336.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>328</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0337.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0337.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>329</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0338.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0338.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>330</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0339.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0339.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>331</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0340.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0340.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>332</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0341.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0341.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>333</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0342.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0342.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>334</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0343.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0343.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>335</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0344.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0344.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>336</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0345.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0345.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>337</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0346.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0346.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>338</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0347.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0347.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>339</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0348.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0348.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>340</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0349.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0349.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>341</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0350.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0350.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>342</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0351.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0351.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>343</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0352.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0352.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>344</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0353.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0353.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>345</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0354.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0354.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>346</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0355.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0355.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>347</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0356.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0356.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>348</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0357.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0357.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>349</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0358.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0358.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>350</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0359.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0359.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>351</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0360.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0360.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>352</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0361.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0361.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>353</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0362.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0362.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>354</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0363.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0363.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>355</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0364.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0364.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>356</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0365.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0365.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>357</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0366.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0366.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>358</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0367.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0367.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>359</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0368.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0368.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>360</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0369.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0369.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>361</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0370.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0370.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>362</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0371.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0371.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>363</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0372.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0372.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>364</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0373.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0373.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>365</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0374.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0374.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>366</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0375.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0375.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>367</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0376.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0376.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>368</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0377.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0377.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>369</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0378.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0378.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>370</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0379.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0379.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>371</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0380.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0380.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>372</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0381.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0381.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>373</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0382.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0382.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>374</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0383.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0383.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>375</sequence_number>
+    <nomenclature>Pagina: 3</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0395.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0395.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>376</sequence_number>
+    <nomenclature>Pagina: 4</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0397.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0397.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>377</sequence_number>
+    <nomenclature>Tavola: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0397a.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0397a.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>378</sequence_number>
+    <nomenclature>Tavola: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0397c.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0397c.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>379</sequence_number>
+    <nomenclature>Pagina: 1</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0398.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0398.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>380</sequence_number>
+    <nomenclature>Pagina: 2</nomenclature>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/0399.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/0399.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <img>
+    <sequence_number>381</sequence_number>
+    <usage>1</usage>
+    <file xlink:href="./Busta_42/tiff/9999.tif" Location="URI"/>
+    <altimg>
+      <usage>2</usage>
+      <file xlink:href="./Busta_42/jpeg300/9999.jpg" Location="URI"/>
+    </altimg>
+  </img>
+  <!--##mag <extra> element; do not edit##
+<extra xmlns:mets="http://www.loc.gov/METS/" xmlns="http://www.iccu.sbn.it/metaAG1.pdf"><mets:mets><mets:metsHdr/></mets:mets></extra>-->
+</metadigit>

@@ -119,10 +119,11 @@ class XMLProcessor:
 
         elements_list.append(elem_data)
 
-    def extract_image_mappings(self, xml_data: Dict, folder_path: str,
-                             process_jpg: bool = True, process_tiff: bool = True) -> List[ImageMapping]:
+
+    def extract_image_mappings_sequential(self, xml_data: Dict, folder_path: str,
+                                        process_jpg: bool = True, process_tiff: bool = True) -> List[ImageMapping]:
         """
-        Estrae mappings filename → metadati ICCD dalla struttura XML parsata
+        NEW: Estrae mappings usando approccio sequenziale XML (risolve bug Windows/Linux)
 
         Args:
             xml_data: Dati XML parsati
@@ -146,25 +147,229 @@ class XMLProcessor:
             ns = {'mag': 'http://www.iccu.sbn.it/metaAG1.pdf',
                   'xlink': 'http://www.w3.org/1999/xlink'}
 
-            # Step 1: Parse fascicoli from <stru> elements
+            # Parse fascicoli ranges from <stru> elements
             fascicoli = self._parse_fascicoli_direct(root, ns)
             print(f"[INFO] Found {len(fascicoli)} fascicoli in XML")
 
-            # Step 2: Parse images from <img> elements
-            xml_image_mappings = self._parse_images_direct(root, ns)
-            print(f"[INFO] Found {len(xml_image_mappings)} image mappings in XML")
+            # Process each fascicolo sequentially
+            for fascicolo in fascicoli:
+                print(f"[INFO] Processing fascicolo {fascicolo['number']} (sequences {fascicolo['start_sequence']}-{fascicolo['stop_sequence']})")
 
-            # Step 3: Get actual files in folder
-            actual_files = self._get_image_files(folder_path, process_jpg, process_tiff)
-            print(f"[INFO] Found {len(actual_files)} actual files in folder")
+                fascicolo_mappings = self._process_fascicolo_sequential(
+                    root, ns, fascicolo, folder_path, process_jpg, process_tiff
+                )
+                mappings.extend(fascicolo_mappings)
 
-            # Step 4: Create progressive mappings by fascicolo and document type
-            mappings = self._create_progressive_mappings(actual_files, xml_image_mappings, fascicoli, folder_path)
+            print(f"[INFO] Sequential processing complete: {len(mappings)} mappings created")
 
         except Exception as e:
-            print(f"[ERROR] Error in direct XML parsing: {e}")
+            print(f"[ERROR] Error in sequential XML processing: {e}")
 
         return mappings
+
+    def _process_fascicolo_sequential(self, root, ns, fascicolo, folder_path,
+                                    process_jpg: bool, process_tiff: bool) -> List[ImageMapping]:
+        """Process a single fascicolo in XML sequence order"""
+        mappings = []
+        doc_counters = {'S': 0, 'A': 0, 'F': 0, 'P': 0}
+
+        doc_type_mapping = {
+            'Pagina': 'S',  # Scheda
+            'Indice': 'A',  # Allegato
+            'Carta': 'F',   # Foto
+            'Tavola': 'P'   # Disegno
+        }
+
+        print(f"   [INFO] Processing fascicolo {fascicolo['number']}")
+
+        # Process sequences in order within fascicolo boundaries
+        for seq_num in range(fascicolo['start_sequence'], fascicolo['stop_sequence'] + 1):
+
+            # Find img element for this sequence number
+            img_elements = root.xpath(f'.//mag:img[mag:sequence_number/text()="{seq_num}"]', namespaces=ns)
+
+            if not img_elements:
+                # Skip missing sequences (gaps in numbering are normal)
+                continue
+
+            img = img_elements[0]
+
+            # Extract nomenclature and parse document type + page
+            nomenclature_elem = img.xpath('./mag:nomenclature', namespaces=ns)
+            if not nomenclature_elem:
+                print(f"   [WARNING] No nomenclature found for sequence {seq_num}")
+                continue
+
+            nomenclature = nomenclature_elem[0].text
+            doc_type, page_num = self._parse_nomenclature_sequential(nomenclature, doc_type_mapping)
+
+            # Increment document counter when we see page 1
+            if page_num == 1:
+                doc_counters[doc_type] += 1
+                print(f"   [INFO] New {doc_type} document #{doc_counters[doc_type]} starting at sequence {seq_num}")
+
+            current_doc_seq = doc_counters[doc_type]
+
+            # Get file paths (both TIFF and JPEG if present)
+            files = self._extract_files_from_img_sequential(img, ns, folder_path, process_jpg, process_tiff)
+
+            # Create ImageMapping for each file
+            for file_info in files:
+                mapping = ImageMapping(
+                    original_filename=file_info['filename'],
+                    fascicolo_number=str(fascicolo['number']),
+                    oggetto_number=f"{current_doc_seq:04d}",  # Object = document sequence
+                    document_type=doc_type,
+                    sequence_number=f"{current_doc_seq:04d}",  # Same as object
+                    page_number=page_num,
+                    busta_folder=folder_path,
+                    full_path=file_info['full_path'],
+                    subdir=file_info['subdir']
+                )
+                mappings.append(mapping)
+
+                print(f"   [MAPPING] {file_info['filename']} → Fascicolo:{fascicolo['number']} Object:{current_doc_seq:04d} {doc_type}{current_doc_seq:04d}_{page_num:02d}")
+
+        print(f"   [INFO] Fascicolo {fascicolo['number']} complete: {len(mappings)} mappings")
+        return mappings
+
+    def _parse_nomenclature_sequential(self, nomenclature: str, doc_type_mapping: dict) -> tuple:
+        """Parse nomenclature like 'Pagina: 1', 'Tavola: 2' into (doc_type, page_num)"""
+        if not nomenclature:
+            return 'S', 1
+
+        # Extract document type and page number
+        import re
+        match = re.match(r'(Pagina|Tavola|Carta|Indice):\s*(\d+)', nomenclature)
+        if match:
+            doc_prefix = match.group(1)
+            page_num = int(match.group(2))
+            doc_type = doc_type_mapping.get(doc_prefix, 'S')
+            return doc_type, page_num
+
+        # Handle cases with no page number
+        for prefix, doc_type in doc_type_mapping.items():
+            if prefix.lower() in nomenclature.lower():
+                return doc_type, 1
+
+        return 'S', 1  # Default fallback
+
+    def _extract_files_from_img_sequential(self, img, ns, folder_path, process_jpg: bool, process_tiff: bool) -> List[Dict]:
+        """Extract filenames from img element (both main and altimg)"""
+        files = []
+
+        # Get main file (usually .tif)
+        main_file = img.xpath('./mag:file[@xlink:href]', namespaces=ns)
+        if main_file:
+            href = main_file[0].get('{http://www.w3.org/1999/xlink}href')
+            if href:
+                filename = os.path.basename(href)
+                # Check if we should process this file type
+                ext = os.path.splitext(filename)[1].lower()
+                should_process = (
+                    (process_tiff and ext in ['.tif', '.tiff']) or
+                    (process_jpg and ext in ['.jpg', '.jpeg']) or
+                    ext in ['.png']  # Always process PNG
+                )
+
+                if should_process:
+                    file_info = self._find_file_in_folder(filename, folder_path)
+                    if file_info:
+                        files.append(file_info)
+
+        # Get altimg file (usually .jpg)
+        altimg_file = img.xpath('.//mag:altimg//mag:file[@xlink:href]', namespaces=ns)
+        if altimg_file:
+            href = altimg_file[0].get('{http://www.w3.org/1999/xlink}href')
+            if href:
+                filename = os.path.basename(href)
+                # Check if we should process this file type
+                ext = os.path.splitext(filename)[1].lower()
+                should_process = (
+                    (process_tiff and ext in ['.tif', '.tiff']) or
+                    (process_jpg and ext in ['.jpg', '.jpeg']) or
+                    ext in ['.png']  # Always process PNG
+                )
+
+                if should_process:
+                    file_info = self._find_file_in_folder(filename, folder_path)
+                    if file_info:
+                        # Avoid duplicates
+                        if not any(f['filename'] == filename for f in files):
+                            files.append(file_info)
+
+        return files
+
+    def _find_file_in_folder(self, filename: str, folder_path: str) -> Dict:
+        """Find file in folder or standard subdirectories and return file info"""
+        # Check main directory
+        main_path = os.path.join(folder_path, filename)
+        if os.path.exists(main_path):
+            return {
+                'filename': filename,
+                'full_path': main_path,
+                'subdir': None
+            }
+
+        # Check standard subdirectories
+        standard_subdirs = ['tiff', 'tif', 'jpeg300', 'jpeg150']
+        for subdir_name in standard_subdirs:
+            # Case insensitive search
+            for item in os.listdir(folder_path):
+                if item.lower() == subdir_name.lower():
+                    subdir_path = os.path.join(folder_path, item)
+                    if os.path.isdir(subdir_path):
+                        file_path = os.path.join(subdir_path, filename)
+                        if os.path.exists(file_path):
+                            return {
+                                'filename': filename,
+                                'full_path': file_path,
+                                'subdir': item
+                            }
+
+        return None  # File not found
+
+    def _parse_fascicoli_direct(self, root, ns: Dict) -> List[Dict]:
+        """Parse fascicoli ranges from <stru> elements using XPath"""
+        fascicoli = []
+
+        try:
+            stru_elements = root.xpath('.//mag:stru', namespaces=ns)
+
+            for stru in stru_elements:
+                # Get fascicolo number from issue element
+                issue_elem = stru.xpath('.//mag:issue', namespaces=ns)
+                if not issue_elem:
+                    continue
+
+                issue_text = issue_elem[0].text
+                import re
+                match = re.search(r'fasc\.\s*(\d+)', issue_text)
+                if not match:
+                    continue
+
+                fascicolo_number = int(match.group(1))
+
+                # Get start and stop sequence numbers
+                start_elem = stru.xpath('.//mag:start', namespaces=ns)
+                stop_elem = stru.xpath('.//mag:stop', namespaces=ns)
+
+                if not (start_elem and stop_elem):
+                    continue
+
+                start_seq = int(start_elem[0].get('sequence_number'))
+                stop_seq = int(stop_elem[0].get('sequence_number'))
+
+                fascicoli.append({
+                    'number': fascicolo_number,
+                    'start_sequence': start_seq,
+                    'stop_sequence': stop_seq
+                })
+
+        except Exception as e:
+            print(f"[ERROR] Error parsing fascicoli: {e}")
+
+        return fascicoli
 
     def _get_image_files(self, folder_path: str, process_jpg: bool = True, process_tiff: bool = True) -> List[Dict]:
         """
@@ -259,520 +464,6 @@ class XMLProcessor:
             # Default: scheda
             return 'S', f"{index+1:04d}"
 
-    def _enrich_mappings_from_xml(self, mappings: List[ImageMapping], xml_data: Dict):
-        """
-        Arricchisce i mappings con informazioni specifiche dall'XML
-        Questa funzione può essere estesa per parsing XML specifici
-        """
-        # Cerca informazioni NCT nell'XML
-        nct_codes = self._extract_nct_codes(xml_data)
-
-        # Se trovati codici NCT, aggiorna i mappings
-        if nct_codes:
-            for mapping in mappings:
-                mapping.has_nct = True
-                # Assegna NCT in base alla posizione o logica specifica
-                if len(nct_codes) == 1:
-                    mapping.nct_code = nct_codes[0]
-                elif len(nct_codes) > len(mappings):
-                    # Più NCT che immagini - usa il primo
-                    mapping.nct_code = nct_codes[0]
-                else:
-                    # Distribuzione sequenziale
-                    idx = min(mappings.index(mapping), len(nct_codes) - 1)
-                    mapping.nct_code = nct_codes[idx]
-
-    def _extract_nct_codes(self, xml_data: Dict) -> List[str]:
-        """Estrae codici NCT dalla struttura XML"""
-        nct_codes = []
-
-        def search_nct_recursive(elements):
-            for elem in elements:
-                # Cerca pattern NCT nel testo
-                if elem['text'] and re.match(r'\d{10}', elem['text']):
-                    nct_codes.append(elem['text'])
-
-                # Cerca negli attributi
-                for attr_value in elem['attributes'].values():
-                    if re.match(r'\d{10}', str(attr_value)):
-                        nct_codes.append(str(attr_value))
-
-                # Ricorsione sui figli
-                search_nct_recursive(elem['children'])
-
-        search_nct_recursive(xml_data['elements'])
-        return list(set(nct_codes))  # Rimuovi duplicati
-
-    def _parse_fascicoli_from_xml(self, xml_data: Dict) -> List[Dict]:
-        """Estrae informazioni sui fascicoli dalle strutture <stru> dell'XML"""
-        fascicoli = []
-
-        def find_fascicoli_recursive(elements):
-            for elem in elements:
-                if elem['tag'].endswith('stru'):
-                    # Parse stru element
-                    fascicolo_info = self._parse_single_stru_element(elem)
-                    if fascicolo_info:
-                        fascicoli.append(fascicolo_info)
-
-                # Ricorsione sui figli
-                find_fascicoli_recursive(elem['children'])
-
-        find_fascicoli_recursive(xml_data['elements'])
-        return fascicoli
-
-    def _parse_single_stru_element(self, stru_elem: Dict) -> Optional[Dict]:
-        """Parse un singolo elemento <stru>"""
-        try:
-            fascicolo_info = {
-                'sequence_number': None,
-                'number': None,
-                'start_sequence': None,
-                'stop_sequence': None
-            }
-
-            for child in stru_elem['children']:
-                if child['tag'].endswith('sequence_number'):
-                    fascicolo_info['sequence_number'] = int(child['text'])
-
-                elif child['tag'].endswith('element'):
-                    # Parse element for piece info and start/stop
-                    for element_child in child['children']:
-                        if element_child['tag'].endswith('piece'):
-                            # Extract fascicolo number from issue
-                            for piece_child in element_child['children']:
-                                if piece_child['tag'].endswith('issue'):
-                                    # Extract number from "fasc. 1351"
-                                    issue_text = piece_child['text']
-                                    match = re.search(r'fasc\.\s*(\d+)', issue_text)
-                                    if match:
-                                        fascicolo_info['number'] = int(match.group(1))
-
-                        elif element_child['tag'].endswith('start'):
-                            seq_num = element_child['attributes'].get('sequence_number')
-                            if seq_num:
-                                fascicolo_info['start_sequence'] = int(seq_num)
-
-                        elif element_child['tag'].endswith('stop'):
-                            seq_num = element_child['attributes'].get('sequence_number')
-                            if seq_num:
-                                fascicolo_info['stop_sequence'] = int(seq_num)
-
-            # Validate that we have required info
-            if all(fascicolo_info[key] is not None for key in ['number', 'start_sequence', 'stop_sequence']):
-                return fascicolo_info
-
-        except Exception as e:
-            print(f"Error parsing stru element: {e}")
-
-        return None
-
-    def _parse_images_from_xml(self, xml_data: Dict) -> List[Dict]:
-        """Estrae mappings immagini dagli elementi <img> dell'XML"""
-        image_mappings = []
-
-        def find_images_recursive(elements):
-            for elem in elements:
-                if elem['tag'].endswith('img'):
-                    # Parse img element
-                    img_info = self._parse_single_img_element(elem)
-                    if img_info:
-                        image_mappings.append(img_info)
-
-                # Ricorsione sui figli
-                find_images_recursive(elem['children'])
-
-        find_images_recursive(xml_data['elements'])
-        return image_mappings
-
-    def _parse_single_img_element(self, img_elem: Dict) -> Optional[Dict]:
-        """Parse un singolo elemento <img>"""
-        try:
-            img_info = {
-                'sequence_number': None,
-                'nomenclature': None,
-                'page_number': None,
-                'filename': None
-            }
-
-            for child in img_elem['children']:
-                if child['tag'].endswith('sequence_number'):
-                    img_info['sequence_number'] = int(child['text'])
-
-                elif child['tag'].endswith('nomenclature'):
-                    nomenclature = child['text']
-                    img_info['nomenclature'] = nomenclature
-
-                    # Extract page number from "Pagina: 2"
-                    page_match = re.search(r'Pagina:\s*(\d+)', nomenclature)
-                    if page_match:
-                        img_info['page_number'] = int(page_match.group(1))
-
-                elif child['tag'].endswith('file') or child['tag'].endswith('altimg'):
-                    # Look for file references
-                    filename = self._extract_filename_from_element(child)
-                    if filename and filename.endswith(('.jpg', '.jpeg')):
-                        # Prefer jpeg versions which are likely in our folder
-                        img_info['filename'] = os.path.basename(filename)
-
-            # Validate that we have required info
-            if all(img_info[key] is not None for key in ['sequence_number', 'page_number']):
-                return img_info
-
-        except Exception as e:
-            print(f"Error parsing img element: {e}")
-
-        return None
-
-    def _extract_filename_from_element(self, element: Dict) -> Optional[str]:
-        """Extract filename from file or altimg element"""
-        # Check direct href attribute
-        href = element['attributes'].get('href') or element['attributes'].get('{http://www.w3.org/1999/xlink}href')
-        if href:
-            return href
-
-        # Check children for file elements
-        for child in element['children']:
-            if child['tag'].endswith('file'):
-                href = child['attributes'].get('href') or child['attributes'].get('{http://www.w3.org/1999/xlink}href')
-                if href:
-                    return href
-
-        return None
-
-    def _find_xml_mapping_for_file(self, filename: str, xml_mappings: List[Dict]) -> Optional[Dict]:
-        """Find XML mapping for a given filename - EXACT MATCH ONLY"""
-        for mapping in xml_mappings:
-            xml_filename = mapping.get('filename')
-            if xml_filename and xml_filename == filename:
-                print(f"   [OK] Exact match: {filename} <-> {xml_filename} (seq {mapping.get('sequence_number')})")
-                return mapping
-
-        # Debug: show what we were trying to match
-        print(f"   [WARNING] No exact match for {filename}")
-        return None
-
-    def _find_fascicolo_for_sequence(self, sequence_number: int, fascicoli: List[Dict]) -> Optional[Dict]:
-        """Find which fascicolo contains a given sequence number"""
-        for fascicolo in fascicoli:
-            if fascicolo['start_sequence'] <= sequence_number <= fascicolo['stop_sequence']:
-                return fascicolo
-        return None
-
-    def _parse_fascicoli_direct(self, root, ns: Dict) -> List[Dict]:
-        """Parse fascicoli directly from lxml root using XPath"""
-        fascicoli = []
-
-        try:
-            # Find all stru elements
-            stru_elements = root.xpath('.//mag:stru', namespaces=ns)
-
-            for stru in stru_elements:
-                fascicolo_info = {
-                    'sequence_number': None,
-                    'number': None,
-                    'start_sequence': None,
-                    'stop_sequence': None
-                }
-
-                # Get sequence number
-                seq_elem = stru.xpath('./mag:sequence_number', namespaces=ns)
-                if seq_elem:
-                    fascicolo_info['sequence_number'] = int(seq_elem[0].text)
-
-                # Get fascicolo number from issue element
-                issue_elem = stru.xpath('.//mag:issue', namespaces=ns)
-                if issue_elem:
-                    issue_text = issue_elem[0].text
-                    match = re.search(r'fasc\.\s*(\d+)', issue_text)
-                    if match:
-                        fascicolo_info['number'] = int(match.group(1))
-
-                # Get start sequence
-                start_elem = stru.xpath('.//mag:start', namespaces=ns)
-                if start_elem:
-                    seq_attr = start_elem[0].get('sequence_number')
-                    if seq_attr:
-                        fascicolo_info['start_sequence'] = int(seq_attr)
-
-                # Get stop sequence
-                stop_elem = stru.xpath('.//mag:stop', namespaces=ns)
-                if stop_elem:
-                    seq_attr = stop_elem[0].get('sequence_number')
-                    if seq_attr:
-                        fascicolo_info['stop_sequence'] = int(seq_attr)
-
-                # Validate and add
-                if all(fascicolo_info[key] is not None for key in ['number', 'start_sequence', 'stop_sequence']):
-                    fascicoli.append(fascicolo_info)
-
-        except Exception as e:
-            print(f"Error parsing fascicoli: {e}")
-
-        return fascicoli
-
-    def _parse_images_direct(self, root, ns: Dict) -> List[Dict]:
-        """Parse image mappings directly from lxml root using XPath"""
-        image_mappings = []
-
-        try:
-            # Find all img elements
-            img_elements = root.xpath('.//mag:img', namespaces=ns)
-
-            for img in img_elements:
-                img_info = {
-                    'sequence_number': None,
-                    'nomenclature': None,
-                    'page_number': None,
-                    'filename': None
-                }
-
-                # Get sequence number
-                seq_elem = img.xpath('./mag:sequence_number', namespaces=ns)
-                if seq_elem:
-                    img_info['sequence_number'] = int(seq_elem[0].text)
-
-                # Get nomenclature
-                nom_elem = img.xpath('./mag:nomenclature', namespaces=ns)
-                if nom_elem:
-                    nomenclature = nom_elem[0].text
-                    img_info['nomenclature'] = nomenclature
-
-                    # Extract page number and document type from nomenclature
-                    # Patterns: "Pagina: 2", "Indice: 1", "Carta: 3", "Tavola: 1"
-                    page_match = re.search(r'(Pagina|Indice|Carta|Tavola):\s*(\d+)', nomenclature)
-                    if page_match:
-                        doc_prefix = page_match.group(1)
-                        img_info['page_number'] = int(page_match.group(2))
-
-                        # Map nomenclature to ICCD document type
-                        doc_type_mapping = {
-                            'Pagina': 'S',  # Scheda
-                            'Indice': 'A',  # Allegato
-                            'Carta': 'F',   # Foto
-                            'Tavola': 'P'   # Disegno
-                        }
-                        img_info['document_type'] = doc_type_mapping.get(doc_prefix, 'S')
-
-                # Collect all files for this img element (both main file and altimg)
-                files_to_add = []
-
-                # Get main file (usually .tif)
-                main_file = img.xpath('./mag:file[@xlink:href]', namespaces=ns)
-                if main_file:
-                    href = main_file[0].get('{http://www.w3.org/1999/xlink}href')
-                    if href:
-                        files_to_add.append(os.path.basename(href))
-
-                # Get altimg file (usually .jpg)
-                altimg_file = img.xpath('.//mag:altimg//mag:file[@xlink:href]', namespaces=ns)
-                if altimg_file:
-                    href = altimg_file[0].get('{http://www.w3.org/1999/xlink}href')
-                    if href:
-                        files_to_add.append(os.path.basename(href))
-
-                # Create separate entries for each file found
-                for filename in files_to_add:
-                    file_info = img_info.copy()  # Copy base info
-                    file_info['filename'] = filename
-
-                    # Validate and add
-                    if all(file_info[key] is not None for key in ['sequence_number', 'page_number', 'document_type']):
-                        image_mappings.append(file_info)
-                        print(f"   [INFO] Added {filename} -> seq {file_info['sequence_number']}")
-
-        except Exception as e:
-            print(f"Error parsing images: {e}")
-
-        return image_mappings
-
-    def _group_by_document_instances(self, files_of_type: List[Dict]) -> List[List[Dict]]:
-        """
-        Group files by document instances, detecting when page sequences reset.
-
-        For example:
-        - [Pagina:1, Pagina:2, Pagina:1, Pagina:2] → [[Pagina:1, Pagina:2], [Pagina:1, Pagina:2]]
-        - [Pagina:1, Pagina:2, Pagina:3] → [[Pagina:1, Pagina:2, Pagina:3]]
-
-        Args:
-            files_of_type: List of file data sorted by page number
-
-        Returns:
-            List of document instances, each containing a list of files
-        """
-        if not files_of_type:
-            return []
-
-        document_instances = []
-        current_instance = []
-        last_page_number = 0
-
-        for file_data in files_of_type:
-            current_page = file_data['page_number']
-
-            # If current page number is less than or equal to last page number,
-            # and we already have files in current instance, start a new instance
-            if current_page <= last_page_number and current_instance:
-                # Special case: if current page is 1 and we have accumulated pages
-                # this likely indicates start of new document instance
-                if current_page == 1:
-                    document_instances.append(current_instance)
-                    current_instance = [file_data]
-                else:
-                    # Continue current instance for non-page-1 resets
-                    current_instance.append(file_data)
-            else:
-                current_instance.append(file_data)
-
-            last_page_number = current_page
-
-        # Add the last instance if not empty
-        if current_instance:
-            document_instances.append(current_instance)
-
-        print(f"   [INFO] Grouped {len(files_of_type)} files into {len(document_instances)} document instances")
-        for i, instance in enumerate(document_instances, 1):
-            pages = [f['page_number'] for f in instance]
-            print(f"      Instance {i}: pages {pages}")
-
-        return document_instances
-
-    def _create_progressive_mappings(self, actual_files: List[str], xml_image_mappings: List[Dict],
-                                   fascicoli: List[Dict], folder_path: str) -> List[ImageMapping]:
-        """Create ICCD mappings with progressive numbering by document type"""
-        mappings = []
-
-        # Step 1: Match files to XML and group by fascicolo and document type
-        file_groups = {}  # {fascicolo_number: {doc_type: [file_data, ...]}}
-
-        for file_info in actual_files:
-            filename = file_info['filename'] if isinstance(file_info, dict) else file_info
-            # Find matching XML entry
-            xml_mapping = self._find_xml_mapping_for_file(filename, xml_image_mappings)
-
-            if xml_mapping:
-                # Find fascicolo for this sequence_number
-                fascicolo = self._find_fascicolo_for_sequence(xml_mapping['sequence_number'], fascicoli)
-
-                if fascicolo:
-                    fascicolo_num = str(fascicolo['number'])
-                    doc_type = xml_mapping['document_type']
-
-                    # Initialize nested dict structure
-                    if fascicolo_num not in file_groups:
-                        file_groups[fascicolo_num] = {}
-                    if doc_type not in file_groups[fascicolo_num]:
-                        file_groups[fascicolo_num][doc_type] = []
-
-                    # Add file data
-                    file_data = {
-                        'filename': filename,
-                        'page_number': xml_mapping['page_number'],
-                        'nomenclature': xml_mapping['nomenclature'],
-                        'xml_sequence': xml_mapping['sequence_number'],
-                        'full_path': file_info.get('full_path', filename) if isinstance(file_info, dict) else filename,
-                        'subdir': file_info.get('subdir') if isinstance(file_info, dict) else None
-                    }
-                    file_groups[fascicolo_num][doc_type].append(file_data)
-
-                    subdir_info = f" ({file_info.get('subdir', 'main')})" if isinstance(file_info, dict) and file_info.get('subdir') else ""
-                    print(f"[OK] Grouped {filename}{subdir_info} -> fascicolo {fascicolo_num} (seq {xml_mapping['sequence_number']}), type {doc_type}, page {xml_mapping['page_number']}")
-                else:
-                    print(f"[WARNING] No fascicolo found for {filename} (sequence {xml_mapping['sequence_number']})")
-                    print(f"      Available fascicolo ranges:")
-                    for fasc in fascicoli[:3]:  # Show first 3 fascicoli
-                        print(f"      - Fascicolo {fasc['number']}: seq {fasc['start_sequence']}-{fasc['stop_sequence']}")
-                    print(f"      ... (showing first 3 of {len(fascicoli)} total)")
-            else:
-                print(f"[WARNING] No XML mapping found for {filename}")
-
-        # Step 2: Create progressive mappings by fascicolo, then by object, then by document type
-        for fascicolo_num, doc_types in file_groups.items():
-            print(f"[INFO] Processing fascicolo {fascicolo_num}")
-
-            # First, we need to determine object boundaries by looking at Pagina sequences
-            # Every time Pagina sequence resets to 1, it's a new object
-            all_files = []
-            for doc_type, files in doc_types.items():
-                for file_data in files:
-                    file_data['doc_type'] = doc_type
-                    all_files.append(file_data)
-
-            # Sort all files by XML sequence number to maintain original order
-            all_files.sort(key=lambda x: x.get('xml_sequence', 0))
-
-            # Group files by physical objects (reset when Pagina:1 appears)
-            objects = []
-            current_object = []
-
-            for file_data in all_files:
-                # If this is Pagina:1 and we already have files, start new object
-                if (file_data['doc_type'] == 'S' and file_data['page_number'] == 1 and
-                    current_object and any(f['doc_type'] == 'S' for f in current_object)):
-                    objects.append(current_object)
-                    current_object = [file_data]
-                else:
-                    current_object.append(file_data)
-
-            # Add the last object
-            if current_object:
-                objects.append(current_object)
-
-            print(f"   [INFO] Found {len(objects)} objects in fascicolo {fascicolo_num}")
-
-            # Global counters for sequence numbers by document type within fascicolo
-            fascicolo_sequence_counters = {'S': 0, 'A': 0, 'F': 0, 'P': 0}
-
-            # Process each object
-            for obj_num, object_files in enumerate(objects, 1):
-                print(f"   [INFO] Processing object {obj_num}")
-
-                # Group files by document type within this object
-                object_doc_types = {}
-                for file_data in object_files:
-                    doc_type = file_data['doc_type']
-                    if doc_type not in object_doc_types:
-                        object_doc_types[doc_type] = []
-                    object_doc_types[doc_type].append(file_data)
-
-                # Sort document types by ICCD order: S(01) → A(02) → F(03) → P(04)
-                type_order = {'S': 1, 'A': 2, 'F': 3, 'P': 4}
-                sorted_doc_types = sorted(object_doc_types.keys(), key=lambda x: type_order.get(x, 5))
-
-                # Process each document type within this object
-                for doc_type in sorted_doc_types:
-                    files_of_type = object_doc_types[doc_type]
-
-                    # Sort files by page number within each type
-                    files_of_type.sort(key=lambda x: x['page_number'])
-
-                    # Group by document instance - detect when page sequences reset within same type
-                    document_instances = self._group_by_document_instances(files_of_type)
-
-                    progressive_num = type_order[doc_type]
-
-                    for doc_instance_num, instance_files in enumerate(document_instances, 1):
-                        # Increment global counter for this document type
-                        fascicolo_sequence_counters[doc_type] += 1
-                        global_sequence_num = fascicolo_sequence_counters[doc_type]
-
-                        for file_data in instance_files:
-                            mapping = ImageMapping(
-                                original_filename=file_data['filename'],
-                                fascicolo_number=fascicolo_num,
-                                oggetto_number=f"{obj_num:04d}",  # Object number within fascicolo
-                                document_type=doc_type,
-                                sequence_number=f"{global_sequence_num:04d}",  # Progressive within fascicolo by doc type
-                                page_number=file_data['page_number'],  # Original page from XML
-                                busta_folder=folder_path,
-                                full_path=file_data.get('full_path', file_data['filename']),
-                                subdir=file_data.get('subdir')
-                            )
-
-                            mappings.append(mapping)
-                            print(f"      [INFO] {file_data['filename']} -> Object:{obj_num:04d} {doc_type}{global_sequence_num:04d}_{file_data['page_number']:02d}")
-
-        return mappings
 
     def process_all_bustas(self, input_dir: str, process_jpg: bool = True, process_tiff: bool = True) -> List[ImageMapping]:
         """
@@ -798,8 +489,9 @@ class XMLProcessor:
                 # Parsa XML
                 xml_data = self.parse_busta_xml(xml_file)
 
-                # Estrai mappings
-                mappings = self.extract_image_mappings(xml_data, folder_path, process_jpg, process_tiff)
+                # Estrai mappings usando approccio sequenziale (risolve bug Windows/Linux)
+                print("[INFO] Using sequential XML processing to avoid Windows/Linux differences")
+                mappings = self.extract_image_mappings_sequential(xml_data, folder_path, process_jpg, process_tiff)
 
                 print(f"[OK] Extracted {len(mappings)} image mappings from {os.path.basename(xml_file)}")
 
@@ -823,6 +515,205 @@ class XMLProcessor:
             if mapping.original_filename == filename:
                 return mapping
         return None
+
+    def save_mappings_to_json(self, mappings: List[ImageMapping], output_file: str,
+                            include_iccd_names: bool = True) -> bool:
+        """
+        Salva i mappings completi in formato JSON per debug e verifica
+
+        Args:
+            mappings: Lista di ImageMapping da salvare
+            output_file: Path del file JSON di output
+            include_iccd_names: Se includere i nomi ICCD generati
+
+        Returns:
+            True se salvato con successo
+        """
+        try:
+            import json
+            from datetime import datetime
+
+            # Convert mappings to JSON-serializable format
+            json_data = {
+                'metadata': {
+                    'generated_at': datetime.now().isoformat(),
+                    'total_mappings': len(mappings),
+                    'include_iccd_names': include_iccd_names
+                },
+                'mappings': []
+            }
+
+            # Group by fascicolo for better organization
+            fascicolo_groups = {}
+            for mapping in mappings:
+                fasc_num = mapping.fascicolo_number
+                if fasc_num not in fascicolo_groups:
+                    fascicolo_groups[fasc_num] = []
+                fascicolo_groups[fasc_num].append(mapping)
+
+            # Process each fascicolo
+            for fasc_num, fasc_mappings in sorted(fascicolo_groups.items(), key=lambda x: int(x[0])):
+                fascicolo_data = {
+                    'fascicolo_number': fasc_num,
+                    'total_images': len(fasc_mappings),
+                    'images': []
+                }
+
+                # Group by document type within fascicolo
+                doc_type_groups = {'S': [], 'A': [], 'F': [], 'P': []}
+                for mapping in fasc_mappings:
+                    doc_type_groups[mapping.document_type].append(mapping)
+
+                # Process in ICCD order: S, A, F, P
+                for doc_type in ['S', 'A', 'F', 'P']:
+                    if doc_type_groups[doc_type]:
+                        # Sort by sequence number within document type
+                        sorted_mappings = sorted(doc_type_groups[doc_type],
+                                               key=lambda x: int(x.sequence_number))
+
+                        for mapping in sorted_mappings:
+                            mapping_data = {
+                                'original_filename': mapping.original_filename,
+                                'full_path': mapping.full_path,
+                                'subdir': mapping.subdir,
+                                'fascicolo_number': mapping.fascicolo_number,
+                                'oggetto_number': mapping.oggetto_number,
+                                'document_type': mapping.document_type,
+                                'document_type_name': self._get_document_type_name(mapping.document_type),
+                                'sequence_number': mapping.sequence_number,
+                                'page_number': mapping.page_number,
+                                'busta_folder': mapping.busta_folder,
+                                'has_nct': mapping.has_nct,
+                                'nct_code': mapping.nct_code
+                            }
+
+                            # Add ICCD filename if requested
+                            if include_iccd_names:
+                                mapping_data['iccd_filename'] = self._generate_iccd_filename_preview(mapping)
+
+                            fascicolo_data['images'].append(mapping_data)
+
+                json_data['mappings'].append(fascicolo_data)
+
+            # Add summary statistics
+            json_data['summary'] = self._generate_mapping_summary(mappings)
+
+            # Write to file
+            output_dir = os.path.dirname(output_file)
+            if output_dir:  # Only create directories if there's a directory part
+                os.makedirs(output_dir, exist_ok=True)
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
+
+            print(f"[OK] Mappings saved to: {output_file}")
+            print(f"[INFO] Total mappings: {len(mappings)}")
+            print(f"[INFO] Fascicoli: {len(fascicolo_groups)}")
+
+            return True
+
+        except Exception as e:
+            print(f"[ERROR] Error saving mappings to JSON: {e}")
+            return False
+
+    def _get_document_type_name(self, doc_type: str) -> str:
+        """Get human-readable document type name"""
+        type_names = {
+            'S': 'Scheda',
+            'A': 'Allegato',
+            'F': 'Foto',
+            'P': 'Disegno'
+        }
+        return type_names.get(doc_type, 'Unknown')
+
+    def _generate_iccd_filename_preview(self, mapping: ImageMapping) -> str:
+        """Generate ICCD filename for preview (without crop logic)"""
+        ext = os.path.splitext(mapping.original_filename)[1]
+
+        if mapping.has_nct and mapping.nct_code:
+            # Schema CON NCT
+            progressive = self._get_progressive_number_for_preview(mapping.document_type)
+            return f"ICCD_{mapping.nct_code}_{progressive:02d}_{mapping.document_type}{mapping.sequence_number}_{mapping.page_number:02d}{ext}"
+        else:
+            # Schema SENZA NCT
+            fascicolo = f"FSC{int(mapping.fascicolo_number):05d}"
+            progressive = self._get_progressive_number_for_preview(mapping.document_type)
+            return f"ICCD_{fascicolo}-{mapping.oggetto_number}_{progressive:02d}_{mapping.document_type}{mapping.sequence_number}_{mapping.page_number:02d}{ext}"
+
+    def _get_progressive_number_for_preview(self, document_type: str) -> int:
+        """Get progressive number for ICCD filename preview"""
+        type_order = {'S': 1, 'A': 2, 'F': 3, 'P': 4}
+        return type_order.get(document_type, 1)
+
+    def _generate_mapping_summary(self, mappings: List[ImageMapping]) -> dict:
+        """Generate summary statistics for mappings"""
+        summary = {
+            'total_images': len(mappings),
+            'by_fascicolo': {},
+            'by_document_type': {'S': 0, 'A': 0, 'F': 0, 'P': 0},
+            'by_file_type': {},
+            'has_subdirectories': False,
+            'subdirectories': set()
+        }
+
+        for mapping in mappings:
+            # Count by fascicolo
+            fasc_num = mapping.fascicolo_number
+            if fasc_num not in summary['by_fascicolo']:
+                summary['by_fascicolo'][fasc_num] = 0
+            summary['by_fascicolo'][fasc_num] += 1
+
+            # Count by document type
+            summary['by_document_type'][mapping.document_type] += 1
+
+            # Count by file type
+            ext = os.path.splitext(mapping.original_filename)[1].lower()
+            if ext not in summary['by_file_type']:
+                summary['by_file_type'][ext] = 0
+            summary['by_file_type'][ext] += 1
+
+            # Track subdirectories
+            if mapping.subdir:
+                summary['has_subdirectories'] = True
+                summary['subdirectories'].add(mapping.subdir)
+
+        # Convert set to list for JSON serialization
+        summary['subdirectories'] = list(summary['subdirectories'])
+
+        return summary
+
+    def export_xml_mappings_to_json(self, xml_file_path: str, folder_path: str,
+                                  output_json_path: str, process_jpg: bool = True,
+                                  process_tiff: bool = True) -> bool:
+        """
+        Convenience method to export mappings from a single XML file to JSON
+
+        Args:
+            xml_file_path: Path to XML file
+            folder_path: Path to image folder
+            output_json_path: Path for output JSON file
+            process_jpg: Whether to process .jpg/.jpeg files
+            process_tiff: Whether to process .tiff/.tif files
+
+        Returns:
+            True if successful
+        """
+        try:
+            # Parse XML
+            xml_data = self.parse_busta_xml(xml_file_path)
+
+            # Extract mappings using sequential processing
+            mappings = self.extract_image_mappings_sequential(xml_data, folder_path, process_jpg, process_tiff)
+
+            if not mappings:
+                print(f"[WARNING] No mappings found for {xml_file_path}")
+                return False
+
+            # Save to JSON
+            return self.save_mappings_to_json(mappings, output_json_path, include_iccd_names=True)
+
+        except Exception as e:
+            print(f"[ERROR] Error exporting XML mappings to JSON: {e}")
+            return False
 
 
 def has_busta_structure(input_dir: str) -> bool:

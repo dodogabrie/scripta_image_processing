@@ -259,10 +259,14 @@ export default class PythonManager {
       }
 
       const spawnOptions = {};
-      if (os.platform() === 'win32') {
+      if (os.platform() === "win32") {
         spawnOptions.windowsHide = true;
       }
-      const process = spawn(systemPython, ["-m", "venv", this.venvPath], spawnOptions);
+      const process = spawn(
+        systemPython,
+        ["-m", "venv", this.venvPath],
+        spawnOptions,
+      );
 
       process.stdout.on("data", (data) => {
         const output = data.toString().trim();
@@ -339,12 +343,16 @@ export default class PythonManager {
 
       const spawnOptions = {
         cwd: this.venvPath,
-        stdio: ["pipe", "pipe", "pipe"]
+        stdio: ["pipe", "pipe", "pipe"],
       };
-      if (os.platform() === 'win32') {
+      if (os.platform() === "win32") {
         spawnOptions.windowsHide = true;
       }
-      const process = spawn(this.pythonExecutable, ["-m", "ensurepip"], spawnOptions);
+      const process = spawn(
+        this.pythonExecutable,
+        ["-m", "ensurepip"],
+        spawnOptions,
+      );
 
       process.stdout.on("data", (data) => {
         const output = data.toString().trim();
@@ -454,29 +462,29 @@ export default class PythonManager {
         // Usa python -m pip per embedded
         const spawnOptions = {
           stdio: ["pipe", "pipe", "pipe"],
-          env: process.env
+          env: process.env,
         };
-        if (os.platform() === 'win32') {
+        if (os.platform() === "win32") {
           spawnOptions.windowsHide = true;
         }
         pipProcess = spawn(
           embeddedPython,
           ["-m", "pip", "install", "-r", requirementsPath],
-          spawnOptions
+          spawnOptions,
         );
       } else {
         // Usa pip normale per venv
         const spawnOptions = {
           stdio: ["pipe", "pipe", "pipe"],
-          env: process.env
+          env: process.env,
         };
-        if (os.platform() === 'win32') {
+        if (os.platform() === "win32") {
           spawnOptions.windowsHide = true;
         }
         pipProcess = spawn(
           this.pipExecutable,
           ["install", "-r", requirementsPath],
-          spawnOptions
+          spawnOptions,
         );
       }
 
@@ -566,6 +574,7 @@ export default class PythonManager {
     return new Promise((resolve, reject) => {
       let finished = false;
       let output = "";
+      let originalOutput = "";
       let error = "";
 
       // Log del path Python usato
@@ -613,7 +622,7 @@ export default class PythonManager {
       let py;
       try {
         const spawnOptions = { env };
-        if (os.platform() === 'win32') {
+        if (os.platform() === "win32") {
           spawnOptions.windowsHide = true; // Hide console window on Windows only
         }
         py = spawn(this.pythonExecutable, [scriptPath, ...args], spawnOptions);
@@ -626,14 +635,15 @@ export default class PythonManager {
       }
 
       py.stdout.on("data", (data) => {
-        output += data.toString();
+        originalOutput += data.toString();
+        output += originalOutput;
       });
       py.stderr.on("data", (data) => {
         error += data.toString();
       });
 
       // Aggiungi info sul Python usato all'inizio dell'output
-      let debugInfo = `🐍 Python executable: ${this.pythonExecutable}\n`;
+      let debugInfo = `Python executable: ${this.pythonExecutable}\n`;
 
       if (isWindows) {
         const appDir = path.dirname(app.getAppPath());
@@ -651,7 +661,7 @@ export default class PythonManager {
         finished = true;
         this.activeProcess = null; // Clear on exit
         if (code === 0) {
-          resolve({ success: true, output });
+          resolve({ success: true, scriptOutput: originalOutput, output });
         } else {
           resolve({
             success: false,
@@ -719,12 +729,16 @@ export default class PythonManager {
       try {
         const spawnOptions = {
           env,
-          stdio: ["inherit", "pipe", "pipe"] // Unbuffered stdio
+          stdio: ["inherit", "pipe", "pipe"], // Unbuffered stdio
         };
-        if (os.platform() === 'win32') {
+        if (os.platform() === "win32") {
           spawnOptions.windowsHide = true; // Hide console window on Windows only
         }
-        py = spawn(this.pythonExecutable, ["-u", scriptPath, ...args], spawnOptions);
+        py = spawn(
+          this.pythonExecutable,
+          ["-u", scriptPath, ...args],
+          spawnOptions,
+        );
         this.activeProcess = py; // Track the active process
       } catch (spawnErr) {
         return resolve({

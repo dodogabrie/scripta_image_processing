@@ -1,142 +1,291 @@
 #!/usr/bin/env python3
 # filepath: /home/edoardo/Work/Projects/scripta_image_processing/src/projects/project3/python/main.py
 
-import sys
-import os
 import argparse
-from utils.busta_detector import BustaDetector
+import os
+import subprocess
+import glob
+import json
+import sys
+from pathlib import Path
 
-def main(input_dir, output_dir):
-    """
-    Main processing function for MAGLIB with ICCD Busta support
 
-    Args:
-        input_dir (str): Input directory path
-        output_dir (str): Output directory path
-    """
-    print(f"🚀 Processing started...")
-    print(f"📁 Input directory: {input_dir}")
-    print(f"📁 Output directory: {output_dir}")
+def load_maglib_commands():
+    """Load maglib commands from JSON configuration file"""
+    config_path = Path(__file__).parent.parent / "maglib_commands.json"
 
-    # Ensure input directory exists
-    if not os.path.exists(input_dir):
-        print(f"❌ Input directory does not exist: {input_dir}")
-        return False
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        return config["commands"]
+    except FileNotFoundError:
+        print(f"[ERROR] Configuration file not found: {config_path}")
+        print("Using fallback command definitions...")
+        return get_fallback_commands()
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] Invalid JSON in configuration file: {e}")
+        print("Using fallback command definitions...")
+        return get_fallback_commands()
 
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
 
-    # Check if input contains Busta structure with XML files
-    detector = BustaDetector()
+def get_fallback_commands():
+    """Fallback command definitions if JSON config is not available"""
+    return {
+        "adapt_fs_iccd": {
+            "script": "adapt_fs_iccd.py",
+            "name": "Adatta FS ICCD",
+            "description": "Adatta file system per standard ICCD",
+            "category": "File System",
+            "base_params": ["-M", "{file}"],
+            "required_params": ["--ignore-missing"],
+            "configurable_params": {},
+            "usage_pattern": "mass_mode"
+        }
+    }
 
-    if detector.has_busta_structure(input_dir):
-        print("🏷️  Detected ICCD Busta structure - using XML-based processing")
 
-        # Print Busta summary
-        detector.print_busta_summary(input_dir)
+def build_command_params(command_key, xml_file, config_commands, custom_params=None):
+    """Build complete command parameters for a command"""
+    if command_key not in config_commands:
+        raise ValueError(f"Unknown command: {command_key}")
 
-        # Validate structure before processing
-        if not detector.validate_busta_structure(input_dir, verbose=True):
-            print("❌ Busta structure validation failed. Please check XML files and image folders.")
+    command_info = config_commands[command_key]
+
+    if custom_params:
+        # Use custom parameters if provided
+        return custom_params
+
+    # Build from JSON configuration
+    params = []
+
+    # Add base parameters
+    base_params = command_info.get("base_params", [])
+    for param in base_params:
+        params.append(param.replace("{file}", xml_file))
+
+    # Add required parameters
+    required_params = command_info.get("required_params", [])
+    params.extend(required_params)
+
+    # Add configurable parameters with defaults
+    configurable_params = command_info.get("configurable_params", {})
+    for param_key, param_info in configurable_params.items():
+        param_flag = param_info["param"]
+        default_value = param_info["default"]
+        param_type = param_info.get("type", "string")
+
+        if param_type == "boolean" and default_value:
+            params.append(param_flag)
+        elif param_type != "boolean" and default_value:
+            params.extend([param_flag, str(default_value)])
+
+    return params
+
+
+# Load commands from JSON config
+MAGLIB_COMMANDS = load_maglib_commands()
+
+
+def setup_maglib_environment():
+    """Setup environment variables for maglib"""
+    current_dir = Path(__file__).parent / "maglib"
+    script_dir = current_dir / "script"
+
+    # Add maglib script directory to PATH
+    current_path = os.environ.get('PATH', '')
+    if str(script_dir) not in current_path:
+        os.environ['PATH'] = f"{script_dir}{os.pathsep}{current_path}"
+
+    # Add maglib to PYTHONPATH
+    current_pythonpath = os.environ.get('PYTHONPATH', '')
+    if str(current_dir) not in current_pythonpath:
+        os.environ['PYTHONPATH'] = f"{current_dir}{os.pathsep}{current_pythonpath}"
+
+    print(f"[INFO] Added {script_dir} to PATH")
+    print(f"[INFO] Added {current_dir} to PYTHONPATH")
+
+
+def get_xml_files(directory):
+    """Get all XML files in the directory"""
+    xml_files = glob.glob(os.path.join(directory, "*.xml"))
+    return xml_files
+
+
+
+def execute_command(command_key, xml_file, custom_params=None):
+    """Execute a maglib command on an XML file using module invocation"""
+    if command_key not in MAGLIB_COMMANDS:
+        raise ValueError(f"Unknown command: {command_key}")
+
+    command_info = MAGLIB_COMMANDS[command_key]
+
+    # Build command parameters
+    cmd_params = build_command_params(command_key, xml_file, MAGLIB_COMMANDS, custom_params)
+
+    # Convert script filename (e.g., adapt_fs_iccd.py) → module name (maglib.script.adapt_fs_iccd)
+    script_name = command_info["script"]
+    module_name = f"maglib.script.{Path(script_name).stem}"
+
+    # Build final command: python -m maglib.script.adapt_fs_iccd ...
+    cmd = [sys.executable, "-m", module_name] + cmd_params
+
+    print(f"[EXEC] {' '.join(cmd)}")
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            shell=False,
+            cwd=os.path.dirname(xml_file),
+        )
+
+        if result.stdout:
+            print(f"[STDOUT] {result.stdout}")
+        if result.stderr:
+            print(f"[STDERR] {result.stderr}")
+
+        if result.returncode != 0:
+            print(f"[ERROR] Command failed with return code {result.returncode}")
             return False
 
-        # Import and use batch processor for Busta workflow
-        try:
-            from batch_processor import BatchProcessor
-
-            processor = BatchProcessor()
-            stats = processor.process_all_bustas(input_dir, output_dir)
-
-            # Check if processing was successful
-            if len(stats.errors) > 0:
-                print(f"⚠️  Processing completed with {len(stats.errors)} errors")
-                print("Check the processing reports for details.")
-                return False
-            else:
-                print("✅ ICCD Busta processing completed successfully!")
-                return True
-
-        except ImportError as e:
-            print(f"❌ Error importing batch processor: {e}")
-            print("Make sure all required modules are available.")
-            return False
-        except Exception as e:
-            print(f"❌ Error in ICCD processing: {e}")
-            return False
-
-    else:
-        print("📄 Standard processing mode (no Busta structure detected)")
-
-        # Original processing logic for non-Busta workflows
-        print("ℹ️  Add your standard processing logic here...")
-        print("    This is where you can implement other MAGLIB processing workflows")
-        print("    that don't involve ICCD Busta structure.")
-
-        # Placeholder for other processing types
-        # You can add other processing workflows here
-
-        print("✅ Standard processing complete!")
         return True
 
-def show_help():
-    """Show detailed help information"""
-    print("""
-MAGLIB Processing Tool with ICCD Busta Support
+    except Exception as e:
+        print(f"[ERROR] Exception executing command: {e}")
+        return False
 
-This tool supports two processing modes:
 
-1. ICCD Busta Mode (automatic detection):
-   - Input structure: Multiple Busta_XX folders with corresponding Busta_XX.xml files
-   - Processes images using crop.py from project2
-   - Renames files according to ICCD conventions
-   - Generates organized output with proper ICCD structure
+def main(input_dir, command_key, custom_params=None, dry_run=False):
+    """
+    Main processing function for maglib commands
 
-2. Standard Mode:
-   - For other MAGLIB processing workflows
-   - Add custom processing logic as needed
+    Args:
+        input_dir (str): Input directory path containing XML files
+        command_key (str): Key of the command to execute
+        custom_params (list): Custom parameters for the command
+        dry_run (bool): If True, only show what would be executed
+    """
+    print("MAGLIB XML Processing Tool")
+    print("=" * 50)
+    print(f"Input directory: {input_dir}")
+    print(f"Command: {command_key}")
 
-Examples:
-   python main.py /path/to/bustas /path/to/output
-   python main.py --help
+    if command_key not in MAGLIB_COMMANDS:
+        print(f"[ERROR] Unknown command: {command_key}")
+        print("Available commands:")
+        for cmd_key, cmd_info in MAGLIB_COMMANDS.items():
+            print(f"  {cmd_key}: {cmd_info['description']}")
+        return False
 
-For Busta processing, expected input structure:
-   input_dir/
-   ├── Busta_42/
-   │   ├── 0382.jpg
-   │   └── 0383.jpg
-   ├── Busta_42.xml
-   ├── Busta_43/
-   │   └── images...
-   └── Busta_43.xml
+    command_info = MAGLIB_COMMANDS[command_key]
+    print(f"Name: {command_info.get('name', command_info['script'])}")
+    print(f"Description: {command_info['description']}")
+    print(f"Category: {command_info['category']}")
 
-The tool will automatically detect this structure and process accordingly.
-""")
+    # Setup maglib environment
+    setup_maglib_environment()
+
+    # Find XML files
+    xml_files = get_xml_files(input_dir)
+    if not xml_files:
+        print("[ERROR] No XML files found in input directory")
+        return False
+
+    print(f"[INFO] Found {len(xml_files)} XML files to process")
+
+    if dry_run:
+        print("[DRY RUN] Would execute the following commands:")
+        for xml_file in xml_files:
+            params = build_command_params(command_key, xml_file, MAGLIB_COMMANDS, custom_params)
+            cmd = [command_info["script"]] + params
+            print(f"  {' '.join(cmd)}")
+        return True
+
+    # Process each XML file
+    success_count = 0
+    error_count = 0
+
+    for i, xml_file in enumerate(xml_files, 1):
+        print(f"\n[{i}/{len(xml_files)}] Processing: {os.path.basename(xml_file)}")
+
+        success = execute_command(command_key, xml_file, custom_params)
+        if success:
+            success_count += 1
+            print(f"[OK] Successfully processed {os.path.basename(xml_file)}")
+        else:
+            error_count += 1
+            print(f"[FAILED] Error processing {os.path.basename(xml_file)}")
+
+    # Final report
+    print("\n" + "=" * 50)
+    print("PROCESSING SUMMARY")
+    print("=" * 50)
+    print(f"Total files: {len(xml_files)}")
+    print(f"Successful: {success_count}")
+    print(f"Errors: {error_count}")
+    print(f"Success rate: {(success_count/len(xml_files)*100):.1f}%")
+
+    return error_count == 0
+
+
+def list_commands():
+    """List all available commands grouped by category"""
+    categories = {}
+    for cmd_key, cmd_info in MAGLIB_COMMANDS.items():
+        category = cmd_info['category']
+        if category not in categories:
+            categories[category] = []
+        categories[category].append((cmd_key, cmd_info))
+
+    print("Available MAGLIB Commands:")
+    print("=" * 50)
+    for category, commands in categories.items():
+        print(f"\n{category}:")
+        for cmd_key, cmd_info in commands:
+            name = cmd_info.get('name', cmd_key)
+            print(f"  {cmd_key}: {name} - {cmd_info['description']}")
+
+
+def export_commands_json():
+    """Export commands configuration as JSON for frontend consumption"""
+    try:
+        config_path = Path(__file__).parent.parent / "maglib_commands.json"
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        print(json.dumps(config, ensure_ascii=False, indent=2))
+        return True
+    except Exception as e:
+        print(f"{{\"error\": \"Failed to load config: {e}\"}}")
+        return False
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Tool per elaborazione xml MAG standard con supporto ICCD Busta",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument("input_dir", type=str, help="Input directory")
-    parser.add_argument("output_dir", type=str, help="Output directory")
-    parser.add_argument("--verbose", "-v", action="store_true",
-                       help="Enable verbose output")
-    parser.add_argument("--help-detailed", action="store_true",
-                       help="Show detailed help information")
-
-    # Parse known args to handle --help-detailed before argparse validation
-    if "--help-detailed" in sys.argv:
-        show_help()
-        sys.exit(0)
+    parser = argparse.ArgumentParser(description="MAGLIB XML Processing Tool")
+    parser.add_argument("input_dir", nargs="?", type=str, help="Input directory containing XML files")
+    parser.add_argument("command", nargs="?", type=str, help="Command to execute")
+    parser.add_argument("--list-commands", action="store_true",
+                       help="List all available commands and exit")
+    parser.add_argument("--export-json", action="store_true",
+                       help="Export commands configuration as JSON")
+    parser.add_argument("--dry-run", action="store_true",
+                       help="Show what would be executed without running")
+    parser.add_argument("--custom-params", type=str, nargs="*",
+                       help="Custom parameters for the command")
 
     args = parser.parse_args()
 
-    # Set verbose logging if requested
-    if args.verbose:
-        print("🔍 Verbose mode enabled")
+    if args.export_json:
+        success = export_commands_json()
+        sys.exit(0 if success else 1)
 
-    # Run main processing
-    success = main(args.input_dir, args.output_dir)
+    if args.list_commands:
+        list_commands()
+        sys.exit(0)
 
-    # Exit with appropriate code
+    if not args.input_dir or not args.command:
+        parser.print_help()
+        sys.exit(1)
+
+    success = main(args.input_dir, args.command, args.custom_params, args.dry_run)
     sys.exit(0 if success else 1)

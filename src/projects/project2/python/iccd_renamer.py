@@ -101,7 +101,7 @@ class ICCDRenamer:
     def _get_progressive_number(self, document_type: str) -> int:
         """
         Ottieni numero progressivo secondo ordine desiderata.md:
-        Schede → Allegati → Foto → Disegni
+        Schede -> Allegati -> Foto -> Disegni
         """
         type_order = {'S': 1, 'A': 2, 'F': 3, 'P': 4}
         return type_order.get(document_type, 1)
@@ -112,9 +112,9 @@ class ICCDRenamer:
         Calcola numero pagina finale secondo regole desiderata.md
 
         Regole crop:
-        - Pagina 1 + crop → pagina 4 (left), pagina 1 (right)
-        - Pagina 2 + crop → pagina 2 (left), pagina 3 (right)
-        - No crop → mantieni numerazione originale
+        - Pagina 1 + crop -> pagina 4 (left), pagina 1 (right)
+        - Pagina 2 + crop -> pagina 2 (left), pagina 3 (right)
+        - No crop -> mantieni numerazione originale
         """
         if not crop_result.fold_detected or side is None:
             # No crop o no side specified
@@ -127,7 +127,7 @@ class ICCDRenamer:
             return 2 if side == 'left' else 3
         else:
             # Per pagine > 2, mantieni logica sequenziale
-            # Pagina N → (N*2, N*2+1)
+            # Pagina N -> (N*2, N*2+1)
             return (original_page * 2) if side == 'left' else (original_page * 2 + 1)
 
     def handle_page_splitting(self, mapping: ImageMapping, crop_result: CropResult) -> List[Tuple[str, str, str]]:
@@ -258,7 +258,7 @@ class ICCDRenamer:
         Crea struttura directory ICCD organizzata per fascicolo
 
         Returns:
-            Dizionario mapping fascicolo → directory path
+            Dizionario mapping fascicolo -> directory path
         """
         fascicolo_dirs = {}
 

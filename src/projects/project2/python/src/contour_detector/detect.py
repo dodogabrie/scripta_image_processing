@@ -156,7 +156,7 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
         angle = np.degrees(np.arctan2(dy, dx))
         angle = (angle + 180) % 180 - 90  # range [-90, 90]
         side_angles.append(angle)
-        # Inclinazione rispetto agli assi (0° o 90°)
+        # Inclinazione rispetto agli assi (0 gradi o 90 gradi)
         signed_candidate_array = np.array([angle, angle - 90, angle + 90])
         candidate_array = np.array([abs(angle), abs(angle - 90), abs(angle + 90)])
         min_index = np.argmin(candidate_array)
@@ -181,11 +181,11 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
     sorted_idx = np.argsort(side_intensities)[::-1]
     if show_plot:
         print("\n=== CLASSIFICA LATI PER INTENSITÀ MEDIA ===")
-        print("Idx | Intensità | Angolo rispetto OX | Inclinazione (°) | Associazione")
+        print("Idx | Intensita | Angolo rispetto OX | Inclinazione (gradi) | Associazione")
         print("----|-----------|--------------------|------------------|-------------")
         for rank, idx in enumerate(sorted_idx, 1):
             print(
-                f"{rank:>3} | {side_intensities[idx]:9.1f} | {side_angles[idx]:17.1f}° | {side_inclinations[idx]:16.1f}° | {side_assoc[idx]}"
+                f"{rank:>3} | {side_intensities[idx]:9.1f} | {side_angles[idx]:17.1f} gradi | {side_inclinations[idx]:16.1f} gradi | {side_assoc[idx]}"
             )
     if show_plot:
         plt.figure(figsize=(12, 6))
@@ -237,7 +237,7 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
             next_i = (i + 1) % len(points)
             mid_point = (points[i] + points[next_i]) / 2
             plt.annotate(
-                f"{side_intensities[i]:.1f}\n{side_inclinations[i]:.1f}°\n{side_assoc[i]}",
+                f"{side_intensities[i]:.1f}\n{side_inclinations[i]:.1f} gradi\n{side_assoc[i]}",
                 mid_point,
                 xytext=(0, 10),
                 textcoords="offset points",
@@ -262,11 +262,11 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
         print(f"Deviazione standard: {np.std(side_intensities):.1f}")
     for i, intensity in enumerate(side_intensities):
         print(f"  {side_labels[i]}: {intensity:.1f}")
-    print(f"Inclinazione assoluta media pesata: {mean_weighted_inclination:.2f}°")
+    print(f"Inclinazione assoluta media pesata: {mean_weighted_inclination:.2f} gradi")
     mean = np.average(side_inclinations, weights=weights)
     variance = np.average((np.array(side_inclinations) - mean) ** 2, weights=weights)
     std_weighted_inclination = np.sqrt(variance)
-    print(f"Deviazione standard pesata inclinazione: {std_weighted_inclination:.2f}°")
+    print(f"Deviazione standard pesata inclinazione: {std_weighted_inclination:.2f} gradi")
     # trying removing outliers and average again
     filtered_values = np.array(
         [
@@ -293,10 +293,10 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
             )
             std_weighted_inclination = np.sqrt(variance)
             print(
-                f"Nuova inclinazione assoluta media pesata: {mean_weighted_inclination:.2f}°"
+                f"Nuova inclinazione assoluta media pesata: {mean_weighted_inclination:.2f} gradi"
             )
             print(
-                f"Nuova deviazione standard pesata inclinazione: {std_weighted_inclination:.2f}°"
+                f"Nuova deviazione standard pesata inclinazione: {std_weighted_inclination:.2f} gradi"
             )
 
     return (

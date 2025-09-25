@@ -23,7 +23,7 @@ def save_fold_profile_debug(filtered_profiles, mean_profile, std_profile, x_axis
             ax1.plot(x_axis, prof, alpha=0.3, color="gray", linewidth=0.5)
         ax1.plot(x_axis, mean_profile, "r-", linewidth=2, label="Mean Profile")
         ax1.fill_between(x_axis, mean_profile - std_profile, mean_profile + std_profile,
-                        color="red", alpha=0.2, label="±1σ Uncertainty")
+                        color="red", alpha=0.2, label="+/- 1 sigma Uncertainty")
         ax1.axvline(x_final, color="blue", linestyle="--", linewidth=2, label=f"Final Fold @ {x_final}")
         ax1.set_title(f"Profile Analysis ({len(filtered_profiles)} samples)")
         ax1.set_xlabel("X Position (pixels)")
@@ -204,30 +204,30 @@ def save_background_analysis_debug(analysis_result, debug_dir, gray_img):
     ax4.axis('off')
     stats_text = f"""
     BACKGROUND/PAGE ANALYSIS (Gradient-Based)
-    ═══════════════════════════════════════════
+    ===========================================
 
     Algorithm Parameters:
-    • Smoothing Kernel: {max(51, len(profile) // 50)} px
-    • Gradient Threshold: ±{gradient_threshold:.3f}
+    * Smoothing Kernel: {max(51, len(profile) // 50)} px
+    * Gradient Threshold: +/-{gradient_threshold:.3f}
 
     Detected Transitions:
     - Rises (BG->Page): {len(rises)} at positions {list(rises[:3])}{'...' if len(rises) > 3 else ''}
     - Drops (Page->BG): {len(drops)} at positions {list(drops[:3])}{'...' if len(drops) > 3 else ''}
 
     Background Region ({analysis_result['background_side']} side):
-    • Position: {bg_region[0]}-{bg_region[1]} px
-    • Mean: {analysis_result['background_mean']:.1f} ± {analysis_result['background_std']:.1f}
-    • Width: {bg_region[1] - bg_region[0]} px
+    * Position: {bg_region[0]}-{bg_region[1]} px
+    * Mean: {analysis_result['background_mean']:.1f} +/- {analysis_result['background_std']:.1f}
+    * Width: {bg_region[1] - bg_region[0]} px
 
     Page Plateau:
-    • Position: {page_region[0]}-{page_region[1]} px
-    • Mean: {analysis_result['page_mean']:.1f} ± {analysis_result['page_std']:.1f}
-    • Width: {page_region[1] - page_region[0]} px
+    * Position: {page_region[0]}-{page_region[1]} px
+    * Mean: {analysis_result['page_mean']:.1f} +/- {analysis_result['page_std']:.1f}
+    * Width: {page_region[1] - page_region[0]} px
 
     Quality Assessment:
-    • Contrast: {'EXCELLENT' if analysis_result['page_mean'] - analysis_result['background_mean'] > 50 else 'GOOD' if analysis_result['page_mean'] - analysis_result['background_mean'] > 30 else 'POOR'}
-    • Background Uniformity: {'GOOD' if analysis_result['background_std'] < 15 else 'POOR'}
-    • Page Uniformity: {'GOOD' if analysis_result['page_std'] < 20 else 'POOR'}
+    * Contrast: {'EXCELLENT' if analysis_result['page_mean'] - analysis_result['background_mean'] > 50 else 'GOOD' if analysis_result['page_mean'] - analysis_result['background_mean'] > 30 else 'POOR'}
+    * Background Uniformity: {'GOOD' if analysis_result['background_std'] < 15 else 'POOR'}
+    * Page Uniformity: {'GOOD' if analysis_result['page_std'] < 20 else 'POOR'}
     """
 
     ax4.text(0.05, 0.95, stats_text, transform=ax4.transAxes, fontsize=9,

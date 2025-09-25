@@ -169,7 +169,7 @@ def main():
     )
     crop_status = "smart crop" if debug_info["smart_crop_applied"] else "crop standard"
     print(
-        f"x: {debug_info['x_fold']}, inclinazione stimata: {debug_info['angle']:.2f}°, processato {rotation_status}, {crop_status}"
+        f"x: {debug_info['x_fold']}, inclinazione stimata: {debug_info['angle']:.2f} gradi, processato {rotation_status}, {crop_status}"
     )
 
     if debug_dir:
@@ -242,7 +242,7 @@ def main():
 
     # Generate comparison thumbnails if requested
     if args.save_thumbs:
-        print("📸 Generando thumbnails di confronto...")
+        print("Generando thumbnails di confronto...")
         thumb_dir = base_path + "_thumbs"
         os.makedirs(thumb_dir, exist_ok=True)  # Ensure thumbnail directory exists
 
@@ -255,7 +255,7 @@ def main():
                 output_path_thumb=thumb_dir,
                 original_path=args.input
             )
-            print(f"📸 Thumbnail lato sinistro: {thumb_dir}")
+            print(f"Thumbnail lato sinistro: {thumb_dir}")
 
         if right_side is not None:
             # Use true original (uncropped) vs final processed result
@@ -266,7 +266,7 @@ def main():
                 output_path_thumb=thumb_dir,
                 original_path=args.input
             )
-            print(f"📸 Thumbnail lato destro: {thumb_dir}")
+            print(f"Thumbnail lato destro: {thumb_dir}")
 
 
 if __name__ == "__main__":

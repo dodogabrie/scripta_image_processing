@@ -51,7 +51,7 @@ def extract_simple_brightness_profiles(roi, num_samples=60):
     profiles = [roi[r, :] for r in rows]
     avg_ints = [prof.mean() for prof in profiles]
 
-    # Simple outlier filtering using 1.5σ rule
+    # Simple outlier filtering using 1.5 sigma rule
     mean_int = np.mean(avg_ints)
     std_int = np.std(avg_ints)
 

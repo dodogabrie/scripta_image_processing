@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 XML Processor per parsing file Busta_XX.xml
-Estrae mappings filename → metadati ICCD secondo convenzioni desiderata.md
+Estrae mappings filename -> metadati ICCD secondo convenzioni desiderata.md
 """
 
 import os
@@ -14,7 +14,7 @@ import re
 
 @dataclass
 class ImageMapping:
-    """Struttura dati per mapping immagine → metadati ICCD"""
+    """Struttura dati per mapping immagine -> metadati ICCD"""
     original_filename: str
     fascicolo_number: str
     oggetto_number: str
@@ -228,7 +228,7 @@ class XMLProcessor:
                 )
                 mappings.append(mapping)
 
-                print(f"   [MAPPING] {file_info['filename']} → Fascicolo:{fascicolo['number']} Object:{current_doc_seq:04d} {doc_type}{current_doc_seq:04d}_{page_num:02d}")
+                print(f"   [MAPPING] {file_info['filename']} -> Fascicolo:{fascicolo['number']} Object:{current_doc_seq:04d} {doc_type}{current_doc_seq:04d}_{page_num:02d}")
 
         print(f"   [INFO] Fascicolo {fascicolo['number']} complete: {len(mappings)} mappings")
         return mappings

@@ -124,7 +124,7 @@ def main():
 
                     if first_fasc['images']:
                         first_img = first_fasc['images'][0]
-                        print(f"  Sample mapping: {first_img['original_filename']} → {first_img.get('iccd_filename', 'N/A')}")
+                        print(f"  Sample mapping: {first_img['original_filename']} -> {first_img.get('iccd_filename', 'N/A')}")
 
             except Exception as e:
                 print(f"[WARNING] Could not show preview: {e}")
@@ -177,7 +177,7 @@ def export_all_bustas(input_dir: str, output_dir: str, process_jpg: bool = True,
 
             if success:
                 successful += 1
-                print(f"[OK] {busta_name} → {output_json}")
+                print(f"[OK] {busta_name} -> {output_json}")
             else:
                 failed += 1
                 print(f"[FAILED] {busta_name}")

@@ -188,7 +188,7 @@ def detect_document_format(image_path, debug=False, document_contour=None):
         is_a3_aspect = False
         if not is_a3_physical:
             aspect_ratio = width_px / height_px
-            a3_landscape_ratio = 42.0 / 29.7  # ≈ 1.414
+            a3_landscape_ratio = 42.0 / 29.7  # approx 1.414
             tolerance = 0.03  # 3% tolerance (more restrictive)
             min_ratio = a3_landscape_ratio * (1 - tolerance)
             max_ratio = a3_landscape_ratio * (1 + tolerance)
@@ -318,7 +318,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
                 print(
                     f"[WARNING] Available border ({min_available_border}px) below threshold ({min_border_threshold}px)"
                 )
-                print("🔄 Applying rotation-only mode (no crop)")
+                print("Applying rotation-only mode (no crop)")
 
             warped, _ = warp_image(
                 img,

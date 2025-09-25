@@ -23,7 +23,7 @@ def save_debug_visualization(filtered_profiles, mean_profile, std_profile, x_axi
     for prof in filtered_profiles:
         ax1.plot(x_axis, prof, color='gray', linewidth=0.5, alpha=0.3)
     ax1.errorbar(x_axis, mean_profile, yerr=std_profile, color='red', ecolor='salmon',
-                 linewidth=2, elinewidth=1, capsize=2, label='mean ± std')
+                 linewidth=2, elinewidth=1, capsize=2, label='mean +/- std')
     ax1.set_title('Brightness profiles (filtered)')
     ax1.set_ylabel('Gray value')
     ax1.grid(True)

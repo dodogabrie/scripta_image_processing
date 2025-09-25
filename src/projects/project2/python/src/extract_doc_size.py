@@ -107,7 +107,7 @@ def test_lab(image_path):
             detected_contour = None
             contour_angle = None
             try:
-                print("\n🔍 CONTOUR DETECTION:")
+                print("\nCONTOUR DETECTION:")
                 # Load image with OpenCV for contour detection
                 cv_image = cv2.imread(image_path)
                 if cv_image is not None:
@@ -127,12 +127,12 @@ def test_lab(image_path):
                         contour_area_px = cv2.contourArea(detected_contour)
                         contour_rect = cv2.boundingRect(detected_contour)
                         print("  [OK] Document contour detected!")
-                        print(f"     Contour area: {contour_area_px:.0f} pixels²")
+                        print(f"     Contour area: {contour_area_px:.0f} pixels^2")
                         print(
                             f"     Bounding box: {contour_rect[2]} x {contour_rect[3]} pixels"
                         )
                         if contour_angle is not None:
-                            print(f"     Document rotation: {contour_angle:.1f}°")
+                            print(f"     Document rotation: {contour_angle:.1f} gradi")
                     else:
                         print("  [NO] No document contour detected")
                 else:
@@ -155,7 +155,7 @@ def test_lab(image_path):
                     width_cm = width_inches * 2.54
                     height_cm = height_inches * 2.54
 
-                    print("\n📏 PHYSICAL DIMENSIONS:")
+                    print("\nPHYSICAL DIMENSIONS:")
                     print("\n[INFO] FULL IMAGE:")
                     print(f"  Size in pixels: {width_px} x {height_px}")
                     print(f"  DPI: {dpi_x_float:.1f} x {dpi_y_float:.1f}")
@@ -166,7 +166,7 @@ def test_lab(image_path):
 
                     # Calculate area
                     area_cm2 = width_cm * height_cm
-                    print(f"  Area: {area_cm2:.2f} cm²")
+                    print(f"  Area: {area_cm2:.2f} cm^2")
 
                     # Calculate detected document dimensions if contour was found
                     if detected_contour is not None:
@@ -191,7 +191,7 @@ def test_lab(image_path):
                             print(
                                 f"  Size in cm: {doc_width_cm:.2f} cm x {doc_height_cm:.2f} cm"
                             )
-                            print(f"  Area: {doc_area_cm2:.2f} cm²")
+                            print(f"  Area: {doc_area_cm2:.2f} cm^2")
 
                             # Use document dimensions for format detection instead of full image
                             width_cm, height_cm, area_cm2 = (
@@ -217,9 +217,9 @@ def test_lab(image_path):
                     print("  A0: 84.1 x 118.9 cm")
 
                     # Check if image matches specific paper formats
-                    print("\n🔍 FORMAT DETECTION:")
+                    print("\nFORMAT DETECTION:")
 
-                    # Define tolerances (±15% for "more or less" matching)
+                    # Define tolerances (+/-15% for "more or less" matching)
                     tolerance = 0.15
 
                     # A4 dimensions

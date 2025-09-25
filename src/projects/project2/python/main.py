@@ -441,7 +441,7 @@ def main(
                 )
                 if debug_info.get("x_fold"):
                     print(
-                        f"  x: {debug_info['x_fold']}, angolo: {debug_info['angle']:.2f}°, {rotation_status}, {crop_status}"
+                        f"  x: {debug_info['x_fold']}, angolo: {debug_info['angle']:.2f} gradi, {rotation_status}, {crop_status}"
                     )
                 print(f"  {message}")
         else:
@@ -847,7 +847,7 @@ if __name__ == "__main__":
         "--export_json_mapping",
         type=str,
         default=None,
-        help="Esporta mappings XML→ICCD come file JSON per debug (fornisci path)",
+        help="Esporta mappings XML->ICCD come file JSON per debug (fornisci path)",
     )
     parser.add_argument(
         "--json_only",

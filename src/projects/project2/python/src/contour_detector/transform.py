@@ -315,7 +315,7 @@ def warp_image(
     if border_pixels == 0:
         # Rotation-only mode - return full rotated image without cropping
         if show_step_by_step:
-            print("🔄 Rotation-only mode: skipping crop, returning full rotated image")
+            print("Rotation-only mode: skipping crop, returning full rotated image")
         cropped = rotated_np
         # Set crop coordinates to 0 for visualization
         x, y, w, h = 0, 0, rotated_np.shape[1], rotated_np.shape[0]

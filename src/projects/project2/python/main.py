@@ -251,6 +251,247 @@ def process_single_image(
         return False, f"Errore processing {input_path}: {str(e)}", {}
 
 
+def rename_couple_outputs(first_result, second_result, verbose=True):
+    """
+    Rinomina i file di output di una coppia front-back secondo il pattern 4-page.
+
+    Args:
+        first_result (dict): Risultato del processing della prima immagine (front)
+        second_result (dict): Risultato del processing della seconda immagine (back)
+        verbose (bool): Se mostrare output verbose
+
+    Returns:
+        tuple: (success, renamed_files_list)
+    """
+    renamed_files = []
+
+    try:
+        first_saved = first_result.get("saved_files", [])
+        second_saved = second_result.get("saved_files", [])
+
+        if len(first_saved) != 2 or len(second_saved) != 2:
+            return False, []
+
+        # Find left/right files for both images
+        first_left = next((f for f in first_saved if "_left" in f), None)
+        first_right = next((f for f in first_saved if "_right" in f), None)
+        second_left = next((f for f in second_saved if "_left" in f), None)
+        second_right = next((f for f in second_saved if "_right" in f), None)
+
+        if not all([first_left, first_right, second_left, second_right]):
+            return False, []
+
+        # Get base name from first image (without _left/_right suffix)
+        first_base = first_left.replace("_left", "").rsplit(".", 1)[0]
+        first_ext = "." + first_left.rsplit(".", 1)[1]
+
+        # Define new names based on 4-page pattern
+        # First image: _left -> _4, _right -> _1
+        # Second image: _left -> _2, _right -> _3, and use first image base name
+        new_names = {
+            first_left: first_base + "_4" + first_ext,    # first left -> 4
+            first_right: first_base + "_1" + first_ext,   # first right -> 1
+            second_left: first_base + "_2" + first_ext,   # second left -> 2
+            second_right: first_base + "_3" + first_ext,  # second right -> 3
+        }
+
+        # Perform renaming
+        for old_path, new_path in new_names.items():
+            if os.path.exists(old_path):
+                os.rename(old_path, new_path)
+                renamed_files.append(new_path)
+                if verbose:
+                    print(f"  Renamed: {os.path.basename(old_path)} -> {os.path.basename(new_path)}")
+            else:
+                print(f"  Warning: File not found for renaming: {old_path}")
+
+        return True, renamed_files
+
+    except Exception as e:
+        print(f"  Error during couple renaming: {e}")
+        return False, []
+
+
+def rename_single_image_outputs(result, verbose=True):
+    """
+    Rinomina i file di output di una singola immagine da _left/_right a _4/_1.
+
+    Args:
+        result (dict): Risultato del processing dell'immagine
+        verbose (bool): Se mostrare output verbose
+
+    Returns:
+        tuple: (success, renamed_files_list)
+    """
+    renamed_files = []
+
+    try:
+        saved_files = result.get("saved_files", [])
+
+        if len(saved_files) != 2:
+            return False, []
+
+        # Find left/right files
+        left_file = next((f for f in saved_files if "_left" in f), None)
+        right_file = next((f for f in saved_files if "_right" in f), None)
+
+        if not all([left_file, right_file]):
+            return False, []
+
+        # Get base name from first image (without _left/_right suffix)
+        base_name = left_file.replace("_left", "").rsplit(".", 1)[0]
+        ext = "." + left_file.rsplit(".", 1)[1]
+
+        # Define new names: _left -> _4, _right -> _1
+        new_names = {
+            left_file: base_name + "_4" + ext,    # left -> 4
+            right_file: base_name + "_1" + ext,   # right -> 1
+        }
+
+        # Perform renaming
+        for old_path, new_path in new_names.items():
+            if os.path.exists(old_path):
+                os.rename(old_path, new_path)
+                renamed_files.append(new_path)
+                if verbose:
+                    print(f"  Renamed: {os.path.basename(old_path)} -> {os.path.basename(new_path)}")
+            else:
+                print(f"  Warning: File not found for renaming: {old_path}")
+
+        return True, renamed_files
+
+    except Exception as e:
+        print(f"  Error during single image renaming: {e}")
+        return False, []
+
+
+def process_front_back_couples(
+    image_files,
+    output_dir,
+    input_dir,
+    side=None,
+    output_format=None,
+    apply_rotation=False,
+    smart_crop=False,
+    debug=False,
+    verbose=True,
+    contour_border=150,
+    fold_border=None,
+    save_thumbs=False,
+):
+    """
+    Processa le immagini in coppie consecutive front-back con pattern di rinomina 4-page.
+
+    Args:
+        image_files (list): Lista ordinata dei file immagine
+        Altri args: come process_single_image
+
+    Returns:
+        tuple: (processed_count, error_count, renamed_count)
+    """
+    if len(image_files) % 2 != 0:
+        print(f"[WARNING] Front-back-couple mode requires even number of images. Found {len(image_files)} images.")
+        print("[WARNING] Last image will be skipped.")
+
+    processed_count = 0
+    error_count = 0
+    renamed_count = 0
+
+    # Process images in pairs
+    for i in range(0, len(image_files) - 1, 2):
+        first_path = image_files[i]
+        second_path = image_files[i + 1]
+
+        if verbose:
+            rel_first = os.path.relpath(first_path, input_dir)
+            rel_second = os.path.relpath(second_path, input_dir)
+            print(f"[{i//2 + 1}/{len(image_files)//2}] Processing couple: {rel_first} + {rel_second}")
+
+        # Process first image (front)
+        success1, message1, debug_info1 = process_single_image(
+            first_path, output_dir, input_dir, side, output_format,
+            apply_rotation, smart_crop, debug, False,  # verbose=False for cleaner output
+            contour_border, fold_border, save_thumbs,
+        )
+
+        # Process second image (back)
+        success2, message2, debug_info2 = process_single_image(
+            second_path, output_dir, input_dir, side, output_format,
+            apply_rotation, smart_crop, debug, False,  # verbose=False for cleaner output
+            contour_border, fold_border, save_thumbs,
+        )
+
+        # Validate crop results
+        fold_detected1 = debug_info1.get("x_fold") is not None
+        fold_detected2 = debug_info2.get("x_fold") is not None
+
+        if success1 and success2 and fold_detected1 and fold_detected2:
+            # Both images cropped successfully - apply couple renaming
+            success_rename, renamed_files = rename_couple_outputs(debug_info1, debug_info2, verbose)
+
+            if success_rename:
+                processed_count += 2
+                renamed_count += len(renamed_files)
+
+                if verbose:
+                    print(f"  [OK] Couple processed successfully - {len(renamed_files)} files renamed")
+                    print(f"  First: x={debug_info1.get('x_fold')}, angle={debug_info1.get('angle', 0):.2f}°")
+                    print(f"  Second: x={debug_info2.get('x_fold')}, angle={debug_info2.get('angle', 0):.2f}°")
+            else:
+                error_count += 2
+                print(f"  [ERROR] Failed to rename couple outputs")
+
+        elif success1 and fold_detected1 and (not success2 or not fold_detected2):
+            # Only first image has fold detected - rename first image to _4/_1 and clean up second
+            success_rename, renamed_files = rename_single_image_outputs(debug_info1, verbose)
+
+            if success_rename:
+                processed_count += 1
+                renamed_count += len(renamed_files)
+
+                if verbose:
+                    print(f"  [OK] Only first image cropped - {len(renamed_files)} files renamed to _4/_1 pattern")
+                    print(f"  First: x={debug_info1.get('x_fold')}, angle={debug_info1.get('angle', 0):.2f}°")
+            else:
+                error_count += 1
+                print(f"  [ERROR] Failed to rename first image outputs")
+
+            # Clean up second image files
+            second_saved = debug_info2.get("saved_files", [])
+            for file_path in second_saved:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    if verbose:
+                        print(f"  Removed second image file: {os.path.basename(file_path)}")
+
+            # One error for the second image
+            error_count += 1
+            print(f"  [INFO] Second image had no fold detection - files removed")
+
+        else:
+            # Both images failed or other validation issues - undo all crops
+            error_count += 2
+
+            # Clean up any files that were created
+            for debug_info in [debug_info1, debug_info2]:
+                saved_files = debug_info.get("saved_files", [])
+                for file_path in saved_files:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        if verbose:
+                            print(f"  Removed: {os.path.basename(file_path)}")
+
+            print(f"  [ERROR] Couple validation failed - crops undone")
+            print(f"  First image fold detected: {fold_detected1}, success: {success1}")
+            print(f"  Second image fold detected: {fold_detected2}, success: {success2}")
+            if not success1:
+                print(f"  First image error: {message1}")
+            if not success2:
+                print(f"  Second image error: {message2}")
+
+    return processed_count, error_count, renamed_count
+
+
 def main(
     input_dir,
     output_dir,
@@ -271,6 +512,7 @@ def main(
     export_json_mapping=None,
     json_only=False,
     no_rename=False,
+    front_back_couple=False,
 ):
     """
     Funzione principale per processare le immagini in batch con supporto ICCD Busta.
@@ -368,6 +610,8 @@ def main(
 
     # Trova tutte le immagini
     image_files = find_images_recursive(input_dir, format_extensions)
+    # Sort files to ensure consecutive processing for front-back couples
+    image_files.sort()
     total_files = len(image_files)
 
     if total_files == 0:
@@ -407,17 +651,16 @@ def main(
 
     write_info_json(output_dir, info_data)
 
-    # Processa ogni immagine
+    # Processa le immagini
     processed_count = 0
     error_count = 0
+    renamed_count = 0
 
-    for i, input_path in enumerate(image_files):
-        if verbose:
-            rel_path = os.path.relpath(input_path, input_dir)
-            print(f"[{i + 1}/{total_files}] Processing: {rel_path}")
-
-        success, message, debug_info = process_single_image(
-            input_path,
+    if front_back_couple:
+        # Process images in front-back couples
+        print(f"[INFO] Front-back couple mode enabled - processing {total_files} images in pairs")
+        processed_count, error_count, renamed_count = process_front_back_couples(
+            image_files,
             output_dir,
             input_dir,
             side,
@@ -431,31 +674,57 @@ def main(
             save_thumbs,
         )
 
-        if success:
-            processed_count += 1
-            if verbose:
-                rotation_status = (
-                    "con rotazione"
-                    if debug_info.get("rotation_applied")
-                    else "senza rotazione"
-                )
-                crop_status = (
-                    "smart crop"
-                    if debug_info.get("smart_crop_applied")
-                    else "crop standard"
-                )
-                if debug_info.get("x_fold"):
-                    print(
-                        f"  x: {debug_info['x_fold']}, angolo: {debug_info['angle']:.2f} gradi, {rotation_status}, {crop_status}"
-                    )
-                print(f"  {message}")
-        else:
-            error_count += 1
-            print(f"  ERRORE: {message}")
-
-        # Aggiorna info.json
-        info_data["processed"] = i + 1
+        # Update info.json with final counts
+        info_data["processed"] = processed_count + error_count
         write_info_json(output_dir, info_data)
+
+    else:
+        # Standard individual processing
+        for i, input_path in enumerate(image_files):
+            if verbose:
+                rel_path = os.path.relpath(input_path, input_dir)
+                print(f"[{i + 1}/{total_files}] Processing: {rel_path}")
+
+            success, message, debug_info = process_single_image(
+                input_path,
+                output_dir,
+                input_dir,
+                side,
+                output_format,
+                apply_rotation,
+                smart_crop,
+                debug,
+                verbose,
+                contour_border,
+                fold_border,
+                save_thumbs,
+            )
+
+            if success:
+                processed_count += 1
+                if verbose:
+                    rotation_status = (
+                        "con rotazione"
+                        if debug_info.get("rotation_applied")
+                        else "senza rotazione"
+                    )
+                    crop_status = (
+                        "smart crop"
+                        if debug_info.get("smart_crop_applied")
+                        else "crop standard"
+                    )
+                    if debug_info.get("x_fold"):
+                        print(
+                            f"  x: {debug_info['x_fold']}, angolo: {debug_info['angle']:.2f} gradi, {rotation_status}, {crop_status}"
+                        )
+                    print(f"  {message}")
+            else:
+                error_count += 1
+                print(f"  ERRORE: {message}")
+
+            # Aggiorna info.json
+            info_data["processed"] = i + 1
+            write_info_json(output_dir, info_data)
 
     # Completa info.json
     end_time = time.time()
@@ -464,7 +733,7 @@ def main(
     info_data["duration_seconds"] = duration_seconds
     info_data["status"] = "completed"
     info_data["end_time"] = datetime.now().isoformat()
-    info_data["summary"] = {
+    summary = {
         "processed_successfully": processed_count,
         "errors": error_count,
         "success_rate": round(processed_count / total_files * 100, 1)
@@ -472,10 +741,20 @@ def main(
         else 0,
     }
 
+    if front_back_couple:
+        summary["renamed_files"] = renamed_count
+        summary["processing_mode"] = "front_back_couple"
+
+    info_data["summary"] = summary
     write_info_json(output_dir, info_data)
 
     print("\nElaborazione completata!")
-    print(f"Processate con successo: {processed_count}/{total_files}")
+    if front_back_couple:
+        print(f"Coppie processate con successo: {processed_count//2 if processed_count > 0 else 0}/{total_files//2}")
+        print(f"Immagini processate: {processed_count}/{total_files}")
+        print(f"File rinominati: {renamed_count}")
+    else:
+        print(f"Processate con successo: {processed_count}/{total_files}")
     print(f"Errori: {error_count}")
     print(f"Tempo totale: {duration_seconds} secondi")
 
@@ -866,6 +1145,12 @@ if __name__ == "__main__":
         default=True,
         help="Force standard processing without ICCD renaming, even if XML structure detected",
     )
+    parser.add_argument(
+        "--front-back-couple",
+        action="store_true",
+        default=False,
+        help="Process images in consecutive pairs as front-back couples with 4-page renaming pattern",
+    )
 
     args = parser.parse_args()
 
@@ -906,4 +1191,5 @@ if __name__ == "__main__":
         export_json_mapping=args.export_json_mapping,
         json_only=args.json_only,
         no_rename=args.no_rename,
+        front_back_couple=args.front_back_couple,
     )

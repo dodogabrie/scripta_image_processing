@@ -2,10 +2,10 @@
 # filepath: /home/edoardo/Work/Projects/scripta_image_processing/src/projects/project3/python/main.py
 
 import argparse
-import os
-import subprocess
 import glob
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -15,7 +15,7 @@ def load_maglib_commands():
     config_path = Path(__file__).parent.parent / "maglib_commands.json"
 
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         return config["commands"]
     except FileNotFoundError:
@@ -36,10 +36,46 @@ def get_fallback_commands():
             "name": "Adatta FS ICCD",
             "description": "Adatta file system per standard ICCD",
             "category": "File System",
-            "base_params": ["-M", "{file}"],
-            "required_params": ["--ignore-missing"],
-            "configurable_params": {},
-            "usage_pattern": "mass_mode"
+            "base_params": [],
+            "required_params": [],
+            "configurable_params": {
+                "input_directory": {
+                    "param": "-s",
+                    "description": "Directory contenente i file XML",
+                    "default": "",
+                    "type": "directory",
+                    "required": True
+                },
+                "output_directory": {
+                    "param": "-d",
+                    "description": "Directory dove salvare i risultati",
+                    "default": "",
+                    "type": "directory",
+                    "required": True
+                },
+                "json_analysis": {
+                    "param": "--json-analysis",
+                    "description": "Genera file JSON con analisi mappature",
+                    "default": True,
+                    "type": "boolean"
+                },
+                "dry_run": {
+                    "param": "--dry-run",
+                    "description": "Modalità dry-run: mostra operazioni senza eseguirle",
+                    "default": False,
+                    "type": "boolean"
+                }
+            },
+            "usage_pattern": "auto_discovery",
+            "requires_output_dir": True,
+            "use_custom_params_format": True,
+            "auto_params": ["--auto-discover"],
+            "default_params": {
+                "-s": "{input_dir}",
+                "-d": "{output_dir}",
+                "-b": "ICCD_FSC",
+                "--ignore-missing": True
+            }
         }
     }
 
@@ -92,14 +128,14 @@ def setup_maglib_environment():
     script_dir = current_dir / "script"
 
     # Add maglib script directory to PATH
-    current_path = os.environ.get('PATH', '')
+    current_path = os.environ.get("PATH", "")
     if str(script_dir) not in current_path:
-        os.environ['PATH'] = f"{script_dir}{os.pathsep}{current_path}"
+        os.environ["PATH"] = f"{script_dir}{os.pathsep}{current_path}"
 
     # Add maglib to PYTHONPATH
-    current_pythonpath = os.environ.get('PYTHONPATH', '')
+    current_pythonpath = os.environ.get("PYTHONPATH", "")
     if str(current_dir) not in current_pythonpath:
-        os.environ['PYTHONPATH'] = f"{current_dir}{os.pathsep}{current_pythonpath}"
+        os.environ["PYTHONPATH"] = f"{current_dir}{os.pathsep}{current_pythonpath}"
 
     print(f"[INFO] Added {script_dir} to PATH")
     print(f"[INFO] Added {current_dir} to PYTHONPATH")
@@ -111,7 +147,6 @@ def get_xml_files(directory):
     return xml_files
 
 
-
 def execute_command(command_key, xml_file, custom_params=None):
     """Execute a maglib command on an XML file using module invocation"""
     if command_key not in MAGLIB_COMMANDS:
@@ -120,24 +155,42 @@ def execute_command(command_key, xml_file, custom_params=None):
     command_info = MAGLIB_COMMANDS[command_key]
 
     # Build command parameters
-    cmd_params = build_command_params(command_key, xml_file, MAGLIB_COMMANDS, custom_params)
+    cmd_params = build_command_params(
+        command_key, xml_file, MAGLIB_COMMANDS, custom_params
+    )
+    print(f"[DEBUG] custom_params: {custom_params}")
+    print(f"[DEBUG] cmd_params: {cmd_params}")
 
     # Convert script filename (e.g., adapt_fs_iccd.py) → module name (maglib.script.adapt_fs_iccd)
     script_name = command_info["script"]
-    module_name = f"maglib.script.{Path(script_name).stem}"
 
-    # Build final command: python -m maglib.script.adapt_fs_iccd ...
-    cmd = [sys.executable, "-m", module_name] + cmd_params
+    module_rel_path = os.path.join("maglib", "script", f"{Path(script_name).stem}.py")
+    module_path = os.path.join(os.path.dirname(__file__), module_rel_path)
+
+    # Build final command: python script.py ...
+    cmd = [sys.executable, module_path] + cmd_params
+    print(f"[DEBUG] Executing command: {' '.join(cmd)}")
 
     print(f"[EXEC] {' '.join(cmd)}")
 
     try:
+        # Set up environment with proper PYTHONPATH
+        env = os.environ.copy()
+        maglib_parent_dir = os.path.dirname(__file__)
+        current_pythonpath = env.get("PYTHONPATH", "")
+
+        if current_pythonpath:
+            env["PYTHONPATH"] = f"{maglib_parent_dir}{os.pathsep}{current_pythonpath}"
+        else:
+            env["PYTHONPATH"] = maglib_parent_dir
+
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             shell=False,
             cwd=os.path.dirname(xml_file),
+            env=env,
         )
 
         if result.stdout:
@@ -197,43 +250,60 @@ def main(input_dir, command_key, custom_params=None, dry_run=False):
     if dry_run:
         print("[DRY RUN] Would execute the following commands:")
         for xml_file in xml_files:
-            params = build_command_params(command_key, xml_file, MAGLIB_COMMANDS, custom_params)
+            params = build_command_params(
+                command_key, xml_file, MAGLIB_COMMANDS, custom_params
+            )
             cmd = [command_info["script"]] + params
             print(f"  {' '.join(cmd)}")
         return True
 
-    # Process each XML file
-    success_count = 0
-    error_count = 0
+    # Check if auto-discovery mode is enabled
+    auto_discovery_mode = custom_params and '--auto-discover' in custom_params
 
-    for i, xml_file in enumerate(xml_files, 1):
-        print(f"\n[{i}/{len(xml_files)}] Processing: {os.path.basename(xml_file)}")
+    if auto_discovery_mode:
+        # Auto-discovery mode: run command once, let script handle all XML files
+        print(f"\n[AUTO-DISCOVERY] Running command once for all {len(xml_files)} XML files")
+        success = execute_command(command_key, input_dir, custom_params)  # Pass directory instead of individual file
 
-        success = execute_command(command_key, xml_file, custom_params)
         if success:
-            success_count += 1
-            print(f"[OK] Successfully processed {os.path.basename(xml_file)}")
+            print(f"[OK] Auto-discovery processing completed")
+            return True
         else:
-            error_count += 1
-            print(f"[FAILED] Error processing {os.path.basename(xml_file)}")
+            print(f"[FAILED] Auto-discovery processing failed")
+            return False
+    else:
+        # Standard mode: process each XML file individually
+        success_count = 0
+        error_count = 0
 
-    # Final report
-    print("\n" + "=" * 50)
-    print("PROCESSING SUMMARY")
-    print("=" * 50)
-    print(f"Total files: {len(xml_files)}")
-    print(f"Successful: {success_count}")
-    print(f"Errors: {error_count}")
-    print(f"Success rate: {(success_count/len(xml_files)*100):.1f}%")
+        for i, xml_file in enumerate(xml_files, 1):
+            print(f"\n[{i}/{len(xml_files)}] Processing: {os.path.basename(xml_file)}")
 
-    return error_count == 0
+            success = execute_command(command_key, xml_file, custom_params)
+            if success:
+                success_count += 1
+                print(f"[OK] Successfully processed {os.path.basename(xml_file)}")
+            else:
+                error_count += 1
+                print(f"[FAILED] Error processing {os.path.basename(xml_file)}")
+
+        # Final report
+        print("\n" + "=" * 50)
+        print("PROCESSING SUMMARY")
+        print("=" * 50)
+        print(f"Total files: {len(xml_files)}")
+        print(f"Successful: {success_count}")
+        print(f"Errors: {error_count}")
+        print(f"Success rate: {(success_count / len(xml_files) * 100):.1f}%")
+
+        return error_count == 0
 
 
 def list_commands():
     """List all available commands grouped by category"""
     categories = {}
     for cmd_key, cmd_info in MAGLIB_COMMANDS.items():
-        category = cmd_info['category']
+        category = cmd_info["category"]
         if category not in categories:
             categories[category] = []
         categories[category].append((cmd_key, cmd_info))
@@ -243,7 +313,7 @@ def list_commands():
     for category, commands in categories.items():
         print(f"\n{category}:")
         for cmd_key, cmd_info in commands:
-            name = cmd_info.get('name', cmd_key)
+            name = cmd_info.get("name", cmd_key)
             print(f"  {cmd_key}: {name} - {cmd_info['description']}")
 
 
@@ -251,27 +321,39 @@ def export_commands_json():
     """Export commands configuration as JSON for frontend consumption"""
     try:
         config_path = Path(__file__).parent.parent / "maglib_commands.json"
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         print(json.dumps(config, ensure_ascii=False, indent=2))
         return True
     except Exception as e:
-        print(f"{{\"error\": \"Failed to load config: {e}\"}}")
+        print(f'{{"error": "Failed to load config: {e}"}}')
         return False
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MAGLIB XML Processing Tool")
-    parser.add_argument("input_dir", nargs="?", type=str, help="Input directory containing XML files")
+    parser.add_argument(
+        "input_dir", nargs="?", type=str, help="Input directory containing XML files"
+    )
     parser.add_argument("command", nargs="?", type=str, help="Command to execute")
-    parser.add_argument("--list-commands", action="store_true",
-                       help="List all available commands and exit")
-    parser.add_argument("--export-json", action="store_true",
-                       help="Export commands configuration as JSON")
-    parser.add_argument("--dry-run", action="store_true",
-                       help="Show what would be executed without running")
-    parser.add_argument("--custom-params", type=str, nargs="*",
-                       help="Custom parameters for the command")
+    parser.add_argument(
+        "--list-commands",
+        action="store_true",
+        help="List all available commands and exit",
+    )
+    parser.add_argument(
+        "--export-json",
+        action="store_true",
+        help="Export commands configuration as JSON",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be executed without running",
+    )
+    parser.add_argument(
+        "--custom-params", type=str, action="append", help="Custom parameters for the command"
+    )
 
     args = parser.parse_args()
 

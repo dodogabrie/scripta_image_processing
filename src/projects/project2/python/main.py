@@ -270,6 +270,7 @@ def main(
     process_tiff=True,
     export_json_mapping=None,
     json_only=False,
+    no_rename=False,
 ):
     """
     Funzione principale per processare le immagini in batch con supporto ICCD Busta.
@@ -300,13 +301,15 @@ def main(
         if current_dir not in sys.path:
             sys.path.insert(0, current_dir)
 
-        from xml_processor import has_busta_structure
+        from xml_processor import has_object_structure
 
-        if has_busta_structure(input_dir):
+        rename_active = not no_rename
+        
+        if has_object_structure(input_dir) and rename_active:
             print(
                 "[INFO] Detected ICCD Folder+XML structure - using XML-based processing"
             )
-            return process_iccd_bustas(
+            return process_iccd_objects(
                 input_dir,
                 output_dir,
                 side,
@@ -323,6 +326,8 @@ def main(
                 export_json_mapping,
                 json_only,
             )
+        elif no_rename:
+            print("[INFO] Standard batch processing mode (--no-rename flag enabled)")
         else:
             print("[INFO] Standard batch processing mode (no Folder+XML pairs found)")
     except ImportError as e:
@@ -480,7 +485,7 @@ def main(
         file_listener.stop_monitoring()
 
 
-def process_iccd_bustas(
+def process_iccd_objects(
     input_dir,
     output_dir,
     side=None,
@@ -521,7 +526,7 @@ def process_iccd_bustas(
 
     # Processa tutti gli XML e estrai mappings
     print(f"[INFO] File processing settings: JPG={process_jpg}, TIFF={process_tiff}")
-    mappings = xml_processor.process_all_bustas(input_dir, process_jpg, process_tiff)
+    mappings = xml_processor.process_all_objects(input_dir, process_jpg, process_tiff)
 
     if not mappings:
         print(
@@ -581,13 +586,13 @@ def process_iccd_bustas(
                     # Fallback per compatibilità
                     if hasattr(mapping, "subdir") and mapping.subdir:
                         original_image = os.path.join(
-                            mapping.busta_folder,
+                            mapping.object_folder,
                             mapping.subdir,
                             mapping.original_filename,
                         )
                     else:
                         original_image = os.path.join(
-                            mapping.busta_folder, mapping.original_filename
+                            mapping.object_folder, mapping.original_filename
                         )
 
                 if not os.path.exists(original_image):
@@ -602,7 +607,7 @@ def process_iccd_bustas(
                 success, message, debug_info = process_single_image(
                     original_image,
                     temp_output,
-                    mapping.busta_folder,
+                    mapping.object_folder,
                     side=side,
                     output_format=None,  # Preserve original format
                     apply_rotation=apply_rotation,
@@ -855,6 +860,12 @@ if __name__ == "__main__":
         default=False,
         help="Esporta solo JSON mapping senza processare immagini",
     )
+    parser.add_argument(
+        "--no-rename",
+        action="store_true",
+        default=False,
+        help="Force standard processing without ICCD renaming, even if XML structure detected",
+    )
 
     args = parser.parse_args()
 
@@ -894,4 +905,5 @@ if __name__ == "__main__":
         process_tiff=args.process_tiff,
         export_json_mapping=args.export_json_mapping,
         json_only=args.json_only,
+        no_rename=args.no_rename,
     )

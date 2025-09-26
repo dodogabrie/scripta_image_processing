@@ -16,37 +16,46 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" style="height: 80vh;">
             <!-- Configuration Section -->
-            <div class="col-lg-6">
+            <div class="col-lg-6" style="height: 100%;">
                 <div class="card h-100">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Configurazione</h5>
-                    </div>
-                    <div class="card-body">
-                        <!-- Directory Selection -->
-                        <div class="mb-4">
+                        <!-- Action Buttons -->
+                        <div class="btn-group" role="group">
                             <button
-                                @click="selectInputDir"
-                                class="btn btn-primary w-100 mb-2"
+                                @click="processData"
+                                :disabled="
+                                    processing ||
+                                    !selectedCommand ||
+                                    !parameterValues.input_directory ||
+                                    (selectedCommand &&
+                                        availableCommands[selectedCommand] &&
+                                        availableCommands[selectedCommand]
+                                            .requires_output_dir &&
+                                        !parameterValues.output_directory)
+                                "
+                                class="btn btn-success"
                             >
-                                <i class="bi bi-folder2-open"></i> Scegli
-                                cartella XML
+                                <span
+                                    v-if="processing"
+                                    class="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                ></span>
+                                <i v-else class="bi bi-play-fill me-1"></i>
+                                {{ processing ? "Elaborazione..." : "Avvia Processo" }}
                             </button>
-                            <div
-                                v-if="inputDir"
-                                class="alert alert-info py-2 px-3"
+                            <button
+                                @click="stopProcessing"
+                                :disabled="!processing"
+                                class="btn btn-outline-danger"
                             >
-                                <strong>Directory XML:</strong>
-                                <div class="small text-break">
-                                    {{ inputDir }}
-                                </div>
-                            </div>
-                            <div v-if="!inputDir" class="text-muted mt-2">
-                                Seleziona la cartella contenente i file XML da
-                                processare.
-                            </div>
+                                <i class="bi bi-stop-circle"></i>
+                            </button>
                         </div>
+                    </div>
+                    <div class="card-body overflow-auto">
 
                         <!-- Command Selection -->
                         <div class="mb-4">
@@ -136,273 +145,360 @@
                                             }}
                                         </div>
                                     </div>
-                                    <div class="mt-2">
-                                        <small class="text-muted"
-                                            >Parametri:</small
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configurable Parameters -->
+                        <div
+                            v-if="selectedCommand && availableCommands[selectedCommand] && availableCommands[selectedCommand].configurable_params"
+                            class="mb-3"
+                        >
+                            <h6 class="text-muted mb-2">Parametri Configurabili</h6>
+                            <div
+                                v-for="(param, key) in availableCommands[selectedCommand].configurable_params"
+                                :key="key"
+                                class="mb-2"
+                            >
+                                <!-- Boolean parameters as checkboxes -->
+                                <div v-if="param.type === 'boolean'" class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        v-model="parameterValues[key]"
+                                        :id="'param_' + key"
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        :for="'param_' + key"
+                                    >
+                                        <strong>{{ param.description }}</strong>
+                                        <span v-if="param.required" class="text-danger ms-1">*</span>
+                                    </label>
+                                </div>
+
+                                <!-- Directory parameters -->
+                                <div v-else-if="param.type === 'directory'" class="mb-2">
+                                    <label class="form-label">
+                                        {{ param.description }}
+                                        <span v-if="param.required" class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            :class="{ 'border-danger': param.required && !parameterValues[key] }"
+                                            v-model="parameterValues[key]"
+                                            :placeholder="param.default || 'Seleziona directory'"
+                                            readonly
+                                        />
+                                        <button
+                                            class="btn btn-outline-secondary"
+                                            type="button"
+                                            @click="selectParameterDirectory(key)"
                                         >
-                                        <code
-                                            class="d-block bg-light p-2 rounded small"
-                                        >
-                                            {{
-                                                formatCommandParams(
-                                                    availableCommands[
-                                                        selectedCommand
-                                                    ],
-                                                )
-                                            }}
-                                        </code>
+                                            <i class="bi bi-folder2-open"></i>
+                                        </button>
+                                    </div>
+                                    <div v-if="param.required && !parameterValues[key]" class="form-text text-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Questo campo è obbligatorio
+                                    </div>
+                                </div>
+
+                                <!-- String parameters -->
+                                <div v-else class="mb-2">
+                                    <label class="form-label">
+                                        {{ param.description }}
+                                        <span v-if="param.required" class="text-danger">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        :class="{ 'border-danger': param.required && !parameterValues[key] }"
+                                        v-model="parameterValues[key]"
+                                        :placeholder="param.default"
+                                    />
+                                    <div v-if="param.required && !parameterValues[key]" class="form-text text-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Questo campo è obbligatorio
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Options -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    v-model="dryRun"
-                                    id="dryRunCheck"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    for="dryRunCheck"
-                                >
-                                    <strong>Dry Run</strong> - Solo anteprima,
-                                    non eseguire
-                                </label>
-                                <div class="form-text">
-                                    Mostra solo cosa verrebbe eseguito senza
-                                    effettuare modifiche
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Button -->
-                    <div class="card-footer">
-                        <button
-                            @click="processData"
-                            :disabled="
-                                processing || !inputDir || !selectedCommand
-                            "
-                            class="btn btn-success w-100"
-                        >
-                            <span
-                                v-if="processing"
-                                class="spinner-border spinner-border-sm me-2"
-                            ></span>
-                            <i v-else class="bi bi-play-circle"></i>
-                            {{
-                                processing
-                                    ? "Elaborazione..."
-                                    : dryRun
-                                      ? "Anteprima Comandi"
-                                      : "Esegui Comando"
-                            }}
-                        </button>
-                        <button
-                            class="btn btn-outline-danger w-100 mt-2"
-                            @click="stopProcessing"
-                            :disabled="!processing"
-                        >
-                            <i class="bi bi-stop-circle"></i> Stop
-                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Results Section -->
-            <div class="col-lg-6">
-                <div class="card h-100">
+            <!-- Results Section with Tabs -->
+            <div class="col-lg-6" style="height: 100%;">
+                <div class="card h-100 d-flex flex-column">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Risultati e Output</h5>
-                    </div>
-                    <div class="card-body position-relative">
-                        <!-- Idle State -->
                         <div
-                            v-if="!processing && !elaborazioneCompletata"
-                            class="text-center text-muted py-5"
+                            class="d-flex justify-content-between align-items-center"
                         >
-                            <i class="bi bi-file-earmark-code fs-1"></i>
-                            <h5 class="mt-3">
-                                Output del comando apparirà qui
-                            </h5>
-                            <p>
-                                Seleziona cartella XML e comando, poi clicca
-                                "Esegui"
-                            </p>
-                        </div>
-
-                        <!-- Processing State -->
-                        <div v-else-if="processing" class="py-4">
-                            <div class="text-center mb-4">
-                                <div
-                                    class="spinner-border text-primary mb-3"
-                                    role="status"
-                                >
-                                    <span class="visually-hidden"
-                                        >Elaborazione...</span
+                            <h5 class="card-title mb-0">Risultati e Output</h5>
+                            <!-- Tab Navigation -->
+                            <ul class="nav nav-pills nav-sm">
+                                <li class="nav-item">
+                                    <button
+                                        class="nav-link"
+                                        :class="{
+                                            active: activeTab === 'results',
+                                        }"
+                                        @click="activeTab = 'results'"
                                     >
-                                </div>
-                                <h5 class="text-muted">
-                                    {{ currentProcessingStage }}
+                                        <i class="bi bi-graph-up"></i> Risultati
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button
+                                        class="nav-link"
+                                        :class="{
+                                            active: activeTab === 'console',
+                                        }"
+                                        @click="activeTab = 'console'"
+                                    >
+                                        <i class="bi bi-terminal"></i> Console
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div
+                        class="card-body p-0 position-relative flex-grow-1"
+                        style="min-height: 0; overflow: hidden;"
+                    >
+                        <!-- Tab 1: Results -->
+                        <div
+                            v-if="activeTab === 'results'"
+                            class="p-3 h-100 overflow-auto"
+                        >
+                            <!-- Idle State -->
+                            <div
+                                v-if="!processing && !elaborazioneCompletata"
+                                class="text-center text-muted py-5"
+                            >
+                                <i class="bi bi-file-earmark-code fs-1"></i>
+                                <h5 class="mt-3">
+                                    Risultati dell'elaborazione appariranno qui
                                 </h5>
+                                <p>
+                                    Seleziona cartelle XML e output, poi clicca
+                                    "Esegui"
+                                </p>
+                            </div>
+
+                            <!-- Processing State -->
+                            <div v-else-if="processing" class="py-4">
+                                <div class="text-center mb-4">
+                                    <div
+                                        class="spinner-border text-primary mb-3"
+                                        role="status"
+                                    >
+                                        <span class="visually-hidden"
+                                            >Elaborazione...</span
+                                        >
+                                    </div>
+                                    <h5 class="text-muted">
+                                        {{ currentProcessingStage }}
+                                    </h5>
+                                    <div
+                                        v-if="xmlFilesFound > 0"
+                                        class="small text-muted"
+                                    >
+                                        Trovati {{ xmlFilesFound }} file XML da
+                                        processare
+                                    </div>
+                                </div>
+
+                                <!-- Progress Summary -->
                                 <div
-                                    v-if="xmlFilesFound > 0"
-                                    class="small text-muted"
+                                    v-if="processingSummary.totalProcessed > 0"
+                                    class="row text-center mb-3"
                                 >
-                                    Trovati {{ xmlFilesFound }} file XML da
-                                    processare
+                                    <div class="col-md-4">
+                                        <div class="small text-muted">
+                                            Processati
+                                        </div>
+                                        <div class="h6 text-success">
+                                            {{ processingSummary.successful }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="small text-muted">
+                                            Errori
+                                        </div>
+                                        <div class="h6 text-danger">
+                                            {{ processingSummary.errors }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="small text-muted">
+                                            Totale
+                                        </div>
+                                        <div class="h6 text-primary">
+                                            {{
+                                                processingSummary.totalProcessed
+                                            }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Progress Summary -->
-                            <div
-                                v-if="processingSummary.totalProcessed > 0"
-                                class="row text-center mb-3"
-                            >
-                                <div class="col-md-4">
-                                    <div class="small text-muted">
-                                        Processati
-                                    </div>
-                                    <div class="h6 text-success">
-                                        {{ processingSummary.successful }}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="small text-muted">Errori</div>
-                                    <div class="h6 text-danger">
+                            <!-- Completion State -->
+                            <div v-else-if="elaborazioneCompletata" class="">
+                                <div class="alert alert-success py-3 px-3 mb-3">
+                                    <h5 class="alert-heading mb-2">
+                                        <i class="bi bi-check-circle"></i>
+                                        Elaborazione Completata!
+                                    </h5>
+                                    <p class="mb-1">
+                                        Comando eseguito su
+                                        {{ xmlFilesFound }} file XML
+                                    </p>
+                                    <div
+                                        v-if="
+                                            processingSummary.totalProcessed > 0
+                                        "
+                                        class="small"
+                                    >
+                                        Successi:
+                                        {{ processingSummary.successful }},
+                                        Errori:
                                         {{ processingSummary.errors }}
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="small text-muted">Totale</div>
-                                    <div class="h6 text-primary">
-                                        {{ processingSummary.totalProcessed }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Completion State -->
-                        <div v-else-if="elaborazioneCompletata" class="">
-                            <div class="alert alert-success py-3 px-3 mb-3">
-                                <h5 class="alert-heading mb-2">
-                                    <i class="bi bi-check-circle"></i>
-                                    Elaborazione Completata!
-                                </h5>
-                                <p class="mb-1">
-                                    Comando eseguito su {{ xmlFilesFound }} file
-                                    XML
-                                </p>
+                                <!-- Processing Summary Card -->
                                 <div
+                                    class="card"
                                     v-if="processingSummary.totalProcessed > 0"
-                                    class="small"
                                 >
-                                    Successi:
-                                    {{ processingSummary.successful }}, Errori:
-                                    {{ processingSummary.errors }}
-                                </div>
-                            </div>
-
-                            <!-- Processing Summary Card -->
-                            <div
-                                class="card"
-                                v-if="processingSummary.totalProcessed > 0"
-                            >
-                                <div class="card-header">
-                                    <h6 class="mb-0">
-                                        <i class="bi bi-graph-up"></i> Resoconto
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <span>File XML trovati:</span>
-                                                <strong>{{
-                                                    xmlFilesFound
-                                                }}</strong>
-                                            </div>
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <span
-                                                    >Processati con
-                                                    successo:</span
+                                    <div class="card-header">
+                                        <h6 class="mb-0">
+                                            <i class="bi bi-graph-up"></i>
+                                            Resoconto
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="d-flex justify-content-between"
                                                 >
-                                                <strong class="text-success">{{
-                                                    processingSummary.successful
-                                                }}</strong>
-                                            </div>
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <span>Errori:</span>
-                                                <strong class="text-danger">{{
-                                                    processingSummary.errors
-                                                }}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <span>Tasso di successo:</span>
-                                                <strong
-                                                    >{{ successRate }}%</strong
+                                                    <span
+                                                        >File XML trovati:</span
+                                                    >
+                                                    <strong>{{
+                                                        xmlFilesFound
+                                                    }}</strong>
+                                                </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
                                                 >
+                                                    <span
+                                                        >Processati con
+                                                        successo:</span
+                                                    >
+                                                    <strong
+                                                        class="text-success"
+                                                        >{{
+                                                            processingSummary.successful
+                                                        }}</strong
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span>Errori:</span>
+                                                    <strong
+                                                        class="text-danger"
+                                                        >{{
+                                                            processingSummary.errors
+                                                        }}</strong
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span>Avvisi:</span>
+                                                    <strong
+                                                        class="text-warning"
+                                                        >{{
+                                                            processingSummary.warnings
+                                                        }}</strong
+                                                    >
+                                                </div>
                                             </div>
-                                            <div
-                                                class="d-flex justify-content-between"
-                                            >
-                                                <span>Comando eseguito:</span>
-                                                <code>{{
-                                                    selectedCommand
-                                                }}</code>
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span
+                                                        >Tasso di
+                                                        successo:</span
+                                                    >
+                                                    <strong
+                                                        >{{
+                                                            successRate
+                                                        }}%</strong
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span
+                                                        >Comando eseguito:</span
+                                                    >
+                                                    <code>{{
+                                                        selectedCommand
+                                                    }}</code>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Console Output -->
-                    <div class="card-footer">
-                        <h6 class="text-muted mb-2">
-                            <i class="bi bi-terminal"></i> Console Output
-                        </h6>
+                        <!-- Tab 2: Console -->
                         <div
-                            style="
-                                background: #222;
-                                color: #eee;
-                                padding: 10px;
-                                border-radius: 6px;
-                                min-height: 120px;
-                                max-height: 300px;
-                                overflow: auto;
-                                font-size: 12px;
-                                font-family: monospace;
-                            "
-                            id="console-output"
+                            v-else-if="activeTab === 'console'"
+                            class="h-100"
                         >
+                            <!-- Full Console Area -->
                             <div
-                                v-for="(line, idx) in consoleLines"
-                                :key="idx"
-                                :style="{ color: getLineColor(line.type) }"
+                                style="
+                                    background: #222;
+                                    color: #eee;
+                                    padding: 15px;
+                                    height: 100%;
+                                    overflow-y: auto;
+                                    overflow-x: hidden;
+                                    font-size: 13px;
+                                    font-family: monospace;
+                                    white-space: pre-wrap;
+                                    word-break: break-word;
+                                "
+                                id="console-output-full"
                             >
-                                {{ line.text }}
-                            </div>
-                            <div
-                                v-if="consoleLines.length === 0"
-                                class="text-muted text-center py-3"
-                            >
-                                Output dei comandi apparirà qui...
+                                <div
+                                    v-for="(line, idx) in consoleLines"
+                                    :key="idx"
+                                    :style="{ color: getLineColor(line.type) }"
+                                >
+                                    {{ line.text }}
+                                </div>
+                                <div
+                                    v-if="consoleLines.length === 0"
+                                    class="text-muted text-center py-5"
+                                >
+                                    <i
+                                        class="bi bi-terminal fs-1 mb-3 d-block"
+                                    ></i>
+                                    Console output will appear here...
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -417,11 +513,10 @@ export default {
     name: "ProjectProject3Component",
     data() {
         return {
-            inputDir: null,
             selectedCommand: "",
             processing: false,
             elaborazioneCompletata: false,
-            dryRun: false,
+            parameterValues: {}, // Dynamic parameter values from JSON config
             consoleLines: [],
             xmlFilesFound: 0,
             currentProcessingStage: "Inizializzazione...",
@@ -429,8 +524,10 @@ export default {
                 totalProcessed: 0,
                 successful: 0,
                 errors: 0,
+                warnings: 0,
             },
             outputUnsubscribe: null,
+            activeTab: "results", // Default to results tab
 
             // Available commands (loaded from JSON config)
             availableCommands: {},
@@ -504,7 +601,6 @@ export default {
                         "electronAPI.runProjectScript non disponibile, uso configurazione predefinita",
                         "warning",
                     );
-                    this.loadFallbackCommands();
                 }
             } catch (error) {
                 this.addConsoleLine(
@@ -515,130 +611,18 @@ export default {
                     "Uso configurazione predefinita",
                     "warning",
                 );
-                this.loadFallbackCommands();
             }
-        },
-        loadFallbackCommands() {
-            // Extended fallback commands if JSON config fails to load
-            this.availableCommands = {
-                adapt_fs_iccd: {
-                    script: "adapt_fs_iccd.py",
-                    name: "Adatta FS ICCD",
-                    description: "Adatta file system per standard ICCD",
-                    category: "File System",
-                    base_params: ["-M", "{file}"],
-                    required_params: ["--ignore-missing"],
-                    configurable_params: {},
-                    usage_pattern: "mass_mode",
-                },
-                adapt_fs_iccu: {
-                    script: "adapt_fs_iccu.py",
-                    name: "Adatta FS ICCU",
-                    description:
-                        "Adatta file system per standard ICCU (stile fascicolo)",
-                    category: "File System",
-                    base_params: ["-M", "{file}"],
-                    required_params: [
-                        "--path-style=fascicle",
-                        "--ignore-missing",
-                    ],
-                    configurable_params: {},
-                    usage_pattern: "mass_mode",
-                },
-                adapt_fs_salvemini: {
-                    script: "adapt_fs_salvemini.py",
-                    name: "Adatta FS Salvemini",
-                    description: "Adatta file system per archivio Salvemini",
-                    category: "File System",
-                    base_params: ["-M", "{file}"],
-                    required_params: ["--ignore-missing"],
-                    configurable_params: {},
-                    usage_pattern: "mass_mode",
-                },
-                add_imgs: {
-                    script: "add_imgs.py",
-                    name: "Aggiungi immagini standard",
-                    description: "Aggiunge riferimenti per immagini standard",
-                    category: "Elaborazione Immagini",
-                    base_params: ["-i", "{file}", "-o", "{file}"],
-                    required_params: [],
-                    configurable_params: {},
-                    usage_pattern: "standard",
-                },
-                add_bib_from_csv: {
-                    script: "add_bib_from_csv.py",
-                    name: "Aggiungi bibliografia da CSV",
-                    description: "Aggiunge dati bibliografici da file CSV",
-                    category: "Metadati",
-                    base_params: ["-i", "{file}", "-o", "{file}"],
-                    required_params: ["-I", "-f"],
-                    configurable_params: {
-                        csv_file: {
-                            param: "-I",
-                            description: "File CSV con dati bibliografici",
-                            default: "C:/opt/abana.csv",
-                            type: "file",
-                        },
-                        identifier_field: {
-                            param: "-f",
-                            description: "Campo identificatore nel CSV",
-                            default: "dirname",
-                            type: "string",
-                        },
-                    },
-                    usage_pattern: "standard",
-                },
-                set_sequence_numbers: {
-                    script: "set_sequence_numbers.py",
-                    name: "Imposta numeri sequenza",
-                    description: "Imposta i numeri di sequenza nei file XML",
-                    category: "Sequenziamento",
-                    base_params: ["-i", "{file}", "-o", "{file}"],
-                    required_params: [],
-                    configurable_params: {},
-                    usage_pattern: "standard",
-                },
-            };
-            this.commandsLoaded = true;
-        },
-        formatCommandParams(command) {
-            // Format parameters for display based on new JSON structure
-            const params = [];
-
-            // Add base parameters
-            if (command.base_params) {
-                params.push(...command.base_params);
-            }
-
-            // Add required parameters
-            if (command.required_params) {
-                params.push(...command.required_params);
-            }
-
-            // Add configurable parameters
-            if (command.configurable_params) {
-                Object.values(command.configurable_params).forEach((param) => {
-                    if (param.default) {
-                        if (
-                            param.type === "boolean" &&
-                            param.default === true
-                        ) {
-                            params.push(param.param);
-                        } else if (param.type !== "boolean") {
-                            params.push(param.param, param.default);
-                        }
-                    }
-                });
-            }
-
-            return params.join(" ");
         },
         addConsoleLine(text, type = "normal") {
             this.consoleLines.push({ text, type });
-            if (this.consoleLines.length > 200) this.consoleLines.shift();
+            // Removed 200 line limit - keep all console output
             this.$nextTick(() => {
                 const el = document.getElementById("console-output");
                 if (el) el.scrollTop = el.scrollHeight;
+
+                // Also scroll the full console if it exists
+                const fullEl = document.getElementById("console-output-full");
+                if (fullEl) fullEl.scrollTop = fullEl.scrollHeight;
             });
         },
         getLineColor(type) {
@@ -672,11 +656,14 @@ export default {
                 this.processingSummary.successful++;
                 this.processingSummary.totalProcessed++;
             } else if (
-                line.includes("Error processing") ||
-                line.includes("FAILED")
+                (line.includes("Error processing") ||
+                    line.includes("FAILED")) &&
+                !line.includes("WARNING")
             ) {
                 this.processingSummary.errors++;
                 this.processingSummary.totalProcessed++;
+            } else if (line.includes("WARNING")) {
+                this.processingSummary.warnings++;
             } else if (line.includes("PROCESSING SUMMARY")) {
                 this.currentProcessingStage = "Generando resoconto finale...";
             } else if (line.includes("Setup")) {
@@ -686,8 +673,8 @@ export default {
                 this.currentProcessingStage = "Anteprima comandi (Dry Run)...";
             }
         },
-        async selectInputDir() {
-            this.addConsoleLine("Selezione cartella XML...", "info");
+        async selectParameterDirectory(paramKey) {
+            this.addConsoleLine(`Selezione directory per ${paramKey}...`, "info");
             if (!window.electronAPI || !window.electronAPI.selectDirectory) {
                 this.addConsoleLine(
                     "electronAPI.selectDirectory non disponibile",
@@ -697,18 +684,56 @@ export default {
             }
             const dir = await window.electronAPI.selectDirectory();
             if (dir) {
-                this.inputDir = dir;
-                this.elaborazioneCompletata = false;
+                this.parameterValues[paramKey] = dir;
                 this.addConsoleLine(
-                    "Cartella XML selezionata: " + dir,
+                    `Directory ${paramKey} selezionata: ${dir}`,
                     "success",
                 );
             } else {
-                this.addConsoleLine("Selezione cartella annullata.", "warning");
+                this.addConsoleLine(
+                    `Selezione directory ${paramKey} annullata.`,
+                    "warning",
+                );
             }
         },
+        initializeParameterValues() {
+            if (!this.selectedCommand || !this.availableCommands[this.selectedCommand]) {
+                this.parameterValues = {};
+                return;
+            }
+
+            const command = this.availableCommands[this.selectedCommand];
+            const newValues = {};
+
+            if (command.configurable_params) {
+                Object.entries(command.configurable_params).forEach(([key, param]) => {
+                    // Initialize with default values
+                    if (param.type === 'boolean') {
+                        newValues[key] = param.default || false;
+                    } else {
+                        newValues[key] = param.default || '';
+                    }
+                });
+            }
+
+            this.parameterValues = newValues;
+        },
         async processData() {
-            if (!this.inputDir || !this.selectedCommand) return;
+            const inputDir = this.parameterValues.input_directory;
+            const outputDir = this.parameterValues.output_directory;
+
+            if (!inputDir || !this.selectedCommand) return;
+
+            const commandInfo = this.availableCommands[this.selectedCommand];
+
+            // Check if output directory is required
+            if (commandInfo.requires_output_dir && !outputDir) {
+                this.addConsoleLine(
+                    "Errore: Il comando selezionato richiede una cartella di output",
+                    "error",
+                );
+                return;
+            }
 
             this.addConsoleLine("Inizio elaborazione MAGLIB...", "info");
             this.processing = true;
@@ -719,24 +744,95 @@ export default {
                 totalProcessed: 0,
                 successful: 0,
                 errors: 0,
+                warnings: 0,
             };
 
             try {
                 // Build arguments for Python script
-                const args = [this.inputDir, this.selectedCommand];
+                let args = [inputDir, this.selectedCommand];
 
-                if (this.dryRun) {
-                    args.push("--dry-run");
+                // Handle custom params format for commands that need it
+                if (commandInfo.use_custom_params_format) {
+                    // Build custom-params arguments
+                    if (commandInfo.default_params) {
+                        Object.entries(commandInfo.default_params).forEach(
+                            ([param, value]) => {
+                                if (typeof value === "boolean" && value) {
+                                    // Boolean parameters like --ignore-missing
+                                    args.push("--custom-params=" + param);
+                                } else if (typeof value === "string") {
+                                    // String parameters with values
+                                    args.push("--custom-params=" + param);
+                                    if (value === "{input_dir}") {
+                                        args.push(
+                                            "--custom-params=" + inputDir,
+                                        );
+                                    } else if (value === "{output_dir}") {
+                                        args.push(
+                                            "--custom-params=" + outputDir,
+                                        );
+                                    } else {
+                                        args.push("--custom-params=" + value);
+                                    }
+                                }
+                            },
+                        );
+                    }
+
+                    // Add auto parameters
+                    if (commandInfo.auto_params) {
+                        commandInfo.auto_params.forEach((param) => {
+                            args.push("--custom-params=" + param);
+                        });
+                    }
+
+                    // Add configurable parameters based on user input
+                    if (commandInfo.configurable_params) {
+                        Object.entries(commandInfo.configurable_params).forEach(([key, param]) => {
+                            const value = this.parameterValues[key];
+                            if (param.type === 'boolean') {
+                                if (value) {
+                                    args.push("--custom-params=" + param.param);
+                                }
+                            } else if (value && value !== param.default) {
+                                // Only add non-default values for non-boolean parameters
+                                args.push("--custom-params=" + param.param);
+                                args.push("--custom-params=" + value);
+                            }
+                        });
+                    }
+                } else {
+                    // Standard argument handling for other commands
+                    // Add configurable parameters for standard commands
+                    if (commandInfo.configurable_params) {
+                        Object.entries(commandInfo.configurable_params).forEach(([key, param]) => {
+                            const value = this.parameterValues[key];
+                            if (param.type === 'boolean' && value) {
+                                args.push(param.param);
+                            } else if (param.type !== 'boolean' && value && value !== param.default) {
+                                args.push(param.param, value);
+                            }
+                        });
+                    }
+                }
+
+                // Check for dry-run mode
+                const isDryRun = this.parameterValues.dry_run || false;
+                if (isDryRun) {
                     this.addConsoleLine(
                         "Modalità DRY RUN attiva - nessuna modifica verrà effettuata",
                         "info",
                     );
                 }
 
-                this.addConsoleLine(`Directory: ${this.inputDir}`, "info");
+                this.addConsoleLine(`Directory XML: ${inputDir}`, "info");
+                if (outputDir) {
+                    this.addConsoleLine(
+                        `Directory Output: ${outputDir}`,
+                        "info",
+                    );
+                }
                 this.addConsoleLine(`Comando: ${this.selectedCommand}`, "info");
-                const commandInfo =
-                    this.availableCommands[this.selectedCommand];
                 this.addConsoleLine(
                     `Nome: ${commandInfo.name || commandInfo.script}`,
                     "info",
@@ -838,6 +934,21 @@ export default {
         },
         goBack() {
             this.$emit("goBack");
+        },
+    },
+    watch: {
+        selectedCommand: {
+            handler() {
+                this.initializeParameterValues();
+            },
+            immediate: false, // Don't call immediately since command will be set in mounted()
+        },
+        availableCommands: {
+            handler() {
+                // Re-initialize parameters when commands are loaded
+                this.initializeParameterValues();
+            },
+            immediate: false,
         },
     },
     async mounted() {

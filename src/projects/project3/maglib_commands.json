@@ -1,336 +1,50 @@
 {
   "commands": {
-    "add_img_groups": {
-      "script": "add_img_groups.py",
-      "name": "Aggiungi gruppi immagini",
-      "description": "Aggiunge gruppi di immagini con file di configurazione INI",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": ["-c", "-I"],
-      "configurable_params": {
-        "config_file": {
-          "param": "-I",
-          "description": "File INI con configurazione gruppi immagini",
-          "default": "C:/opt/img_groups_copi400.ini",
-          "type": "file"
-        }
-      },
-      "usage_pattern": "standard"
-    },
-    "add_bib": {
-      "script": "add_bib.py",
-      "name": "Aggiungi dati bibliografici",
-      "description": "Aggiunge dati bibliografici da fonte MRC2/UNIMARC",
-      "category": "Metadati",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": ["-c", "-u"],
-      "configurable_params": {
-        "unimarc_dir": {
-          "param": "-u",
-          "description": "Directory con record UNIMARC",
-          "default": "Y:/Space-Meta/Consegna/ABANA/mrc2",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "standard"
-    },
-    "add_gen": {
-      "script": "add_gen.py",
-      "name": "Aggiungi metadati generali",
-      "description": "Aggiunge metadati generali con file di configurazione",
-      "category": "Metadati",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": ["-c", "-I"],
-      "configurable_params": {
-        "config_file": {
-          "param": "-I",
-          "description": "File INI con metadati generali",
-          "default": "c:/opt/gen.ini",
-          "type": "file"
-        }
-      },
-      "usage_pattern": "standard"
-    },
-    "add_bib_from_csv": {
-      "script": "add_bib_from_csv.py",
-      "name": "Aggiungi bibligrafia da CSV",
-      "description": "Aggiunge dati bibliografici da file CSV",
-      "category": "Metadati",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": ["-I", "-f"],
-      "configurable_params": {
-        "csv_file": {
-          "param": "-I",
-          "description": "File CSV con dati bibliografici",
-          "default": "C:/opt/abana.csv",
-          "type": "file"
-        },
-        "identifier_field": {
-          "param": "-f",
-          "description": "Campo identificatore nel CSV",
-          "default": "dirname",
-          "type": "string"
-        }
-      },
-      "usage_pattern": "standard"
-    },
-    "add_fake_ocr": {
-      "script": "add_fake_ocr.py",
-      "name": "Aggiungi OCR fittizio",
-      "description": "Aggiunge dati OCR fittizi per test",
-      "category": "OCR",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "resources_tech_data": {
-      "script": "resources_tech_data.py",
-      "name": "Aggiungi dati tecnici risorse",
-      "description": "Aggiunge dati tecnici per le risorse",
-      "category": "Risorse",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "adapt_fs_salvemini_suppl": {
-      "script": "adapt_fs_salvemini_suppl.py",
-      "name": "Adatta FS Salvemini Supplemento",
-      "description": "Adatta file system per archivio Salvemini supplemento (con dry-run)",
-      "category": "File System",
-      "base_params": ["-M", "{file}"],
-      "required_params": ["--dry-run", "--ignore-missing", "--path-style=fascicle"],
-      "configurable_params": {
-        "base_src_dir": {
-          "param": "-s",
-          "description": "Directory sorgente base",
-          "default": "",
-          "type": "directory"
-        },
-        "base_dst_dir": {
-          "param": "-d",
-          "description": "Directory destinazione base",
-          "default": "",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "mass_mode"
-    },
-    "adapt_fs_salvemini": {
-      "script": "adapt_fs_salvemini.py",
-      "name": "Adatta FS Salvemini",
-      "description": "Adatta file system per archivio Salvemini",
-      "category": "File System",
-      "base_params": ["-M", "{file}"],
-      "required_params": ["--ignore-missing"],
-      "configurable_params": {
-        "base_src_dir": {
-          "param": "-s",
-          "description": "Directory sorgente base",
-          "default": "",
-          "type": "directory"
-        },
-        "base_dst_dir": {
-          "param": "-d",
-          "description": "Directory destinazione base",
-          "default": "",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "mass_mode"
-    },
-    "adapt_fs_iccu": {
-      "script": "adapt_fs_iccu.py",
-      "name": "Adatta FS ICCU",
-      "description": "Adatta file system per standard ICCU (stile fascicolo)",
-      "category": "File System",
-      "base_params": ["-M", "{file}"],
-      "required_params": ["--path-style=fascicle", "--ignore-missing"],
-      "configurable_params": {
-        "base_src_dir": {
-          "param": "-s",
-          "description": "Directory sorgente base",
-          "default": "",
-          "type": "directory"
-        },
-        "base_dst_dir": {
-          "param": "-d",
-          "description": "Directory destinazione base",
-          "default": "",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "mass_mode"
-    },
-    "adapt_fs_eco_mic": {
-      "script": "adapt_fs_eco-MiC.py",
-      "name": "Adatta FS Eco-MiC",
-      "description": "Adatta file system per progetto Eco-MiC",
-      "category": "File System",
-      "base_params": ["-M", "{file}"],
-      "required_params": ["--ignore-missing"],
-      "configurable_params": {
-        "base_src_dir": {
-          "param": "-s",
-          "description": "Directory sorgente base",
-          "default": "",
-          "type": "directory"
-        },
-        "base_dst_dir": {
-          "param": "-d",
-          "description": "Directory destinazione base",
-          "default": "",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "mass_mode"
-    },
     "adapt_fs_iccd": {
       "script": "adapt_fs_iccd.py",
-      "name": "Adatta FS ICCD",
-      "description": "Adatta file system per standard ICCD",
+      "name": "Riorganizza FS ICCD",
+      "description": "Converte raccolta di immagini ICCD da struttura a buste a struttura fascicolare, seguendo questa nomenclatura: ICCD_FSC00001-0001_01_S0001_04",
       "category": "File System",
-      "base_params": ["-M", "{file}"],
-      "required_params": ["--ignore-missing"],
-      "configurable_params": {
-        "base_src_dir": {
-          "param": "-s",
-          "description": "Directory sorgente base",
-          "default": "",
-          "type": "directory"
-        },
-        "base_dst_dir": {
-          "param": "-d",
-          "description": "Directory destinazione base",
-          "default": "",
-          "type": "directory"
-        }
-      },
-      "usage_pattern": "mass_mode"
-    },
-    "set_sequence_numbers": {
-      "script": "set_sequence_numbers.py",
-      "name": "Imposta numeri sequenza",
-      "description": "Imposta i numeri di sequenza nei file XML",
-      "category": "Sequenziamento",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
+      "base_params": [],
       "required_params": [],
       "configurable_params": {
-        "keep_existing": {
-          "param": "--keep-existing",
-          "description": "Mantieni numeri di sequenza esistenti",
+        "input_directory": {
+          "param": "-s",
+          "description": "Directory contenente i file XML e le cartelle immagini",
+          "default": "",
+          "type": "directory",
+          "required": true
+        },
+        "output_directory": {
+          "param": "-d",
+          "description": "Directory dove salvare i risultati",
+          "default": "",
+          "type": "directory",
+          "required": true
+        },
+        "json_analysis": {
+          "param": "--json-analysis",
+          "description": "Genera file JSON con analisi mappature",
           "default": false,
           "type": "boolean"
         },
-        "first_seqn": {
-          "param": "--first-seqn",
-          "description": "Primo numero della sequenza",
-          "default": "1",
-          "type": "string"
+        "dry_run": {
+          "param": "--dry-run",
+          "description": "Modalità dry-run: mostra operazioni senza eseguirle",
+          "default": false,
+          "type": "boolean"
         }
       },
-      "usage_pattern": "standard"
-    },
-    "add_resources": {
-      "script": "add_resources.py",
-      "name": "Aggiungi risorse",
-      "description": "Aggiunge riferimenti alle risorse nel XML",
-      "category": "Risorse",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "images_and_audio_adder": {
-      "script": "images_and_audio_adder.py",
-      "name": "Aggiungi immagini e audio",
-      "description": "Aggiunge riferimenti a immagini e file audio",
-      "category": "Media",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_wav": {
-      "script": "add_wav.py",
-      "name": "Aggiungi file WAV",
-      "description": "Aggiunge riferimenti a file audio WAV",
-      "category": "Media",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgsnovara": {
-      "script": "add_imgsNovara.py",
-      "name": "Aggiungi immagini Novara",
-      "description": "Aggiunge riferimenti per immagini specifiche di Novara",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgs": {
-      "script": "add_imgs.py",
-      "name": "Aggiungi immagini standard",
-      "description": "Aggiunge riferimenti per immagini standard",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgs_raw": {
-      "script": "add_imgs_RAW.py",
-      "name": "Aggiungi immagini RAW",
-      "description": "Aggiunge riferimenti per file immagine RAW",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgs_lig": {
-      "script": "add_imgsLIG.py",
-      "name": "Aggiungi immagini LIG",
-      "description": "Aggiunge riferimenti per immagini specifiche LIG",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgs_foto": {
-      "script": "add_imgsFoto.py",
-      "name": "Aggiungi foto",
-      "description": "Aggiunge riferimenti per immagini fotografiche",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "add_imgs_300_150": {
-      "script": "add_imgs300_150.py",
-      "name": "Aggiungi immagini 300x150",
-      "description": "Aggiunge riferimenti per immagini 300x150 pixel",
-      "category": "Elaborazione Immagini",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
-    },
-    "touch_mag": {
-      "script": "touch_mag.py",
-      "name": "Aggiorna timestamp MAG",
-      "description": "Aggiorna/tocca i timestamp dei file MAG",
-      "category": "Manutenzione",
-      "base_params": ["-i", "{file}", "-o", "{file}"],
-      "required_params": [],
-      "configurable_params": {},
-      "usage_pattern": "standard"
+      "usage_pattern": "auto_discovery",
+      "requires_output_dir": true,
+      "use_custom_params_format": true,
+      "auto_params": ["--auto-discover"],
+      "default_params": {
+        "-s": "{input_dir}",
+        "-d": "{output_dir}",
+        "-b": "ICCD_FSC",
+        "--ignore-missing": true
+      }
     }
   },
   "usage_patterns": {
@@ -341,6 +55,10 @@
     "mass_mode": {
       "description": "Modalità massa: elabora file XML con -M",
       "command_template": "{script} {base_params} {required_params} {configurable_params}"
+    },
+    "auto_discovery": {
+      "description": "Auto-discovery: analizza automaticamente tutti i file XML nella directory",
+      "command_template": "{script} {auto_params} {default_params}"
     }
   },
   "categories": {

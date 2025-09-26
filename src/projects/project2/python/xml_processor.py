@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-XML Processor per parsing file Busta_XX.xml
+XML Processor per parsing file OBJ.xml
 Estrae mappings filename -> metadati ICCD secondo convenzioni desiderata.md
 """
 
@@ -21,7 +21,7 @@ class ImageMapping:
     document_type: str  # S/A/F/P
     sequence_number: str
     page_number: int
-    busta_folder: str
+    object_folder: str
     has_nct: bool = False
     nct_code: str = ""
     # New fields for subdirectory support
@@ -35,12 +35,12 @@ class XMLProcessorError(Exception):
 
 
 class XMLProcessor:
-    """Parser per file XML delle Buste ICCD"""
+    """Parser per file XML delle object ICCD"""
 
     def __init__(self):
         self.mappings: List[ImageMapping] = []
 
-    def discover_busta_files(self, input_dir: str) -> List[tuple]:
+    def discover_object_files(self, input_dir: str) -> List[tuple]:
         """
         Scopre tutte le coppie Folder + Folder.xml nell'input directory
 
@@ -69,9 +69,9 @@ class XMLProcessor:
         print(f"[INFO] Discovered {len(folder_pairs)} folder-XML pairs")
         return folder_pairs
 
-    def parse_busta_xml(self, xml_file_path: str) -> Dict:
+    def parse_object_xml(self, xml_file_path: str) -> Dict:
         """
-        Parsa un singolo file Busta_XX.xml
+        Parsa un singolo file object_XX.xml
 
         Args:
             xml_file_path: Path al file XML da parsare
@@ -222,7 +222,7 @@ class XMLProcessor:
                     document_type=doc_type,
                     sequence_number=f"{current_doc_seq:04d}",  # Same as object
                     page_number=page_num,
-                    busta_folder=folder_path,
+                    object_folder=folder_path,
                     full_path=file_info['full_path'],
                     subdir=file_info['subdir']
                 )
@@ -373,10 +373,10 @@ class XMLProcessor:
 
     def _get_image_files(self, folder_path: str, process_jpg: bool = True, process_tiff: bool = True) -> List[Dict]:
         """
-        Ottieni lista file immagine dalla cartella Busta e sottocartelle standard.
+        Ottieni lista file immagine dalla cartella object e sottocartelle standard.
 
         Args:
-            folder_path: Path alla cartella Busta
+            folder_path: Path alla cartella object
             process_jpg: Se processare .jpg/.jpeg
             process_tiff: Se processare .tiff/.tif
 
@@ -465,12 +465,12 @@ class XMLProcessor:
             return 'S', f"{index+1:04d}"
 
 
-    def process_all_bustas(self, input_dir: str, process_jpg: bool = True, process_tiff: bool = True) -> List[ImageMapping]:
+    def process_all_objects(self, input_dir: str, process_jpg: bool = True, process_tiff: bool = True) -> List[ImageMapping]:
         """
-        Processa tutte le Buste nell'input directory
+        Processa tutte le object nell'input directory
 
         Args:
-            input_dir: Directory contenente le Buste
+            input_dir: Directory contenente le object
             process_jpg: Se processare file .jpg/.jpeg
             process_tiff: Se processare file .tiff/.tif
 
@@ -480,14 +480,14 @@ class XMLProcessor:
         all_mappings = []
 
         # Scopri tutte le coppie Folder-XML
-        folder_pairs = self.discover_busta_files(input_dir)
+        folder_pairs = self.discover_object_files(input_dir)
 
         for folder_path, xml_file in folder_pairs:
             print(f"[INFO] Processing {os.path.basename(xml_file)}...")
 
             try:
                 # Parsa XML
-                xml_data = self.parse_busta_xml(xml_file)
+                xml_data = self.parse_object_xml(xml_file)
 
                 # Estrai mappings usando approccio sequenziale (risolve bug Windows/Linux)
                 print("[INFO] Using sequential XML processing to avoid Windows/Linux differences")
@@ -582,7 +582,7 @@ class XMLProcessor:
                                 'document_type_name': self._get_document_type_name(mapping.document_type),
                                 'sequence_number': mapping.sequence_number,
                                 'page_number': mapping.page_number,
-                                'busta_folder': mapping.busta_folder,
+                                'object_folder': mapping.object_folder,
                                 'has_nct': mapping.has_nct,
                                 'nct_code': mapping.nct_code
                             }
@@ -699,7 +699,7 @@ class XMLProcessor:
         """
         try:
             # Parse XML
-            xml_data = self.parse_busta_xml(xml_file_path)
+            xml_data = self.parse_object_xml(xml_file_path)
 
             # Extract mappings using sequential processing
             mappings = self.extract_image_mappings_sequential(xml_data, folder_path, process_jpg, process_tiff)
@@ -716,7 +716,7 @@ class XMLProcessor:
             return False
 
 
-def has_busta_structure(input_dir: str) -> bool:
+def has_object_structure(input_dir: str) -> bool:
     """Verifica se l'input directory contiene struttura Folder+XML"""
     if not os.path.exists(input_dir) or not os.path.isdir(input_dir):
         return False
@@ -776,7 +776,7 @@ if __name__ == "__main__":
 
     input_dir = sys.argv[1]
     processor = XMLProcessor()
-    mappings = processor.process_all_bustas(input_dir)
+    mappings = processor.process_all_objects(input_dir)
 
     for mapping in mappings:
         print(f"{mapping.original_filename} -> {mapping.fascicolo_number} {mapping.document_type}")

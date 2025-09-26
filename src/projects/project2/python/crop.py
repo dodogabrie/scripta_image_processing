@@ -86,6 +86,12 @@ def main():
         default=False,
         help="Generate before/after comparison thumbnails (default: False).",
     )
+    p.add_argument(
+        "--no-rename",
+        action="store_true",
+        default=False,
+        help="Force standard processing without ICCD renaming (for consistency with batch mode).",
+    )
     args = p.parse_args()
 
     # If fold_border not specified, use same value as contour_border

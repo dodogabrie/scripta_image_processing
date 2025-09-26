@@ -23,10 +23,10 @@ ABBREVIAZIONI_NOMENCLATURE = {
     "Foto": "F",
     "Allegato": "A",
     "Disegno": "D",
-    "Pagina": "S",  # DIGISCRIPTA mapping
-    "Carta": "F",  # DIGISCRIPTA mapping
-    "Indice": "A",  # DIGISCRIPTA mapping
-    "Tavola": "P",  # DIGISCRIPTA mapping (Planimetria/Disegno)
+    "Pagina": "S",  # NCT mapping
+    "Carta": "F",  # NCT mapping
+    "Indice": "A",  # NCT mapping
+    "Tavola": "P",  # NCT mapping (Planimetria/Disegno)
 }
 
 # Progressive numbering by document type (ICCD order)
@@ -242,7 +242,9 @@ class AdaptFs(MagOperation):
         if not self._json_analysis:
             file_el.href.value = newpath
 
-        src = normpath(join(self._base_src_dir, origpath))
+        # Clean up relative path prefix for proper joining
+        clean_origpath = origpath.lstrip('./')
+        src = normpath(join(self._base_src_dir, clean_origpath))
         dst = normpath(join(self._base_dst_dir, newpath))
 
         # Pass original and target paths to transporter
@@ -276,7 +278,9 @@ class AdaptFs(MagOperation):
             extension,
         )
         file_el.href.value = newpath
-        src = normpath(join(self._base_src_dir, origpath))
+        # Clean up relative path prefix for proper joining
+        clean_origpath = origpath.lstrip('./')
+        src = normpath(join(self._base_src_dir, clean_origpath))
         dst = normpath(join(self._base_dst_dir, newpath))
         self._transporter.transport(src, dst)
 
@@ -322,10 +326,13 @@ class AdaptFs(MagOperation):
         subfolder,
         extension,
     ):
-        # Generate ICCD directory: ICCD_FSC01351
-        iccd_dir = f"ICCD_FSC{self._fascicolo_number:05d}/{subfolder}"
+        # Generate ICCD directory: ICCD_FSC01351 (NCT) or ICCD_1200143419 (NCT)
+        if self._is_nct_fascicolo():
+            iccd_dir = f"ICCD_{self._fascicolo_number}/{subfolder}"
+        else:
+            iccd_dir = f"ICCD_FSC{self._fascicolo_number:05d}/{subfolder}"
 
-        # Generate ICCD filename: ICCD_FSC01351-0019_01_S0001_01.tiff
+        # Generate ICCD filename: ICCD_FSC01351-0019_01_S0001_01.tiff (NCT) or ICCD_1200143419_01_S0001_01.tiff (NCT)
         iccd_filename = self._build_iccd_filename(
             object_number,
             progressive_number,
@@ -346,14 +353,18 @@ class AdaptFs(MagOperation):
         page_number,
         extension,
     ):
-        # Format: ICCD_FSC01351-0019_01_S0001_01.tiff
-        fascicolo_part = f"FSC{self._fascicolo_number:05d}"
-        object_part = f"{object_number:04d}"
         progressive_part = f"{progressive_number:02d}"
         doc_part = f"{nomenclature_short}{doc_sequence:04d}"
         page_part = f"{page_number:02d}"
 
-        return f"ICCD_{fascicolo_part}-{object_part}_{progressive_part}_{doc_part}_{page_part}.{extension}"
+        if self._is_nct_fascicolo():
+            # NCT format: ICCD_{fascicolo}_{progressive}_{doc}_{page}.ext
+            return f"ICCD_{self._fascicolo_number}_{progressive_part}_{doc_part}_{page_part}.{extension}"
+        else:
+            # Non NCT format: ICCD_FSC{fascicolo:05d}-{object:04d}_{progressive}_{doc}_{page}.ext
+            fascicolo_part = f"FSC{self._fascicolo_number:05d}"
+            object_part = f"{object_number:04d}"
+            return f"ICCD_{fascicolo_part}-{object_part}_{progressive_part}_{doc_part}_{page_part}.{extension}"
 
     def _extract_fascicolo_from_stru(self, metadigit):
         """Extract fascicolo number from stru element"""
@@ -389,6 +400,10 @@ class AdaptFs(MagOperation):
     def _get_progressive_number(self, document_type):
         """Get progressive number for document type (S=01, A=02, F=03, P=04)"""
         return PROGRESSIVE_ORDER.get(document_type, 1)
+
+    def _is_nct_fascicolo(self):
+        """Detect if fascicolo is NCT format (long number ≥ 9 digits)"""
+        return len(str(self._fascicolo_number)) >= 9
 
     def clean_mag(self, metadigit):
         raise NotImplementedError()

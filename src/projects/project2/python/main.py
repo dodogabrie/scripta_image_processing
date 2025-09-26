@@ -304,7 +304,7 @@ def main(
         from xml_processor import has_object_structure
 
         rename_active = not no_rename
-        
+
         if has_object_structure(input_dir) and rename_active:
             print(
                 "[INFO] Detected ICCD Folder+XML structure - using XML-based processing"
@@ -863,7 +863,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--no-rename",
         action="store_true",
-        default=False,
+        default=True,
         help="Force standard processing without ICCD renaming, even if XML structure detected",
     )
 

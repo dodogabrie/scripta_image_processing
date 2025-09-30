@@ -37,6 +37,8 @@ PROGRESSIVE_ORDER = {
     "P": 4,  # Planimetrie/Disegni
 }
 
+CROP_MAP = {"_crop_1": 1, "_crop_2": 2, "_crop_3": 3, "_crop_4": 4}
+
 
 class OptionParser(MagScriptOptionParser):
     def __init__(self):
@@ -96,7 +98,7 @@ class AdaptFs(MagOperation):
         base_dst_dir,
         bname=None,
         dry_run=False,
-        copy=False,
+        copy=True,
         ignore_missing=False,
         json_analysis=False,
         xml_input_path=None,
@@ -122,6 +124,7 @@ class AdaptFs(MagOperation):
         elif self._dry_run:
             self._transporter = DummyTransporter()
         elif self._copy:
+            log.warning("!!!!!!Copying files")
             self._transporter = CopyTransporter(self._ignore_missing)
         else:
             self._transporter = MoveTransporter(self._ignore_missing)
@@ -137,6 +140,14 @@ class AdaptFs(MagOperation):
         self._fascicolo_number = self._extract_fascicolo_from_stru(metadigit)
         if not self._fascicolo_number:
             raise MagOperationError("Cannot extract fascicolo number from structure")
+
+        info_json_path = os.path.join(self._base_src_dir, "info.json")
+        if os.path.exists(info_json_path):
+            with open(info_json_path, "r") as f:
+                info = json.load(f)
+                self._cropped_files = info.get("cropped")
+        else:
+            self._cropped_files = None
 
         # Extract object number from stru sequence_number
         self._current_object_number = None
@@ -223,35 +234,102 @@ class AdaptFs(MagOperation):
         file_el,
     ):
         origpath = file_el.href.value
-        extension = origpath.split(".")[-1].lower()
-        subfolder = (
-            "tiff" if "tiff" in origpath else "jpeg300" if "jpeg300" in origpath else ""
-        )
+        filename = basename(origpath)
+        files_to_process = 1
+        if self._cropped_files:
+            if filename in self._cropped_files:
+                files_to_process = len(self._cropped_files[filename])
 
-        newpath = self._build_iccd_path(
-            object_number,
-            progressive_number,
-            nomenclature_short,
-            doc_sequence,
-            page_number,
-            subfolder,
-            extension,
-        )
+        # Check if this file has cropped versions
+        if files_to_process > 1 and self._cropped_files:
+            cropped_list = self._cropped_files[filename]
 
-        # Only update the XML element if not in JSON analysis mode
-        if not self._json_analysis:
-            file_el.href.value = newpath
+            # Collect crop page numbers for validation
+            crop_page_numbers = []
+            for cropped_filename in cropped_list:
+                crop_page_number = self._extract_crop_page_number(cropped_filename)
+                crop_page_numbers.append(crop_page_number)
 
-        # Clean up relative path prefix for proper joining
-        clean_origpath = origpath.lstrip('./')
-        src = normpath(join(self._base_src_dir, clean_origpath))
-        dst = normpath(join(self._base_dst_dir, newpath))
+            # Validate page alignment between XML and crop pages
+            self._validate_page_alignment(
+                page_number,  # XML page number from nomenclature
+                crop_page_numbers,  # Crop page numbers from filenames
+                filename,  # Original filename
+                cropped_list,  # List of cropped filenames
+            )
 
-        # Pass original and target paths to transporter
-        if self._json_analysis:
-            self._transporter.transport_with_paths(origpath, newpath, src, dst)
+            # Process each cropped file separately
+            for i, cropped_filename in enumerate(cropped_list):
+                # Use the already extracted crop page number
+                crop_page_number = crop_page_numbers[i]
+
+                # Set extension and subfolder for cropped files
+                extension = "tiff"  # cropped files are typically tiff
+                subfolder = "tiff"
+
+                # Build path for this specific cropped file
+                newpath = self._build_iccd_path(
+                    object_number,
+                    progressive_number,
+                    nomenclature_short,
+                    doc_sequence,
+                    crop_page_number,  # Use crop-specific page number
+                    subfolder,
+                    extension,
+                )
+
+                # Update XML element only for first cropped file (or handle differently)
+                if i == 0 and not self._json_analysis:
+                    file_el.href.value = newpath
+
+                # Build source path for cropped file - now uses full relative path from info.json
+                clean_origpath = cropped_filename.lstrip("./")
+                src = normpath(join(self._base_src_dir, clean_origpath))
+
+                dst = normpath(join(self._base_dst_dir, newpath))
+
+                # Transport this cropped file
+                if self._json_analysis:
+                    self._transporter.transport_with_paths(
+                        cropped_filename, newpath, src, dst
+                    )
+                else:
+                    self._transporter.transport(src, dst)
         else:
-            self._transporter.transport(src, dst)
+            # Original single file processing
+            extension = origpath.split(".")[-1].lower()
+            subfolder = (
+                "tiff"
+                if "tiff" in origpath
+                else "jpeg300"
+                if "jpeg300" in origpath
+                else ""
+            )
+
+            newpath = self._build_iccd_path(
+                object_number,
+                progressive_number,
+                nomenclature_short,
+                doc_sequence,
+                page_number,
+                subfolder,
+                extension,
+            )
+
+            # Only update the XML element if not in JSON analysis mode
+            if not self._json_analysis:
+                file_el.href.value = newpath
+
+            # Clean up relative path prefix for proper joining
+            clean_origpath = origpath.lstrip("./")
+            src = normpath(join(self._base_src_dir, clean_origpath))
+            dst = normpath(join(self._base_dst_dir, newpath))
+
+            # Pass original and target paths to transporter
+            if self._json_analysis:
+                self._transporter.transport_with_paths(origpath, newpath, src, dst)
+            else:
+                self._transporter.transport(src, dst)
 
     def _do_file_element(
         self,
@@ -279,7 +357,7 @@ class AdaptFs(MagOperation):
         )
         file_el.href.value = newpath
         # Clean up relative path prefix for proper joining
-        clean_origpath = origpath.lstrip('./')
+        clean_origpath = origpath.lstrip("./")
         src = normpath(join(self._base_src_dir, clean_origpath))
         dst = normpath(join(self._base_dst_dir, newpath))
         self._transporter.transport(src, dst)
@@ -400,6 +478,78 @@ class AdaptFs(MagOperation):
     def _get_progressive_number(self, document_type):
         """Get progressive number for document type (S=01, A=02, F=03, P=04)"""
         return PROGRESSIVE_ORDER.get(document_type, 1)
+
+    def _extract_crop_page_number(self, filename):
+        """Extract page number from crop filename using CROP_MAP"""
+        for suffix, page_num in CROP_MAP.items():
+            if suffix in filename:
+                return page_num
+        return 1  # default
+
+    def _validate_page_alignment(
+        self, xml_page_number, crop_page_numbers, original_filename, cropped_filenames
+    ):
+        """
+        Validate alignment between XML page number and generated crop page numbers.
+
+        Args:
+            xml_page_number (int): Page number from XML nomenclature (e.g., from "Pagina: 1")
+            crop_page_numbers (list): List of crop page numbers from generated files
+            original_filename (str): Original filename for error reporting
+            cropped_filenames (list): List of cropped filenames for error reporting
+
+        Returns:
+            None (prints warnings/errors directly)
+        """
+        if xml_page_number >= 3:
+            # ERROR: Pagina 3 or higher should never generate crops
+            for i, cropped_name in enumerate(cropped_filenames):
+                crop_page = crop_page_numbers[i]
+                print(
+                    f"[ERROR] ERRORE: Pagina {xml_page_number} (>2) ha generato file ritagliato - non supportato {original_filename}->{cropped_name}"
+                )
+                log.error(
+                    f"Page {xml_page_number} generated crop file {cropped_name} - not supported"
+                )
+            return
+
+        # Sort crop page numbers for consistent comparison
+        sorted_crop_pages = sorted(set(crop_page_numbers))
+
+        # Define expected page alignments
+        expected_pages = {
+            1: [1, 4],  # Pagina: 1 should generate crop pages 1 and 4
+            2: [2, 3],  # Pagina: 2 should generate crop pages 2 and 3
+        }
+
+        # Check alignment
+        if xml_page_number in expected_pages:
+            expected_crop_pages = expected_pages[xml_page_number]
+
+            if sorted_crop_pages == sorted(expected_crop_pages):
+                # Correct alignment - no warning needed
+                return
+            else:
+                # Misalignment detected - generate warning
+                crop_pages_str = ", ".join(map(str, sorted_crop_pages))
+                cropped_names_str = ", ".join(cropped_filenames)
+
+                print(
+                    f"[WARNING] Possibile disallineamento tra immagini ritagliate e nomenclatura xml: Pagina {xml_page_number} ha generato file {crop_pages_str} {original_filename}->{cropped_names_str}"
+                )
+                log.warning(
+                    f"Page alignment mismatch: XML page {xml_page_number} generated crop pages {crop_pages_str} (expected {expected_crop_pages})"
+                )
+        else:
+            # Unexpected page number - log warning
+            crop_pages_str = ", ".join(map(str, sorted_crop_pages))
+            cropped_names_str = ", ".join(cropped_filenames)
+            print(
+                f"[WARNING] Pagina {xml_page_number} non prevista ha generato file {crop_pages_str} {original_filename}->{cropped_names_str}"
+            )
+            log.warning(
+                f"Unexpected XML page number {xml_page_number} generated crop pages {crop_pages_str}"
+            )
 
     def _is_nct_fascicolo(self):
         """Detect if fascicolo is NCT format (long number ≥ 9 digits)"""

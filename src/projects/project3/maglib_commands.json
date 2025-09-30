@@ -33,6 +33,12 @@
           "description": "Modalità dry-run: mostra operazioni senza eseguirle",
           "default": false,
           "type": "boolean"
+        },
+        "copy_mode": {
+          "param": "--copy",
+          "description": "Copia i file invece di spostarli",
+          "default": true,
+          "type": "boolean"
         }
       },
       "usage_pattern": "auto_discovery",

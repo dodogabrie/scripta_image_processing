@@ -233,22 +233,57 @@ def detect_document_format(image_path, debug=False, document_contour=None):
         return False
 
 
-def process_page_if_needed(img, image_path=None, debug=False, contour_border=150):
+def calculate_document_coverage(page_contour, img_shape):
     """
-    Process page with contour detection if A3 landscape format is detected.
+    Calculate what percentage of the image is covered by the detected document.
+
+    Args:
+        page_contour (np.ndarray): Detected page contour
+        img_shape (tuple): Image shape (height, width, channels)
+
+    Returns:
+        float: Coverage percentage (0.0 to 1.0)
+    """
+    try:
+        import cv2
+
+        # Calculate total image area
+        img_height, img_width = img_shape[:2]
+        total_area = img_width * img_height
+
+        # Calculate document area from contour
+        document_area = cv2.contourArea(page_contour)
+
+        # Calculate coverage percentage
+        coverage = document_area / total_area
+
+        return coverage
+
+    except Exception as e:
+        print(f"Error calculating document coverage: {e}")
+        return 0.0
+
+
+def process_page_if_needed(img, image_path=None, debug=False, contour_border=150, coverage_threshold=0.90):
+    """
+    Process page with contour detection if needed based on document analysis.
 
     This function intelligently determines if the image needs perspective correction
-    and cropping based on document format analysis. Only A3 landscape documents
-    are processed through the contour detection pipeline.
+    and cropping based on document format analysis and coverage percentage.
+    Skips processing if document already fills most of the image (≥90% by default).
 
     Args:
         img (np.ndarray): Input BGR image
+        image_path (str): Path to image file for format detection
         debug (bool): Enable debug output
+        contour_border (int): Border pixels for cropping (default: 150)
+        coverage_threshold (float): Skip processing if document coverage ≥ this threshold (default: 0.90)
 
     Returns:
-        tuple: (processed_img, was_processed)
+        tuple: (processed_img, was_processed, actual_border)
                - processed_img (np.ndarray): Output image (processed or original)
                - was_processed (bool): True if contour processing was applied
+               - actual_border (int): Border pixels actually used
     """
     try:
         if debug:
@@ -272,7 +307,25 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
                 print("No page contour found - returning original image")
             return img, False, contour_border
 
-        # Step 3: Detect document format using contour dimensions (for debug info)
+        # Step 3: Calculate document coverage and check threshold
+        coverage = calculate_document_coverage(page_contour, img.shape)
+        coverage_percentage = coverage * 100
+
+        if debug:
+            print(f"\n=== DOCUMENT COVERAGE ANALYSIS ===")
+            print(f"Document coverage: {coverage_percentage:.1f}%")
+            print(f"Coverage threshold: {coverage_threshold * 100:.1f}%")
+
+        if coverage >= coverage_threshold:
+            if debug:
+                print(f"[SKIP] Document coverage ({coverage_percentage:.1f}%) ≥ threshold ({coverage_threshold * 100:.1f}%)")
+                print("Document already fills most of the image - skipping contour processing")
+            return img, False, contour_border
+
+        if debug:
+            print(f"[OK] Document coverage ({coverage_percentage:.1f}%) below threshold - proceeding with contour processing")
+
+        # Step 4: Detect document format using contour dimensions (for debug info)
         if image_path and debug:
             print("\n=== DOCUMENT FORMAT DETECTION ===")
             detect_document_format(

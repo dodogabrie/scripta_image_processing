@@ -92,6 +92,12 @@ def main():
         default=False,
         help="Force standard processing without ICCD renaming (for consistency with batch mode).",
     )
+    p.add_argument(
+        "--coverage-threshold",
+        type=float,
+        default=0.90,
+        help="Skip contour processing if document covers this percentage of image (0.0-1.0, default: 0.90).",
+    )
     args = p.parse_args()
 
     # If fold_border not specified, use same value as contour_border
@@ -151,8 +157,9 @@ def main():
     processed_img, was_processed, actual_border = process_page_if_needed(
         img,
         image_path=args.input,
-        debug=args.debug,
-        contour_border=args.contour_border
+        debug=False,
+        contour_border=args.contour_border,
+        coverage_threshold=args.coverage_threshold
     )
     if was_processed:
         print(f"[OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
@@ -168,6 +175,7 @@ def main():
         smart_crop=args.smart_crop,
         fold_border=args.fold_border,
         image_path=args.input,
+        quality_threshold=0.6,  # Default quality threshold for fold detection
     )
 
     rotation_status = (

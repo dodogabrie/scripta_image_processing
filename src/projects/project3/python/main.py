@@ -64,6 +64,12 @@ def get_fallback_commands():
                     "description": "Modalità dry-run: mostra operazioni senza eseguirle",
                     "default": False,
                     "type": "boolean"
+                },
+                "copy_mode": {
+                    "param": "--copy",
+                    "description": "Copia i file invece di spostarli",
+                    "default": True,
+                    "type": "boolean"
                 }
             },
             "usage_pattern": "auto_discovery",
@@ -114,6 +120,17 @@ def build_command_params(command_key, xml_file, config_commands, custom_params=N
             params.append(param_flag)
         elif param_type != "boolean" and default_value:
             params.extend([param_flag, str(default_value)])
+
+    # Add default_params (these are processed as boolean flags when True)
+    default_params = command_info.get("default_params", {})
+    for param_key, param_value in default_params.items():
+        if isinstance(param_value, bool) and param_value:
+            # Boolean True parameters are added as flags
+            params.append(param_key)
+        elif not isinstance(param_value, bool) and param_value:
+            # String parameters are added with values (but skip template values)
+            if not str(param_value).startswith("{"):
+                params.extend([param_key, str(param_value)])
 
     return params
 

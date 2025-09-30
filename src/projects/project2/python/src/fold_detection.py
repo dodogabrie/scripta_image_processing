@@ -204,37 +204,126 @@ def find_fold_center(img=None, roi=None):
     # Detect multiple minima in the final averaged profile
     from scipy.signal import find_peaks
 
+    # Apply smoothing to remove spikes before peak detection
+    smooth_kernel = max(3, int(len(profiles_sum) * 0.02))  # 2% of profile length
+    if smooth_kernel % 2 == 0:
+        smooth_kernel += 1
+    smoothed_profile = cv2.GaussianBlur(profiles_sum, (smooth_kernel, 1), 0).flatten()
+
     # Find peaks in inverted profile (minima become peaks)
-    inverted_profile = -profiles_sum
+    inverted_profile = -smoothed_profile
+
+    # Use prominence instead of height - more robust to spikes
     peaks, properties = find_peaks(
         inverted_profile,
-        height=np.std(inverted_profile) * 3,  # Minimum prominence
+        prominence=np.std(inverted_profile) * 3,
         distance=roi_width * 0.1,  # Minimum distance between peaks (10% of ROI width)
+        width=3,  # Minimum width in samples
     )
 
     num_minima = len(peaks)
     print(
         f"Detected {num_minima} potential fold minima at positions: {peaks + x_offset}"
     )
+
     quality_score = 0
+    best_peak_idx = None
+    peak_depth_score = 0.0
+
     if num_minima == 1:
         x_final = int(peaks[0] + x_offset)
-        quality_score = 1
+        best_peak_idx = 0
         print(f"Single minimum detected at x={x_final}")
-    elif num_minima > 1 and num_minima <= 3:
-        # Multiple minima detected - choose the most central one or most prominent
+    elif num_minima <= 3:
+        # Multiple minima detected - choose the most central one
         center_roi = roi_width // 2
         distances_from_center = np.abs(peaks - center_roi)
         best_peak_idx = np.argmin(distances_from_center)
-        x_final = int(peaks[best_peak_idx] + x_offset)
-        print(f"Multiple minima detected! Using most central at x={x_final}")
+        best_peak_position = peaks[best_peak_idx]
+        x_final = int(best_peak_position + x_offset)
 
-        # Adjust quality score for multiple minima (indicates uncertainty)
-        quality_score = 0.7
+        # Check if the selected peak is actually close enough to center
+        # Good fold should be within 5% of ROI width from center
+        # Maximum acceptable distance is 15% of ROI width
+        good_center_distance = roi_width * 0.05  # Good: within 5%
+        max_center_distance = roi_width * 0.15   # Acceptable: within 15%
+        distance_from_center = abs(best_peak_position - center_roi)
+
+        if distance_from_center > max_center_distance:
+            # Selected peak too far from center - unreliable
+            print(f"Multiple minima detected but closest one at x={x_final} is {distance_from_center:.1f}px from center (>{max_center_distance:.1f}px)")
+            print(f"Peak too far from center - treating as unreliable")
+            x_final = int(round(np.mean(detected_positions)))
+            best_peak_idx = None  # Mark as unreliable
+        elif distance_from_center <= good_center_distance:
+            # Peak very close to center - excellent
+            print(f"Multiple minima detected! Using most central at x={x_final} (distance from center: {distance_from_center:.1f}px - GOOD)")
+        else:
+            # Peak within acceptable range but not ideal
+            print(f"Multiple minima detected! Using most central at x={x_final} (distance from center: {distance_from_center:.1f}px - acceptable)")
     else:
-        # Use the mean position as final result (original behavior)
+        # Too many minima - unreliable peak detection
         x_final = int(round(np.mean(detected_positions)))
         quality_score = 0.5
+        best_peak_idx = None  # No reliable peak
+        print(f"Too many minima ({num_minima}) - using mean position at x={x_final}")
+
+    # Calculate peak depth score and centrality score (only if we have a reliable peak)
+    centrality_score = 0.0
+
+    if best_peak_idx is not None and num_minima <= 3:
+        # Calculate centrality score based on distance from center
+        fold_center_roi = x_final - x_offset
+        center_roi = roi_width // 2
+        distance_from_center = abs(fold_center_roi - center_roi)
+
+        # Centrality score: excellent within 5%, degrades linearly to 15%
+        good_center_distance = roi_width * 0.05
+        max_center_distance = roi_width * 0.15
+
+        if distance_from_center <= good_center_distance:
+            centrality_score = 1.0  # Excellent: within 5%
+        elif distance_from_center <= max_center_distance:
+            # Linear interpolation from 1.0 at 5% to 0.3 at 15%
+            ratio = (distance_from_center - good_center_distance) / (max_center_distance - good_center_distance)
+            centrality_score = 1.0 - (ratio * 0.7)  # Goes from 1.0 to 0.3
+        else:
+            centrality_score = 0.0  # Too far from center
+
+        # Get prominence of the selected peak
+        peak_prominence = properties['prominences'][best_peak_idx]
+
+        # Calculate noise level: std of profile excluding peak region
+        exclude_width = max(20, int(roi_width * 0.05))  # Exclude 5% around peak
+        exclude_start = max(0, fold_center_roi - exclude_width)
+        exclude_end = min(len(smoothed_profile), fold_center_roi + exclude_width)
+
+        # Profile without peak region
+        profile_without_peak = np.concatenate([
+            profiles_sum[:exclude_start],
+            profiles_sum[exclude_end:]
+        ]) if exclude_start < exclude_end else profiles_sum
+
+        noise_level = np.std(profile_without_peak)
+
+        # Signal-to-noise ratio
+        snr = peak_prominence / noise_level if noise_level > 0 else 0
+
+        # Convert SNR to score (0.0 to 1.0)
+        # SNR > 5 is excellent, 3-5 is good, 1-3 is acceptable, <1 is poor
+        if snr >= 6:
+            peak_depth_score = 1.0
+        elif snr >= 5:
+            peak_depth_score = 0.8
+        elif snr >= 4:
+            peak_depth_score = 0.6
+        elif snr >= 3:
+            peak_depth_score = 0.4
+        else:
+            peak_depth_score = 0.2
+
+        print(f"Peak depth analysis: prominence={peak_prominence:.2f}, noise={noise_level:.2f}, SNR={snr:.2f}, score={peak_depth_score:.2f}")
+        print(f"Centrality analysis: distance={distance_from_center:.1f}px, score={centrality_score:.2f}")
 
     # Calculate position consistency quality score
     position_std = np.std(detected_positions)
@@ -253,18 +342,27 @@ def find_fold_center(img=None, roi=None):
     print(position_std)
 
     # Quality score based on position stability relative to ROI size
+    consistency_score = 0.0
     if position_std <= excellent_threshold:
-        quality_score += 1.0  # Excellent consistency
+        consistency_score = 1.0  # Excellent consistency
     elif position_std <= good_threshold:
-        quality_score += 0.8  # Good consistency
+        consistency_score = 0.6  # Good consistency
     elif position_std <= acceptable_threshold:
-        quality_score += 0.6  # Acceptable consistency
+        consistency_score = 0.4  # Acceptable consistency
     elif position_std <= poor_threshold:
-        quality_score += 0.4  # Poor consistency
+        consistency_score = 0.2  # Poor consistency
     else:
-        quality_score += 0.2  # Very poor consistency
+        consistency_score = 0.1  # Very poor consistency
 
-    quality_score /= 2.0  # Normalize quality score to [0, 1]
+    # Calculate final quality score from three components
+    if best_peak_idx is not None:
+        # All three scores available: SNR, consistency, centrality
+        quality_score = (peak_depth_score + consistency_score + centrality_score) / 3.0
+    else:
+        # Only consistency available (unreliable peak detection)
+        quality_score = consistency_score * 0.5  # Cap at 0.5 for unreliable cases
+
+    print(f"Consistency: {consistency_score:.2f}, SNR: {peak_depth_score:.2f}, Centrality: {centrality_score:.2f}, Final: {quality_score:.2f}")
     # Quality score based on position stability relative to ROI size (assumption: pages are mainly stable)
     if quality_score >= 0.6:
         exclude_pixels = int(position_std * 2)
@@ -294,15 +392,15 @@ def find_fold_center(img=None, roi=None):
         if quality_score < 0:
             quality_score = 0
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
-    plt.plot(profiles_sum)
-    plt.title(
-        f"Fold Detection - Quality: {quality_score:.2f} (std: {position_std:.1f}px)"
-        + "\n"
-        + f"Vertical variations: {np.std(profiles_sum):.3f}px"
-    )
-    plt.show()
+    # plt.plot(profiles_sum)
+    # plt.title(
+    #     f"Fold Detection - Quality: {quality_score:.2f} (std: {position_std:.1f}px)"
+    #     + "\n"
+    #     + f"Vertical variations: {np.std(profiles_sum):.3f}px"
+    # )
+    # plt.show()
 
     return x_final, quality_score
 

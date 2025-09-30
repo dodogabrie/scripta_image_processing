@@ -438,9 +438,8 @@ def process_front_back_couples(
 
     # Phase 1: Process all images sequentially
     for i, image_path in enumerate(image_files):
-        if verbose:
-            rel_path = os.path.relpath(image_path, input_dir)
-            print(f"[{i + 1}/{len(image_files)}] Processing: {rel_path}")
+        rel_path = os.path.relpath(image_path, input_dir)
+        print(f"[{i + 1}/{len(image_files)}] Processing: {rel_path}")
 
         success, message, debug_info = process_single_image(
             image_path,
@@ -476,14 +475,17 @@ def process_front_back_couples(
             if saved_files:
                 update_cropped_files_mapping(info_data, image_path, saved_files, output_dir)
 
-            if verbose and debug_info.get("x_fold"):
-                print(f"  [OK] Fold detected at x={debug_info['x_fold']}, quality={debug_info.get('confidence', 0):.3f}")
-            elif verbose:
-                print(f"  [OK] No fold detected - saved original")
+            if debug_info.get("x_fold"):
+                print(f"  [OK] fold detected, {len(saved_files)} files renamed")
+            else:
+                print(f"  [OK] no fold, {len(saved_files)} files renamed")
         else:
             error_count += 1
-            if verbose:
-                print(f"  [ERROR] {message}")
+            print(f"  [ERROR] {message}")
+
+        # Update info.json after each image for progress tracking
+        info_data["processed"] = i + 1
+        write_info_json(output_dir, info_data)
 
     # Phase 2: Detect consecutive couples with successful fold detection
     print(f"\n[INFO] Phase 2: Detecting consecutive couples with fold detection...")
@@ -512,8 +514,7 @@ def process_front_back_couples(
         print(f"\n[INFO] Phase 3: Applying 4-page renaming to {len(couples_detected)} couples...")
 
         for couple_idx, (first_result, second_result) in enumerate(couples_detected):
-            if verbose:
-                print(f"  [COUPLE {couple_idx + 1}] Renaming: {os.path.basename(first_result['path'])} + {os.path.basename(second_result['path'])}")
+            print(f"[{couple_idx + 1}/{len(couples_detected)}] Processing couple: {os.path.basename(first_result['path'])} + {os.path.basename(second_result['path'])}")
 
             # Apply couple renaming
             success_rename, renamed_files = rename_couple_outputs(
@@ -547,11 +548,9 @@ def process_front_back_couples(
                 if second_files:
                     info_data["cropped"][second_original_filename] = second_files
 
-                if verbose:
-                    print(f"    [OK] {len(renamed_files)} files renamed with 4-page pattern")
+                print(f"  [OK] Couple processed successfully - {len(renamed_files)} files renamed")
             else:
-                if verbose:
-                    print(f"    [ERROR] Failed to rename couple outputs")
+                print(f"  [ERROR] Couple validation failed - crops undone")
 
     # Phase 4: Handle single images with fold detection (not part of couples)
     print(f"\n[INFO] Phase 4: Processing single images with fold detection...")
@@ -572,9 +571,8 @@ def process_front_back_couples(
     if single_fold_images:
         print(f"[INFO] Found {len(single_fold_images)} single images with fold detection for _crop_1/_crop_4 renaming")
 
-        for single_result in single_fold_images:
-            if verbose:
-                print(f"  [SINGLE] Renaming: {os.path.basename(single_result['path'])}")
+        for single_idx, single_result in enumerate(single_fold_images):
+            print(f"[{single_idx + 1}/{len(single_fold_images)}] Processing: {os.path.basename(single_result['path'])}")
 
             # Apply single image renaming (_left -> _crop_4, _right -> _crop_1)
             success_rename, renamed_files = rename_single_image_outputs(
@@ -589,11 +587,9 @@ def process_front_back_couples(
                 renamed_filenames = [os.path.relpath(f, output_dir) for f in renamed_files]
                 info_data["cropped"][single_original_filename] = renamed_filenames
 
-                if verbose:
-                    print(f"    [OK] {len(renamed_files)} files renamed to _crop_1/_crop_4 pattern")
+                print(f"  [OK] Only first image cropped - {len(renamed_files)} files renamed to _4/_1 pattern")
             else:
-                if verbose:
-                    print(f"    [ERROR] Failed to rename single image outputs")
+                print(f"  [ERROR] Failed to rename single image outputs")
     else:
         print("[INFO] No single images with fold detection found")
 

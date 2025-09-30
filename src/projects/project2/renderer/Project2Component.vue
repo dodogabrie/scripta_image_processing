@@ -678,7 +678,7 @@ export default {
             );
             if (coupleSuccessMatch) {
                 const filesRenamed = parseInt(coupleSuccessMatch[1]);
-                this.realTimeProgress.fold_detected_count += 2; // Both images had folds
+                // Don't update fold_detected_count here - already counted in Phase 1
                 this.realTimeProgress.files_renamed += filesRenamed;
                 this.realTimeProgress.current_stage = `Coppia completata: ${filesRenamed} file salvati`;
                 return;
@@ -690,10 +690,9 @@ export default {
             );
             if (singleSuccessMatch) {
                 const filesRenamed = parseInt(singleSuccessMatch[1]);
-                this.realTimeProgress.fold_detected_count += 1; // Only first image had fold
-                this.realTimeProgress.no_fold_count += 1; // Second image had no fold
+                // Don't update fold_detected_count here - already counted in Phase 1
                 this.realTimeProgress.files_renamed += filesRenamed;
-                this.realTimeProgress.current_stage = `Prima immagine elaborata: ${filesRenamed} file salvati`;
+                this.realTimeProgress.current_stage = `Immagine singola elaborata: ${filesRenamed} file salvati`;
                 return;
             }
 
@@ -705,13 +704,15 @@ export default {
                 const foldDetected = foldMatch[1] === "fold detected";
                 const filesRenamed = parseInt(foldMatch[2]);
 
+                // Update counters in Phase 1 for real-time display
                 if (foldDetected) {
                     this.realTimeProgress.fold_detected_count++;
                 } else {
                     this.realTimeProgress.no_fold_count++;
+                    // Only count files_renamed for "no fold" - fold files will be counted in Phase 3-4
+                    this.realTimeProgress.files_renamed += filesRenamed;
                 }
-                this.realTimeProgress.files_renamed += filesRenamed;
-                this.realTimeProgress.current_stage = `Completato: ${filesRenamed} file salvati`;
+                this.realTimeProgress.current_stage = `Completato processing`;
                 return;
             }
 

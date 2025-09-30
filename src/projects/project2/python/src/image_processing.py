@@ -109,7 +109,6 @@ def process_image(
     # Check if this is A3 landscape - only do fold detection on A3 landscape
     if image_path:
         is_a3 = detect_document_format(image_path, debug=debug)
-        is_a3 = True # bypassing
         if not is_a3:
             if debug:
                 print(

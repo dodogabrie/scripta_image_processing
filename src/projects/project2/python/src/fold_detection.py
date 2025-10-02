@@ -363,34 +363,6 @@ def find_fold_center(img=None, roi=None):
         quality_score = consistency_score * 0.5  # Cap at 0.5 for unreliable cases
 
     print(f"Consistency: {consistency_score:.2f}, SNR: {peak_depth_score:.2f}, Centrality: {centrality_score:.2f}, Final: {quality_score:.2f}")
-    # Quality score based on position stability relative to ROI size (assumption: pages are mainly stable)
-    if quality_score >= 0.6:
-        exclude_pixels = int(position_std * 2)
-
-        # Create profile excluding pixels around fold position for cleaner variation measurement
-        fold_center_roi = x_final - x_offset  # Convert to ROI coordinates
-        profile_length = len(profiles_sum)
-
-        # Exclude region around fold center
-        exclude_start = max(0, fold_center_roi - exclude_pixels)
-        exclude_end = min(profile_length, fold_center_roi + exclude_pixels)
-
-        # Create mask excluding the fold region
-        profile_excluded_pixels = (
-            np.concatenate([profiles_sum[:exclude_start], profiles_sum[exclude_end:]])
-            if exclude_start < exclude_end
-            and exclude_start > 0
-            and exclude_end < profile_length
-            else profiles_sum
-        )
-
-        vertical_variations = np.std(profile_excluded_pixels)
-        print("Excluding pixels of fit: ", vertical_variations)
-        print(vertical_variations)
-        if vertical_variations > 10:
-            quality_score = quality_score - vertical_variations / 30
-        if quality_score < 0:
-            quality_score = 0
 
     # import matplotlib.pyplot as plt
 

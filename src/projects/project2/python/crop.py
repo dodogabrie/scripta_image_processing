@@ -18,14 +18,14 @@ Utilizzo:
 import argparse
 import os
 
+from src.contour_detector.utils import save_image_with_metadata, save_outputs
 from src.debug_tools import save_debug_line_visualization
 from src.extract_doc_size import test_lab
+
 # auto_detect_side removed - fold is always center
-from src.image_io import generate_output_paths, load_image, save_image_preserve_format
-from src.contour_detector.utils import save_image_with_metadata
+from src.image_io import generate_output_paths, load_image
 from src.image_processing import process_image
 from src.page_processor import process_page_if_needed
-from src.contour_detector.utils import save_outputs
 
 from src.utils import resize_width_hd
 
@@ -110,6 +110,7 @@ def main():
         return
 
     # Load image without quality loss
+    print("Loading image...")
     img = load_image(args.input)
 
     # Generate output paths - modify extension if output format is specified
@@ -154,18 +155,34 @@ def main():
         return
 
     # Apply page processing (contour detection for A3 landscape)
-    processed_img, was_processed, actual_border = process_page_if_needed(
+    print("Applying page detection...")
+    processed_img, was_processed, actual_border, is_a3 = process_page_if_needed(
         img,
         image_path=args.input,
-        debug=False,
+        debug=args.debug,
         contour_border=args.contour_border,
-        coverage_threshold=args.coverage_threshold
+        coverage_threshold=args.coverage_threshold,
     )
     if was_processed:
-        print(f"[OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px")
+        print(
+            f"[OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px"
+        )
+    elif is_a3:
+        print("[INFO] Processing pagina saltato (A3 landscape già ben inquadrato, coverage >= 90%)")
     else:
         print("[INFO] Processing pagina saltato (formato non A3 landscape)")
 
+    # Show A3 detection result
+    if is_a3:
+        print(
+            "[A3 DETECTION] Document is A3 landscape (detected from contour dimensions)"
+        )
+    else:
+        print("[A3 DETECTION] Document is NOT A3 landscape")
+
+    # Show page detection result
+    print(f"[PAGE DETECTION] Page is {actual_border}px")
+    print("Detecting left and right sides...")
     left_side, right_side, debug_info = process_image(
         processed_img,
         side,
@@ -176,6 +193,7 @@ def main():
         fold_border=args.fold_border,
         image_path=args.input,
         quality_threshold=0.6,  # Default quality threshold for fold detection
+        is_a3_format=is_a3,  # Use A3 detection result from contour analysis
     )
 
     rotation_status = (
@@ -197,7 +215,7 @@ def main():
         )
 
     # Process and save results based on fold detection
-    fold_detected = debug_info['x_fold'] is not None
+    fold_detected = debug_info["x_fold"] is not None
 
     if fold_detected:
         # Fold detection applied - save left and right sides with _left/_right suffix
@@ -235,13 +253,17 @@ def main():
         else:
             # Directory output or default
             if args.out and os.path.isdir(args.out):
-                original_output_path = os.path.join(args.out, os.path.basename(args.input))
+                original_output_path = os.path.join(
+                    args.out, os.path.basename(args.input)
+                )
             else:
                 original_output_path = args.input  # Same location as input
 
         # Change extension if output format specified
         if args.output_format:
-            original_output_path = os.path.splitext(original_output_path)[0] + f".{args.output_format}"
+            original_output_path = (
+                os.path.splitext(original_output_path)[0] + f".{args.output_format}"
+            )
 
         if args.output_format:
             # Resize and convert format
@@ -267,7 +289,7 @@ def main():
                 left_processed,  # Final processed left side
                 path_left,  # This will be ignored since we only want thumbs
                 output_path_thumb=thumb_dir,
-                original_path=args.input
+                original_path=args.input,
             )
             print(f"Thumbnail lato sinistro: {thumb_dir}")
 
@@ -278,7 +300,7 @@ def main():
                 right_processed,  # Final processed right side
                 path_right,  # This will be ignored since we only want thumbs
                 output_path_thumb=thumb_dir,
-                original_path=args.input
+                original_path=args.input,
             )
             print(f"Thumbnail lato destro: {thumb_dir}")
 

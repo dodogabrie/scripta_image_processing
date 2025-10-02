@@ -94,6 +94,7 @@ def process_image(
     fold_border=50,
     image_path=None,
     quality_threshold=0.6,
+    is_a3_format=None,
 ):
     """
     Processa l'immagine: rileva la piega, applica split con rotazione opzionale e crop intelligente opzionale.
@@ -101,30 +102,38 @@ def process_image(
     Args:
         quality_threshold (float): Minimum quality score required for fold detection (default: 0.6)
                                  If quality is below this threshold, returns original image without cropping
+        is_a3_format (bool): If provided, uses this instead of detecting A3 format from image
 
     Ritorna: (immagine_sinistra, immagine_destra, info_debug)
     """
-    from .page_processor import detect_document_format
-
     # Check if this is A3 landscape - only do fold detection on A3 landscape
-    if image_path:
+    if is_a3_format is not None:
+        # Use provided A3 format flag (from page_processor contour detection)
+        is_a3 = is_a3_format
+        if debug and not is_a3:
+            print("Non-A3 format (from contour detection) - skipping fold detection")
+    elif image_path:
+        # Fallback: detect A3 format from full image dimensions
+        from .page_processor import detect_document_format
         is_a3 = detect_document_format(image_path, debug=debug)
-        if not is_a3:
-            if debug:
-                print(
-                    "Non-A3 format detected - skipping fold detection, returning original image"
-                )
-            debug_info = {
-                "x_fold": None,
-                "angle": 0.0,
-                "slope": 0.0,
-                "intercept": 0.0,
-                "confidence": 0.0,
-                "rotation_applied": False,
-                "smart_crop_applied": False,
-            }
-            # Return original image without fold-based cropping
-            return img, None, debug_info
+        if debug and not is_a3:
+            print("Non-A3 format detected - skipping fold detection, returning original image")
+    else:
+        # No format information available - proceed with fold detection
+        is_a3 = True
+
+    if not is_a3:
+        debug_info = {
+            "x_fold": None,
+            "angle": 0.0,
+            "slope": 0.0,
+            "intercept": 0.0,
+            "confidence": 0.0,
+            "rotation_applied": False,
+            "smart_crop_applied": False,
+        }
+        # Return original image without fold-based cropping
+        return img, None, debug_info
 
     x_fold, angle, a, b, confidence = detect_fold_brightness_profile(
         img, side, debug=debug, debug_dir=debug_dir

@@ -225,6 +225,9 @@ def warp_image(
     border_value=(0, 0, 0),
     angle=None,
     opencv_version=True,
+    scale_factor=1.0,
+    image_for_irregolar_border=None,
+    contour_for_irregolar_border=None,
 ):
     """
     Applica una trasformazione affine per raddrizzare una pagina rilevata nell'immagine,
@@ -239,6 +242,9 @@ def warp_image(
         border_value (tuple[int, int, int]): Colore di riempimento nei bordi (B, G, R).
         angle (float): Angolo di rotazione in gradi; se None, viene calcolato automaticamente.
         opencv_version (bool): Se True, usa OpenCV per la rotazione; altrimenti pyvips.
+        scale_factor (float): Scale factor if image_for_irregolar_border is downscaled (default: 1.0).
+        image_for_irregolar_border (np.ndarray): Optional downscaled image for faster irregolar_border computation.
+        contour_for_irregolar_border (np.ndarray): Optional downscaled contour matching image_for_irregolar_border.
 
     Returns:
         cropped (np.ndarray): Immagine ritagliata e raddrizzata.
@@ -321,25 +327,116 @@ def warp_image(
         x, y, w, h = 0, 0, rotated_np.shape[1], rotated_np.shape[0]
     else:
         # Normal mode - apply cropping with irregolar_border
-        crop_coords = irregolar_border(
-            rotated_np.copy(), rotated_box, border_value, show_step_by_step
-        )
 
-        if crop_coords is not None:
-            x, y, w, h, _ = crop_coords
-            # Add border padding while ensuring we don't go outside image bounds
-            img_height, img_width = rotated_np.shape[:2]
-            x = max(0, int(x - border_pixels))
-            y = max(0, int(y - border_pixels))
-            w = min(img_width - x, w + int(border_pixels * 2))
-            h = min(img_height - y, h + int(border_pixels * 2))
+        # Check if we should use downscaled image for irregolar_border (performance optimization)
+        if image_for_irregolar_border is not None and contour_for_irregolar_border is not None and scale_factor != 1.0:
+            # Use downscaled image for faster irregolar_border computation
+            if show_step_by_step:
+                print(f"\n=== IRREGOLAR_BORDER OPTIMIZATION ===")
+                print(f"Using downscaled image (scale: {scale_factor:.4f}) for irregolar_border computation")
+
+            # Get contour for downscaled image
+            rect_scaled = cv2.minAreaRect(contour_for_irregolar_border)
+            box_scaled = cv2.boxPoints(rect_scaled)
+            box_scaled = np.intp(box_scaled)
+
+            # Rotate downscaled image with same angle
+            center_box_scaled = rect_scaled[0]
+            M_scaled = cv2.getRotationMatrix2D(center_box_scaled, -angle, 1.0)
+
+            if abs(angle) < 1e-3:
+                rotated_np_scaled = image_for_irregolar_border.copy()
+                rotated_box_scaled = box_scaled.astype(np.float32)
+            else:
+                # Calculate new dimensions for downscaled rotated image
+                cos = np.abs(M_scaled[0, 0])
+                sin = np.abs(M_scaled[0, 1])
+                new_w_scaled = int(image_for_irregolar_border.shape[0] * sin + image_for_irregolar_border.shape[1] * cos)
+                new_h_scaled = int(image_for_irregolar_border.shape[0] * cos + image_for_irregolar_border.shape[1] * sin)
+
+                M_scaled[0, 2] += (new_w_scaled - image_for_irregolar_border.shape[1]) / 2
+                M_scaled[1, 2] += (new_h_scaled - image_for_irregolar_border.shape[0]) / 2
+
+                rotated_np_scaled = cv2.warpAffine(
+                    image_for_irregolar_border,
+                    M_scaled,
+                    (new_w_scaled, new_h_scaled),
+                    flags=cv2.INTER_LANCZOS4,
+                    borderMode=cv2.BORDER_CONSTANT,
+                    borderValue=(0, 0, 0),
+                )
+
+                # Build mask for downscaled image
+                mask_scaled = np.ones(image_for_irregolar_border.shape[:2], dtype=np.uint8) * 255
+                mask_rotated_scaled = cv2.warpAffine(
+                    mask_scaled,
+                    M_scaled,
+                    (new_w_scaled, new_h_scaled),
+                    flags=cv2.INTER_NEAREST,
+                    borderMode=cv2.BORDER_CONSTANT,
+                    borderValue=0,
+                )
+                rotated_np_scaled = cv2.bitwise_and(rotated_np_scaled, rotated_np_scaled, mask=mask_rotated_scaled)
+
+                rotated_box_scaled = cv2.transform(np.array([box_scaled], dtype="float32"), M_scaled)[0]
+
+            # Run irregolar_border on downscaled rotated image
+            crop_coords_scaled = irregolar_border(
+                rotated_np_scaled.copy(), rotated_box_scaled, border_value, show_step_by_step
+            )
+
+            if crop_coords_scaled is not None:
+                x_scaled, y_scaled, w_scaled, h_scaled, _ = crop_coords_scaled
+
+                # Scale coordinates back to original image size
+                x = int(x_scaled / scale_factor)
+                y = int(y_scaled / scale_factor)
+                w = int(w_scaled / scale_factor)
+                h = int(h_scaled / scale_factor)
+
+                if show_step_by_step:
+                    print(f"Crop coords on downscaled: x={x_scaled}, y={y_scaled}, w={w_scaled}, h={h_scaled}")
+                    print(f"Crop coords scaled back: x={x}, y={y}, w={w}, h={h}")
+
+                # Add border padding while ensuring we don't go outside image bounds
+                img_height, img_width = rotated_np.shape[:2]
+                x = max(0, int(x - border_pixels))
+                y = max(0, int(y - border_pixels))
+                w = min(img_width - x, w + int(border_pixels * 2))
+                h = min(img_height - y, h + int(border_pixels * 2))
+            else:
+                # Fallback to original bounding rect if irregolar_border fails
+                x, y, w, h = cv2.boundingRect(rotated_box)
+                x = max(0, int(x - border_pixels))
+                y = max(0, int(y - border_pixels))
+                w += int(border_pixels * 2)
+                h += int(border_pixels * 2)
         else:
-            # Fallback to original bounding rect if irregolar_border fails
-            x, y, w, h = cv2.boundingRect(rotated_box)
-            x = max(0, int(x - border_pixels))
-            y = max(0, int(y - border_pixels))
-            w += int(border_pixels * 2)
-            h += int(border_pixels * 2)
+            # Use original full-size image for irregolar_border (no optimization)
+            if show_step_by_step and image_for_irregolar_border is not None:
+                print("\n=== NO IRREGOLAR_BORDER OPTIMIZATION ===")
+                print("Using full-size image for irregolar_border computation")
+
+            crop_coords = irregolar_border(
+                rotated_np.copy(), rotated_box, border_value, show_step_by_step
+            )
+
+            if crop_coords is not None:
+                x, y, w, h, _ = crop_coords
+                # Add border padding while ensuring we don't go outside image bounds
+                img_height, img_width = rotated_np.shape[:2]
+                x = max(0, int(x - border_pixels))
+                y = max(0, int(y - border_pixels))
+                w = min(img_width - x, w + int(border_pixels * 2))
+                h = min(img_height - y, h + int(border_pixels * 2))
+            else:
+                # Fallback to original bounding rect if irregolar_border fails
+                x, y, w, h = cv2.boundingRect(rotated_box)
+                x = max(0, int(x - border_pixels))
+                y = max(0, int(y - border_pixels))
+                w += int(border_pixels * 2)
+                h += int(border_pixels * 2)
+
         cropped = rotated_np[y : y + h, x : x + w]
 
     # Visualizza il risultato se richiesto

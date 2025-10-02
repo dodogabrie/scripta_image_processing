@@ -47,11 +47,53 @@ def find_images_recursive(
     return image_files
 
 
+def load_crop_mapping(input_dir):
+    """
+    Carica il file crop_mapping.json se presente nella directory di input.
+
+    Args:
+        input_dir (str): Directory di input
+
+    Returns:
+        dict or None: Mapping caricato o None se il file non esiste
+    """
+    crop_mapping_path = os.path.join(input_dir, "crop_mapping.json")
+    if not os.path.exists(crop_mapping_path):
+        return None
+
+    try:
+        with open(crop_mapping_path, "r", encoding="utf-8") as f:
+            mapping = json.load(f)
+        print(f"[INFO] Caricato crop_mapping.json con {len(mapping)} voci")
+        return mapping
+    except Exception as e:
+        print(f"[WARNING] Errore nel caricamento di crop_mapping.json: {e}")
+        return None
+
+
 def write_info_json(output_dir, info_data):
     """Scrive il file info.json nella directory di output."""
     info_path = os.path.join(output_dir, "info.json")
     with open(info_path, "w", encoding="utf-8") as f:
         json.dump(info_data, f, indent=2, ensure_ascii=False)
+
+
+def save_error_json(output_dir, error_data):
+    """
+    Salva il file error.json nella directory di output con i file da ricontrollare.
+
+    Args:
+        output_dir (str): Directory di output
+        error_data (dict): Dizionario con struttura {"Ricontrollare": [...]}
+    """
+    if not error_data.get("Ricontrollare"):
+        # Non creare il file se non ci sono errori
+        return
+
+    error_path = os.path.join(output_dir, "error.json")
+    with open(error_path, "w", encoding="utf-8") as f:
+        json.dump(error_data, f, indent=2, ensure_ascii=False)
+    print(f"[INFO] Salvato error.json con {len(error_data['Ricontrollare'])} file da ricontrollare")
 
 
 def update_cropped_files_mapping(info_data, original_path, cropped_files, output_base_dir):
@@ -88,6 +130,78 @@ def get_file_size_gb(file_path):
     return os.path.getsize(file_path) / (1024**3)
 
 
+def copy_directory_structure(input_dir, output_dir, image_extensions=[".tif", ".tiff", ".jpg", ".jpeg"]):
+    """
+    Copia la struttura completa delle directory e i file non-immagine dall'input all'output.
+
+    Args:
+        input_dir (str): Directory di input
+        output_dir (str): Directory di output
+        image_extensions (list): Estensioni dei file immagine da non copiare (saranno processati separatamente)
+
+    Returns:
+        int: Numero di file copiati
+    """
+    files_copied = 0
+
+    for root, dirs, files in os.walk(input_dir):
+        # Calcola il percorso relativo dalla directory di input
+        rel_path = os.path.relpath(root, input_dir)
+
+        # Crea la directory corrispondente nell'output
+        if rel_path == ".":
+            target_dir = output_dir
+        else:
+            target_dir = os.path.join(output_dir, rel_path)
+
+        os.makedirs(target_dir, exist_ok=True)
+
+        # Copia i file non-immagine
+        for file in files:
+            file_ext = os.path.splitext(file)[1].lower()
+
+            # Salta i file immagine (saranno processati separatamente)
+            if file_ext in image_extensions:
+                continue
+
+            # Copia il file preservando i metadati
+            source_path = os.path.join(root, file)
+            target_path = os.path.join(target_dir, file)
+
+            try:
+                shutil.copy2(source_path, target_path)
+                files_copied += 1
+            except Exception as e:
+                print(f"[WARNING] Could not copy {source_path}: {e}")
+
+    return files_copied
+
+
+def copy_unprocessed_image(source_path, output_dir, input_base_dir):
+    """
+    Copia un'immagine non processata preservando la struttura delle directory.
+
+    Args:
+        source_path (str): Percorso dell'immagine sorgente
+        output_dir (str): Directory di output
+        input_base_dir (str): Directory base di input per preservare la struttura
+
+    Returns:
+        str: Percorso del file copiato
+    """
+    # Calcola il percorso relativo
+    rel_path = os.path.relpath(source_path, input_base_dir)
+    target_path = os.path.join(output_dir, rel_path)
+
+    # Assicurati che la directory target esista
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+
+    # Copia il file preservando i metadati
+    shutil.copy2(source_path, target_path)
+
+    return target_path
+
+
 def process_single_image(
     input_path,
     output_dir,
@@ -102,6 +216,7 @@ def process_single_image(
     fold_border=None,
     save_thumbs=False,
     quality_threshold=0.6,
+    crop_mapping_entry=None,
 ):
     """
     Processa una singola immagine usando la funzionalità di crop.py
@@ -115,9 +230,10 @@ def process_single_image(
         apply_rotation (bool): Se applicare la rotazione
         smart_crop (bool): Se usare il crop intelligente
         debug (bool): Se generare file di debug
+        crop_mapping_entry (list): Lista di percorsi di output dal crop_mapping.json (opzionale)
 
     Returns:
-        tuple: (success, message, debug_info)
+        tuple: (success, message, debug_info, error_reason)
     """
     try:
         # If fold_border not specified, use same value as contour_border
@@ -168,16 +284,19 @@ def process_single_image(
                 True,
                 f"Piega non rilevata, salvato originale: {path_left}",
                 {"x_fold": None, "angle": None, "side": detected_side},
+                "Side not detected" if crop_mapping_entry else None,
             )
 
         # Apply page processing (contour detection for A3 landscape)
-        processed_img, was_processed, actual_border = process_page_if_needed(
+        processed_img, was_processed, actual_border, is_a3 = process_page_if_needed(
             img, image_path=input_path, debug=debug, contour_border=contour_border, coverage_threshold=0.90
         )
         if verbose and was_processed:
             print(
                 f"  [OK] Applicato processing pagina (correzione prospettiva A3 landscape) - border: {actual_border}px"
             )
+        elif verbose and is_a3:
+            print("  [INFO] Processing pagina saltato (A3 landscape già ben inquadrato, coverage >= 90%)")
         elif verbose:
             print("  [INFO] Processing pagina saltato (formato non A3 landscape)")
 
@@ -192,6 +311,7 @@ def process_single_image(
             fold_border=fold_border,
             image_path=input_path,
             quality_threshold=0.6,  # Default quality threshold for fold detection
+            is_a3_format=is_a3,  # Use A3 detection result from contour analysis
         )
 
         # Salva le immagini debug
@@ -207,11 +327,60 @@ def process_single_image(
 
         # Salva i risultati
         saved_files = []
+        error_reason = None
 
         # Check if fold detection was applied
         fold_detected = debug_info["x_fold"] is not None
 
-        if fold_detected:
+        # Handle crop mapping if provided
+        if crop_mapping_entry and fold_detected:
+            # Use crop mapping paths for saving
+            # crop_mapping_entry contains the list of output paths from crop_mapping.json
+            # We need to save left_side and right_side to these paths
+
+            # Prepare processed images
+            processed_images = []
+            if left_side is not None:
+                if output_format:
+                    width = min(1920, left_side.shape[1])
+                    processed_images.append(resize_width_hd(left_side, target_width=width))
+                else:
+                    processed_images.append(left_side)
+
+            if right_side is not None:
+                if output_format:
+                    width = min(1920, right_side.shape[1])
+                    processed_images.append(resize_width_hd(right_side, target_width=width))
+                else:
+                    processed_images.append(right_side)
+
+            # Save to crop_mapping paths
+            if len(processed_images) >= len(crop_mapping_entry):
+                for i, output_path in enumerate(crop_mapping_entry):
+                    if i < len(processed_images):
+                        full_output_path = os.path.join(output_dir, output_path)
+                        os.makedirs(os.path.dirname(full_output_path), exist_ok=True)
+                        save_image_preserve_format(processed_images[i], full_output_path)
+                        saved_files.append(full_output_path)
+            else:
+                error_reason = f"Not enough cropped images ({len(processed_images)}) for mapping ({len(crop_mapping_entry)})"
+
+        elif crop_mapping_entry and not fold_detected:
+            # Crop mapping provided but fold detection failed
+            # Save original image and return error
+            original_output_path = base_path + os.path.splitext(input_path)[1]
+            if output_format:
+                original_output_path = os.path.splitext(original_output_path)[0] + f".{output_format}"
+                width = min(1920, processed_img.shape[1])
+                processed = resize_width_hd(processed_img, target_width=width)
+            else:
+                processed = processed_img
+
+            save_image_preserve_format(processed, original_output_path)
+            saved_files.append(original_output_path)
+            error_reason = "Fold detection failed - crop mapping requires fold"
+
+        elif fold_detected:
             # Fold detection applied - save left and right sides
             if left_side is not None:
                 if output_format:
@@ -277,10 +446,10 @@ def process_single_image(
         debug_info["side"] = detected_side
         debug_info["saved_files"] = saved_files
 
-        return True, f"Processato: {', '.join(saved_files)}", debug_info
+        return True, f"Processato: {', '.join(saved_files)}", debug_info, error_reason
 
     except Exception as e:
-        return False, f"Errore processing {input_path}: {str(e)}", {}
+        return False, f"Errore processing {input_path}: {str(e)}", {}, str(e)
 
 
 def rename_couple_outputs(first_result, second_result, verbose=True):
@@ -406,6 +575,8 @@ def process_front_back_couples(
     output_dir,
     input_dir,
     info_data,
+    error_data,
+    crop_mapping=None,
     side=None,
     output_format=None,
     apply_rotation=False,
@@ -441,7 +612,18 @@ def process_front_back_couples(
         rel_path = os.path.relpath(image_path, input_dir)
         print(f"[{i + 1}/{len(image_files)}] Processing: {rel_path}")
 
-        success, message, debug_info = process_single_image(
+        # Get crop mapping entry for this image if available
+        crop_mapping_entry = None
+        if crop_mapping:
+            # Find matching key in crop_mapping
+            rel_path = os.path.relpath(image_path, input_dir)
+            filename = os.path.basename(image_path)
+            for mapping_key, mapping_value in crop_mapping.items():
+                if filename in mapping_key or rel_path in mapping_key:
+                    crop_mapping_entry = mapping_value
+                    break
+
+        success, message, debug_info, error_reason = process_single_image(
             image_path,
             output_dir,
             input_dir,
@@ -454,6 +636,7 @@ def process_front_back_couples(
             contour_border,
             fold_border,
             save_thumbs,
+            crop_mapping_entry=crop_mapping_entry,
         )
 
         # Store result for couple detection
@@ -464,11 +647,20 @@ def process_front_back_couples(
             'message': message,
             'debug_info': debug_info,
             'fold_detected': debug_info.get("x_fold") is not None,
+            'crop_mapping_entry': crop_mapping_entry,  # Track if this image has crop mapping
         }
         processing_results.append(result)
 
         if success:
             processed_count += 1
+
+            # Track error if present
+            if error_reason:
+                error_data["Ricontrollare"].append({
+                    "fname": os.path.basename(image_path),
+                    "fpath": image_path,
+                    "reason": error_reason
+                })
 
             # Track initial cropped files (before potential renaming)
             saved_files = debug_info.get("saved_files", [])
@@ -483,6 +675,20 @@ def process_front_back_couples(
             error_count += 1
             print(f"  [ERROR] {message}")
 
+            # Copy original file to output when processing fails
+            try:
+                copied_path = copy_unprocessed_image(image_path, output_dir, input_dir)
+                print(f"  [INFO] Copied original to: {copied_path}")
+            except Exception as e:
+                print(f"  [WARNING] Could not copy original: {e}")
+
+            # Track error
+            error_data["Ricontrollare"].append({
+                "fname": os.path.basename(image_path),
+                "fpath": image_path,
+                "reason": error_reason if error_reason else message
+            })
+
         # Update info.json after each image for progress tracking
         info_data["processed"] = i + 1
         write_info_json(output_dir, info_data)
@@ -495,6 +701,11 @@ def process_front_back_couples(
     while i < len(processing_results) - 1:
         current = processing_results[i]
         next_img = processing_results[i + 1]
+
+        # Skip images that have crop_mapping - they already have correct naming
+        if current.get('crop_mapping_entry') or next_img.get('crop_mapping_entry'):
+            i += 1
+            continue
 
         # Check if both consecutive images have successful fold detection
         if (current['success'] and current['fold_detected'] and
@@ -562,10 +773,12 @@ def process_front_back_couples(
         couple_indices.add(second_result['index'])
 
     # Find single images with fold detection that weren't part of couples
+    # Skip images with crop_mapping_entry - they already have correct naming
     single_fold_images = []
     for result in processing_results:
         if (result['success'] and result['fold_detected'] and
-            result['index'] not in couple_indices):
+            result['index'] not in couple_indices and
+            not result.get('crop_mapping_entry')):
             single_fold_images.append(result)
 
     if single_fold_images:
@@ -712,10 +925,20 @@ def main(
     else:
         format_extensions = [".tif", ".tiff", ".jpg", ".jpeg"]
 
+    # Copia la struttura completa delle directory e i file non-immagine
+    print(f"[INFO] Copying directory structure and non-image files...")
+    files_copied = copy_directory_structure(input_dir, output_dir, format_extensions)
+    print(f"[INFO] Copied {files_copied} non-image files")
+
     # Trova tutte le immagini
     image_files = find_images_recursive(input_dir, format_extensions)
     # Sort files to ensure consecutive processing for front-back couples
     image_files.sort()
+
+    # Load crop mapping if available
+    crop_mapping = load_crop_mapping(input_dir)
+    error_data = {"Ricontrollare": []}
+
     total_files = len(image_files)
 
     if total_files == 0:
@@ -771,6 +994,8 @@ def main(
             output_dir,
             input_dir,
             info_data,
+            error_data,
+            crop_mapping,
             side,
             output_format,
             apply_rotation,
@@ -793,7 +1018,18 @@ def main(
                 rel_path = os.path.relpath(input_path, input_dir)
                 print(f"[{i + 1}/{total_files}] Processing: {rel_path}")
 
-            success, message, debug_info = process_single_image(
+            # Get crop mapping entry for this image if available
+            crop_mapping_entry = None
+            if crop_mapping:
+                # Find matching key in crop_mapping
+                rel_path = os.path.relpath(input_path, input_dir)
+                filename = os.path.basename(input_path)
+                for mapping_key, mapping_value in crop_mapping.items():
+                    if filename in mapping_key or rel_path in mapping_key:
+                        crop_mapping_entry = mapping_value
+                        break
+
+            success, message, debug_info, error_reason = process_single_image(
                 input_path,
                 output_dir,
                 input_dir,
@@ -806,10 +1042,19 @@ def main(
                 contour_border,
                 fold_border,
                 save_thumbs,
+                crop_mapping_entry=crop_mapping_entry,
             )
 
             if success:
                 processed_count += 1
+
+                # Track error if present
+                if error_reason:
+                    error_data["Ricontrollare"].append({
+                        "fname": os.path.basename(input_path),
+                        "fpath": input_path,
+                        "reason": error_reason
+                    })
 
                 # Track cropped files in info.json
                 saved_files = debug_info.get("saved_files", [])
@@ -835,6 +1080,20 @@ def main(
             else:
                 error_count += 1
                 print(f"  ERRORE: {message}")
+
+                # Copy original file to output when processing fails
+                try:
+                    copied_path = copy_unprocessed_image(input_path, output_dir, input_dir)
+                    print(f"  [INFO] Copied original to: {copied_path}")
+                except Exception as e:
+                    print(f"  [WARNING] Could not copy original: {e}")
+
+                # Track error
+                error_data["Ricontrollare"].append({
+                    "fname": os.path.basename(input_path),
+                    "fpath": input_path,
+                    "reason": error_reason if error_reason else message
+                })
 
             # Aggiorna info.json
             info_data["processed"] = i + 1
@@ -862,6 +1121,9 @@ def main(
     info_data["summary"] = summary
     write_info_json(output_dir, info_data)
 
+    # Save error.json if there are files to review
+    save_error_json(output_dir, error_data)
+
     print("\nElaborazione completata!")
     if front_back_couple:
         print(
@@ -873,11 +1135,6 @@ def main(
         print(f"Processate con successo: {processed_count}/{total_files}")
     print(f"Errori: {error_count}")
     print(f"Tempo totale: {duration_seconds} secondi")
-    
-    # copia tutti i file xml che erano nella cartella di input nella cartella di output
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".xml"):
-            shutil.copy(os.path.join(input_dir, filename), output_dir)
 
     # Ferma il file listener se era attivo
     if file_listener:

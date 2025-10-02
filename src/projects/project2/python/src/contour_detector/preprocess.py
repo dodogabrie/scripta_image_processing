@@ -130,9 +130,66 @@ def fill_internal_holes(thresh, show_step_by_step=False):
     Returns:
         np.ndarray: Immagine con buchi interni riempiti.
     """
+    h, w = thresh.shape
+
+    # Check if document is too close to edges (would break flood fill)
+    # Sample a thin border region (5 pixels) on all sides
+    border_width = 5
+    top_border = thresh[0:border_width, :]
+    bottom_border = thresh[h-border_width:h, :]
+    left_border = thresh[:, 0:border_width]
+    right_border = thresh[:, w-border_width:w]
+
+    # Calculate percentage of white pixels in border regions
+    top_white_pct = np.sum(top_border == 255) / top_border.size
+    bottom_white_pct = np.sum(bottom_border == 255) / bottom_border.size
+    left_white_pct = np.sum(left_border == 255) / left_border.size
+    right_white_pct = np.sum(right_border == 255) / right_border.size
+
+    # If any edge has >50% white pixels, document is touching edges
+    edge_threshold = 0.5
+    document_touches_edges = (
+        top_white_pct > edge_threshold or
+        bottom_white_pct > edge_threshold or
+        left_white_pct > edge_threshold or
+        right_white_pct > edge_threshold
+    )
+
+    if document_touches_edges:
+        if show_step_by_step:
+            print(f"[SKIP FLOOD FILL] Document touches image edges:")
+            print(f"  Top: {top_white_pct*100:.1f}%, Bottom: {bottom_white_pct*100:.1f}%")
+            print(f"  Left: {left_white_pct*100:.1f}%, Right: {right_white_pct*100:.1f}%")
+            print(f"  Skipping flood fill to avoid breaking the mask")
+
+        # Skip flood fill method 1, only use morphological closing
+        morph_result = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, np.ones((50, 50), np.uint8))
+
+        if show_step_by_step:
+            show_image(morph_result, "Morphological closing (flood fill skipped)")
+
+        return morph_result
+
+    # Helper function to check if mask is broken (all white or all black)
+    def is_mask_broken(mask_img, name="mask"):
+        """Check if mask is completely white or black (broken)."""
+        total_pixels = mask_img.size
+        white_pixels = np.sum(mask_img == 255)
+        black_pixels = np.sum(mask_img == 0)
+
+        white_pct = white_pixels / total_pixels
+        black_pct = black_pixels / total_pixels
+
+        # Consider broken if >98% all white or all black
+        is_broken = white_pct > 0.98 or black_pct > 0.98
+
+        if is_broken and show_step_by_step:
+            print(f"[WARNING] {name} is broken: {white_pct*100:.1f}% white, {black_pct*100:.1f}% black")
+
+        return is_broken
+
     # Metodo 1: Flood fill dai bordi per identificare il background
     filled = thresh.copy()
-    h, w = thresh.shape
 
     # Crea una maschera leggermente più grande per flood fill
     mask = np.zeros((h + 2, w + 2), np.uint8)
@@ -143,21 +200,47 @@ def fill_internal_holes(thresh, show_step_by_step=False):
     cv2.floodFill(filled, mask, (0, h - 1), 255)
     cv2.floodFill(filled, mask, (w - 1, h - 1), 255)
 
+    # Check if flood fill broke the mask
+    filled_broken = is_mask_broken(filled, "Flood filled mask")
+
     # Inverti per ottenere solo le aree che non sono background
     filled_inverted = cv2.bitwise_not(filled)
 
     # Combina con l'originale: mantieni tutto ciò che era già bianco + aree interne isolate
     flood_result = cv2.bitwise_or(thresh, filled_inverted)
 
+    # Check if flood result is broken
+    flood_broken = is_mask_broken(flood_result, "Flood result")
+
     # Metodo 2: Morphological closing aggressivo per riempire buchi
     kernel_large = np.ones((50, 50), np.uint8)
     morph_result = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel_large)
 
+    # Check if morph result is broken
+    morph_broken = is_mask_broken(morph_result, "Morph result")
+
     # Metodo 3: Combinazione dei due approcci
-    # Usa il closing morphologico come base, poi applica il flood fill
-    combined = cv2.morphologyEx(
-        flood_result, cv2.MORPH_CLOSE, np.ones((50, 50), np.uint8)
-    )
+    # Only use valid (non-broken) results in the combined approach
+    if flood_broken and morph_broken:
+        # Both methods failed - return original thresh
+        if show_step_by_step:
+            print("[FALLBACK] Both flood fill and morph failed - returning original thresh")
+        combined = thresh
+    elif flood_broken:
+        # Flood fill failed - use only morph result
+        if show_step_by_step:
+            print("[FALLBACK] Flood fill failed - using only morph result")
+        combined = morph_result
+    elif morph_broken:
+        # Morph failed - use only flood result
+        if show_step_by_step:
+            print("[FALLBACK] Morph failed - using only flood result")
+        combined = flood_result
+    else:
+        # Both methods valid - combine them
+        combined = cv2.morphologyEx(
+            flood_result, cv2.MORPH_CLOSE, np.ones((50, 50), np.uint8)
+        )
 
     if show_step_by_step:
         show_image(filled, "After flood fill from borders")

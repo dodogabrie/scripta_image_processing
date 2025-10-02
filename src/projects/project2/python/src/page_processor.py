@@ -264,7 +264,7 @@ def calculate_document_coverage(page_contour, img_shape):
         return 0.0
 
 
-def process_page_if_needed(img, image_path=None, debug=False, contour_border=150, coverage_threshold=0.90):
+def process_page_if_needed(img, image_path=None, debug=False, contour_border=150, coverage_threshold=0.90, max_processing_size=1080):
     """
     Process page with contour detection if needed based on document analysis.
 
@@ -278,37 +278,95 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
         debug (bool): Enable debug output
         contour_border (int): Border pixels for cropping (default: 150)
         coverage_threshold (float): Skip processing if document coverage ≥ this threshold (default: 0.90)
+        max_processing_size (int): Max size in pixels for contour detection (default: 2000).
+                                   Images larger than this will be downscaled for faster processing.
 
     Returns:
-        tuple: (processed_img, was_processed, actual_border)
+        tuple: (processed_img, was_processed, actual_border, is_a3_detected)
                - processed_img (np.ndarray): Output image (processed or original)
                - was_processed (bool): True if contour processing was applied
                - actual_border (int): Border pixels actually used
+               - is_a3_detected (bool): True if A3 format was detected from contour
     """
     try:
+        import cv2
+
         if debug:
             print("\n=== PAGE PROCESSING ANALYSIS ===")
 
-        # Step 1: Always apply contour processing (regardless of format)
+        # Step 1: Check if image needs downscaling for contour detection
+        img_height, img_width = img.shape[:2]
+        max_dim = max(img_height, img_width)
+        scale_factor = 1.0
+        img_for_contour = img
+
+        if max_dim > max_processing_size:
+            scale_factor = max_processing_size / max_dim
+            new_width = int(img_width * scale_factor)
+            new_height = int(img_height * scale_factor)
+            img_for_contour = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+            if debug:
+                print("\n=== IMAGE DOWNSCALING FOR CONTOUR DETECTION ===")
+                print(f"Original size: {img_width}x{img_height}px (max: {max_dim}px)")
+                print(f"Downscaled size: {new_width}x{new_height}px")
+                print(f"Scale factor: {scale_factor:.4f}")
+        else:
+            if debug:
+                print("\n=== NO DOWNSCALING NEEDED ===")
+                print(f"Image size: {img_width}x{img_height}px (max: {max_dim}px <= {max_processing_size}px)")
+
+        # Step 2: Always apply contour processing (regardless of format)
         if debug:
-            print("Applying contour processing...")
+            print("\nApplying contour processing...")
 
-        # Step 2: Apply contour detection pipeline
+        # Step 3: Apply contour detection pipeline on downscaled image
         # Preprocess image for contour detection
-        thresh, border_value = preprocess_image(img, show_step_by_step=debug)
+        thresh, border_value = preprocess_image(img_for_contour, show_step_by_step=debug)
 
-        # Find page contour
+        # Find page contour on downscaled image
         page_contour, angle = find_page_contour(
-            thresh, show_step_by_step=debug, original_image=img
+            thresh, show_step_by_step=debug, original_image=img_for_contour
         )
 
         if page_contour is None:
             if debug:
                 print("No page contour found - returning original image")
-            return img, False, contour_border
+            return img, False, contour_border, False
 
-        # Step 3: Calculate document coverage and check threshold
-        coverage = calculate_document_coverage(page_contour, img.shape)
+        # Step 4: Scale contour back to original image coordinates
+        if scale_factor != 1.0:
+            page_contour_original = page_contour / scale_factor
+            page_contour_original = page_contour_original.astype(page_contour.dtype)
+
+            if debug:
+                print(f"\n=== CONTOUR SCALING ===")
+                print(f"Contour found on downscaled image - scaling back to original size")
+                print(f"Scale factor: 1/{scale_factor:.4f} = {1/scale_factor:.4f}")
+        else:
+            page_contour_original = page_contour
+
+            if debug:
+                print(f"\n=== NO CONTOUR SCALING NEEDED ===")
+                print(f"Contour detected on original-size image")
+
+        # Step 5: Check if detected contour represents A3 document
+        is_a3 = False
+        if image_path:
+            is_a3 = detect_document_format(
+                image_path, debug=debug, document_contour=page_contour_original
+            )
+            if not is_a3:
+                if debug:
+                    print("[SKIP] Document is not A3 format - returning original image")
+                return img, False, contour_border, False
+        else:
+            # No image path provided - skip A3 check and continue processing
+            if debug:
+                print("[WARNING] No image path provided - skipping A3 format check")
+
+        # Step 6: Calculate document coverage and check threshold
+        coverage = calculate_document_coverage(page_contour_original, img.shape)
         coverage_percentage = coverage * 100
 
         if debug:
@@ -320,22 +378,13 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             if debug:
                 print(f"[SKIP] Document coverage ({coverage_percentage:.1f}%) ≥ threshold ({coverage_threshold * 100:.1f}%)")
                 print("Document already fills most of the image - skipping contour processing")
-            return img, False, contour_border
+            return img, False, contour_border, is_a3
 
         if debug:
             print(f"[OK] Document coverage ({coverage_percentage:.1f}%) below threshold - proceeding with contour processing")
 
-        # Step 4: Detect document format using contour dimensions (for debug info)
-        if image_path and debug:
-            print("\n=== DOCUMENT FORMAT DETECTION ===")
-            detect_document_format(
-                image_path, debug=True, document_contour=page_contour
-            )
-
         # Calculate actual document boundaries and adjust border if needed
-        import cv2
-
-        x, y, w, h = cv2.boundingRect(page_contour)
+        x, y, w, h = cv2.boundingRect(page_contour_original)
         img_height, img_width = img.shape[:2]
 
         # Calculate available space around the detected document
@@ -375,12 +424,15 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
 
             warped, _ = warp_image(
                 img,
-                page_contour,
+                page_contour_original,
                 border_pixels=0,  # NO CROP - rotation only
                 show_step_by_step=debug,
                 border_value=border_value,
                 angle=angle,
                 opencv_version=True,
+                scale_factor=scale_factor,
+                image_for_irregolar_border=img_for_contour,
+                contour_for_irregolar_border=page_contour,
             )
 
             actual_border_used = 0
@@ -398,12 +450,15 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
 
             warped, _ = warp_image(
                 img,
-                page_contour,
+                page_contour_original,
                 border_pixels=adjusted_border,  # Adjusted border for crop
                 show_step_by_step=debug,
                 border_value=border_value,
                 angle=angle,
                 opencv_version=True,
+                scale_factor=scale_factor,
+                image_for_irregolar_border=img_for_contour,
+                contour_for_irregolar_border=page_contour,
             )
 
             actual_border_used = adjusted_border
@@ -414,10 +469,10 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             print(f"Processed size: {warped.shape[1]}x{warped.shape[0]}")
             print(f"Final border used: {actual_border_used}px")
 
-        return warped, True, actual_border_used
+        return warped, True, actual_border_used, is_a3
 
     except Exception as e:
         if debug:
             print(f"Error in page processing: {e}")
             print("Falling back to original image")
-        return img, False, contour_border
+        return img, False, contour_border, False

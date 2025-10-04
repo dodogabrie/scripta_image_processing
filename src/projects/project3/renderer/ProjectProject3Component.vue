@@ -91,7 +91,7 @@
 
                             <!-- Active Command Display -->
                             <div
-                                v-if="selectedCommand"
+                                v-if="selectedCommand && availableCommands[selectedCommand]"
                                 class="card border-success"
                             >
                                 <div class="card-header bg-light-success">
@@ -958,13 +958,23 @@ export default {
         // Load commands configuration
         await this.loadCommandsConfig();
 
-        // Set default command to adapt_fs_iccd as requested
-        this.selectedCommand = "adapt_fs_iccd";
-        this.addConsoleLine("MAGLIB XML Processing Tool caricato", "info");
-        this.addConsoleLine(
-            "Comando predefinito: adapt_fs_iccd (Adatta file system per standard ICCD)",
-            "info",
-        );
+        // Set default command to adapt_fs_iccd if it exists
+        if (this.commandsLoaded && this.availableCommands["adapt_fs_iccd"]) {
+            this.selectedCommand = "adapt_fs_iccd";
+            this.addConsoleLine("MAGLIB XML Processing Tool caricato", "info");
+            this.addConsoleLine(
+                "Comando predefinito: adapt_fs_iccd (Adatta file system per standard ICCD)",
+                "info",
+            );
+        } else {
+            this.addConsoleLine("MAGLIB XML Processing Tool caricato", "info");
+            if (!this.commandsLoaded) {
+                this.addConsoleLine(
+                    "Attenzione: impossibile caricare i comandi disponibili",
+                    "warning",
+                );
+            }
+        }
     },
     beforeUnmount() {
         // Clean up any active listeners

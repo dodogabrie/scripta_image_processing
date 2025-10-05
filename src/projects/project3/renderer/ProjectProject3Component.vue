@@ -556,9 +556,11 @@ export default {
     },
     methods: {
         async loadCommandsConfig() {
+            console.log('[DEBUG] loadCommandsConfig called');
             try {
                 // Get commands configuration from Python backend
                 if (window.electronAPI && window.electronAPI.runProjectScript) {
+                    console.log('[DEBUG] electronAPI available');
                     this.addConsoleLine(
                         "Caricamento configurazione comandi da backend...",
                         "info",
@@ -570,14 +572,23 @@ export default {
                         ["--export-json"],
                     );
 
-                    if (result.success && result.output) {
+                    console.log('[DEBUG] Result from backend:', result);
+                    console.log('[DEBUG] result.success:', result.success);
+                    console.log('[DEBUG] result.scriptOutput:', result.scriptOutput);
+                    console.log('[DEBUG] result.output:', result.output);
+
+                    if (result.success && result.scriptOutput) {
+                        console.log('[DEBUG] Attempting to parse JSON...');
                         try {
                             const config = JSON.parse(result.scriptOutput);
+                            console.log('[DEBUG] Parsed config:', config);
                             if (config.error) {
                                 throw new Error(config.error);
                             }
                             this.availableCommands = config.commands;
                             this.commandsLoaded = true;
+                            console.log('[DEBUG] Commands loaded:', this.availableCommands);
+                            console.log('[DEBUG] commandsLoaded:', this.commandsLoaded);
                             this.addConsoleLine(
                                 `Configurazione caricata dal backend Python`,
                                 "success",
@@ -587,11 +598,13 @@ export default {
                                 "info",
                             );
                         } catch (parseError) {
+                            console.error('[DEBUG] JSON parse error:', parseError);
                             throw new Error(
                                 `Errore parsing JSON dal backend: ${parseError.message}`,
                             );
                         }
                     } else {
+                        console.error('[DEBUG] Backend call failed or no scriptOutput');
                         throw new Error(
                             `Backend error: ${result.error || "Unknown error"}`,
                         );

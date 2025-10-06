@@ -282,11 +282,13 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
                                    Images larger than this will be downscaled for faster processing.
 
     Returns:
-        tuple: (processed_img, was_processed, actual_border, is_a3_detected)
+        tuple: (processed_img, was_processed, actual_border, is_a3_detected, page_contour, transform_M)
                - processed_img (np.ndarray): Output image (processed or original)
                - was_processed (bool): True if contour processing was applied
                - actual_border (int): Border pixels actually used
                - is_a3_detected (bool): True if A3 format was detected from contour
+               - page_contour (np.ndarray): Detected page contour in original coords, or None
+               - transform_M (np.ndarray): Transformation matrix (2x3) from warp_image, or None
     """
     try:
         import cv2
@@ -332,7 +334,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
         if page_contour is None:
             if debug:
                 print("No page contour found - returning original image")
-            return img, False, contour_border, False
+            return img, False, contour_border, False, None, None
 
         # Step 4: Scale contour back to original image coordinates
         if scale_factor != 1.0:
@@ -359,7 +361,8 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             if not is_a3:
                 if debug:
                     print("[SKIP] Document is not A3 format - returning original image")
-                return img, False, contour_border, False
+                # Still return page_contour for dataset generation, but skip transformation
+                return img, False, contour_border, False, page_contour_original, None
         else:
             # No image path provided - skip A3 check and continue processing
             if debug:
@@ -378,7 +381,8 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             if debug:
                 print(f"[SKIP] Document coverage ({coverage_percentage:.1f}%) ≥ threshold ({coverage_threshold * 100:.1f}%)")
                 print("Document already fills most of the image - skipping contour processing")
-            return img, False, contour_border, is_a3
+            # Still return page_contour for dataset generation, but skip transformation
+            return img, False, contour_border, is_a3, page_contour_original, None
 
         if debug:
             print(f"[OK] Document coverage ({coverage_percentage:.1f}%) below threshold - proceeding with contour processing")
@@ -422,7 +426,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
                 )
                 print("Applying rotation-only mode (no crop)")
 
-            warped, _ = warp_image(
+            warped, _, transform_M = warp_image(
                 img,
                 page_contour_original,
                 border_pixels=0,  # NO CROP - rotation only
@@ -448,7 +452,7 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
                         f"[WARNING] Border reduced from {contour_border}px to {adjusted_border}px due to document boundaries"
                     )
 
-            warped, _ = warp_image(
+            warped, _, transform_M = warp_image(
                 img,
                 page_contour_original,
                 border_pixels=adjusted_border,  # Adjusted border for crop
@@ -469,10 +473,10 @@ def process_page_if_needed(img, image_path=None, debug=False, contour_border=150
             print(f"Processed size: {warped.shape[1]}x{warped.shape[0]}")
             print(f"Final border used: {actual_border_used}px")
 
-        return warped, True, actual_border_used, is_a3
+        return warped, True, actual_border_used, is_a3, page_contour_original, transform_M
 
     except Exception as e:
         if debug:
             print(f"Error in page processing: {e}")
             print("Falling back to original image")
-        return img, False, contour_border, False
+        return img, False, contour_border, False, None, None

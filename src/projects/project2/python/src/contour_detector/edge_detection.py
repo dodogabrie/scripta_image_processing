@@ -64,7 +64,7 @@ def process_tiff(
             use_compression=use_compression,
         )
     else:
-        warped, no_cropped = warp_image(
+        warped, no_cropped, _ = warp_image(
             image,
             page_contour,
             border_pixels,

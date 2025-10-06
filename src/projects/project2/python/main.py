@@ -217,6 +217,7 @@ def process_single_image(
     save_thumbs=False,
     quality_threshold=0.6,
     crop_mapping_entry=None,
+    dataset_writer=None,
 ):
     """
     Processa una singola immagine usando la funzionalità di crop.py
@@ -288,7 +289,7 @@ def process_single_image(
             )
 
         # Apply page processing (contour detection for A3 landscape)
-        processed_img, was_processed, actual_border, is_a3 = process_page_if_needed(
+        processed_img, was_processed, actual_border, is_a3, page_contour, transform_M = process_page_if_needed(
             img, image_path=input_path, debug=debug, contour_border=contour_border, coverage_threshold=0.90
         )
         if verbose and was_processed:
@@ -446,6 +447,26 @@ def process_single_image(
         debug_info["side"] = detected_side
         debug_info["saved_files"] = saved_files
 
+        # Generate dataset sample if dataset_writer provided
+        if dataset_writer is not None:
+            try:
+                # Extract fold information from debug_info
+                fold_x = debug_info.get("x_fold")
+                fold_detected = fold_x is not None
+
+                # Call dataset writer with original (unprocessed) image
+                dataset_writer.add_sample(
+                    original_img=img,  # Original image loaded at line 245
+                    filename=os.path.basename(input_path),
+                    page_corners_original=page_contour,  # From process_page_if_needed
+                    rectified_img=processed_img,  # Rectified image from process_page_if_needed
+                    transformation_matrix=transform_M,  # From process_page_if_needed
+                    fold_x=fold_x,  # From debug_info
+                    fold_detected=fold_detected
+                )
+            except Exception as e:
+                print(f"[DATASET] Warning: Failed to generate dataset sample for {os.path.basename(input_path)}: {e}")
+
         return True, f"Processato: {', '.join(saved_files)}", debug_info, error_reason
 
     except Exception as e:
@@ -586,6 +607,7 @@ def process_front_back_couples(
     contour_border=150,
     fold_border=None,
     save_thumbs=False,
+    dataset_writer=None,
 ):
     """
     Processa le immagini sequenzialmente e identifica coppie consecutive con crop riuscito.
@@ -637,6 +659,7 @@ def process_front_back_couples(
             fold_border,
             save_thumbs,
             crop_mapping_entry=crop_mapping_entry,
+            dataset_writer=dataset_writer,
         )
 
         # Store result for couple detection
@@ -830,6 +853,7 @@ def main(
     json_only=False,
     no_rename=False,
     front_back_couple=False,
+    generate_dataset=False,
 ):
     """
     Funzione principale per processare le immagini in batch con supporto ICCD Busta.
@@ -910,6 +934,13 @@ def main(
 
     # Assicurati che la directory di output esista
     os.makedirs(output_dir, exist_ok=True)
+
+    # Initialize dataset writer if requested
+    dataset_writer = None
+    if generate_dataset:
+        from src.dataset.dataset_writer import DatasetWriter
+        dataset_writer = DatasetWriter(output_dir)
+        print("[DATASET] AI training dataset generation ENABLED")
 
     # Determina le estensioni da cercare
     if image_input_format:
@@ -1005,6 +1036,7 @@ def main(
             contour_border,
             fold_border,
             save_thumbs,
+            dataset_writer=dataset_writer,
         )
 
         # Update info.json with final counts
@@ -1043,6 +1075,7 @@ def main(
                 fold_border,
                 save_thumbs,
                 crop_mapping_entry=crop_mapping_entry,
+                dataset_writer=dataset_writer,
             )
 
             if success:
@@ -1135,6 +1168,10 @@ def main(
         print(f"Processate con successo: {processed_count}/{total_files}")
     print(f"Errori: {error_count}")
     print(f"Tempo totale: {duration_seconds} secondi")
+
+    # Finalize dataset generation if enabled
+    if dataset_writer:
+        dataset_writer.finalize()
 
     # Ferma il file listener se era attivo
     if file_listener:
@@ -1274,6 +1311,7 @@ def process_iccd_objects(
                     contour_border=contour_border,
                     fold_border=fold_border,
                     save_thumbs=False,  # No thumbs in temp
+                    dataset_writer=dataset_writer,
                 )
 
                 if not success:
@@ -1529,6 +1567,12 @@ if __name__ == "__main__":
         default=False,
         help="Process images in consecutive pairs as front-back couples with 4-page renaming pattern",
     )
+    parser.add_argument(
+        "--generate-dataset",
+        action="store_true",
+        default=False,
+        help="Generate AI training dataset with 512x512 images, labels, and debug visualizations in _AI_training/ folder",
+    )
 
     args = parser.parse_args()
 
@@ -1570,4 +1614,5 @@ if __name__ == "__main__":
         json_only=args.json_only,
         no_rename=args.no_rename,
         front_back_couple=args.front_back_couple,
+        generate_dataset=args.generate_dataset,
     )

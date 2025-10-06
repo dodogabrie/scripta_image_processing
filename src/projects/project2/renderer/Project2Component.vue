@@ -552,6 +552,119 @@
                     </div>
                 </div>
             </div>
+
+            <!-- AI Training Dataset Debug Gallery -->
+            <div class="row mt-4" v-if="hasDebugImages || processing || hasProcessedInSession">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-images"></i> Galleria Debug Dataset AI
+                                </h5>
+                                <div class="form-check form-switch">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="autoScrollSwitch"
+                                        v-model="autoScrollToLatest"
+                                    />
+                                    <label class="form-check-label" for="autoScrollSwitch">
+                                        Auto-scroll
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- No images yet -->
+                            <div v-if="!hasDebugImages" class="text-center text-muted py-4">
+                                <i class="bi bi-hourglass-split fs-1"></i>
+                                <p class="mt-2">In attesa delle immagini debug...</p>
+                            </div>
+
+                            <!-- Image viewer -->
+                            <div v-else>
+                                <!-- Large preview -->
+                                <div class="mb-3 text-center position-relative" style="min-height: 400px; background: #f8f9fa; border-radius: 8px;">
+                                    <img
+                                        v-if="selectedImage"
+                                        :src="getImagePath(selectedImage)"
+                                        :style="{
+                                            maxWidth: imageZoomed ? 'none' : '100%',
+                                            maxHeight: imageZoomed ? 'none' : '500px',
+                                            cursor: 'pointer'
+                                        }"
+                                        @click="toggleZoom"
+                                        class="img-fluid"
+                                        style="border-radius: 4px;"
+                                    />
+
+                                    <!-- Image counter and zoom badge -->
+                                    <div class="position-absolute top-0 start-0 m-2">
+                                        <span class="badge bg-dark">{{ imageCounter }}</span>
+                                    </div>
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span v-if="imageZoomed" class="badge bg-primary">
+                                            <i class="bi bi-zoom-in"></i> Zoom attivo
+                                        </span>
+                                    </div>
+
+                                    <!-- Filename -->
+                                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                                        <span class="badge bg-dark">{{ selectedImage }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation controls -->
+                                <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                                    <button
+                                        class="btn btn-outline-secondary"
+                                        @click="prevImage"
+                                        :disabled="selectedImageIndex === 0"
+                                    >
+                                        <i class="bi bi-chevron-left"></i> Precedente
+                                    </button>
+                                    <button
+                                        class="btn btn-outline-secondary"
+                                        @click="toggleZoom"
+                                    >
+                                        <i :class="imageZoomed ? 'bi bi-zoom-out' : 'bi bi-zoom-in'"></i>
+                                        {{ imageZoomed ? 'Riduci' : 'Ingrandisci' }}
+                                    </button>
+                                    <button
+                                        class="btn btn-outline-secondary"
+                                        @click="nextImage"
+                                        :disabled="selectedImageIndex === debugImages.length - 1"
+                                    >
+                                        Successiva <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Thumbnail strip -->
+                                <div class="overflow-auto" style="max-height: 120px; white-space: nowrap;">
+                                    <div class="d-inline-flex gap-2 p-2">
+                                        <div
+                                            v-for="(image, index) in debugImages"
+                                            :key="image"
+                                            @click="selectImage(index)"
+                                            :class="{
+                                                'border border-3 border-primary': index === selectedImageIndex,
+                                                'border border-2 border-secondary': index !== selectedImageIndex
+                                            }"
+                                            style="cursor: pointer; border-radius: 4px; overflow: hidden; width: 100px; height: 100px; display: inline-block;"
+                                        >
+                                            <img
+                                                :src="getImagePath(image)"
+                                                style="width: 100%; height: 100%; object-fit: cover;"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -583,6 +696,13 @@ export default {
             contourBorder: 150, // Default border for contour detection
             // Real-time output
             outputUnsubscribe: null, // Function to unsubscribe from Python output
+            // Debug image gallery
+            debugImages: [], // List of debug image filenames
+            selectedImageIndex: 0, // Currently selected image index
+            imageZoomed: false, // Zoom state
+            autoScrollToLatest: true, // Auto-select new images
+            debugDirWatcher: null, // Interval for watching debug directory
+            hasProcessedInSession: false, // Track if we've processed in this session
         };
     },
     computed: {
@@ -636,6 +756,17 @@ export default {
                 this.realTimeProgress.fold_detected_count +
                 this.realTimeProgress.no_fold_count
             );
+        },
+        selectedImage() {
+            if (this.debugImages.length === 0) return null;
+            return this.debugImages[this.selectedImageIndex];
+        },
+        hasDebugImages() {
+            return this.debugImages.length > 0;
+        },
+        imageCounter() {
+            if (!this.hasDebugImages) return "0 / 0";
+            return `${this.selectedImageIndex + 1} / ${this.debugImages.length}`;
         },
     },
     methods: {
@@ -785,6 +916,10 @@ export default {
             if (dir) {
                 this.outputDir = dir;
                 this.elaborazioneCompletata = false;
+                // Reset debug images when output directory changes
+                this.debugImages = [];
+                this.selectedImageIndex = 0;
+                this.hasProcessedInSession = false;
                 this.addConsoleLine(
                     "Cartella output selezionata: " + dir,
                     "success",
@@ -832,6 +967,7 @@ export default {
             this.processing = true;
             this.elaborazioneCompletata = false;
             this.progressInfo = null;
+            this.hasProcessedInSession = true; // Mark that we've started processing
 
             // Initialize real-time progress tracking
             this.realTimeProgress = {
@@ -845,6 +981,7 @@ export default {
             };
 
             this.startProgressPolling();
+            this.startDebugDirWatcher(); // Start watching debug images
 
             this.addConsoleLine(`Input: ${this.inputDir}`, "info");
             this.addConsoleLine(`Output: ${this.outputDir}`, "info");
@@ -863,6 +1000,13 @@ export default {
                 // Always enable verbose to capture output
                 args.push("--verbose");
                 args.push("--front-back-couple");
+
+                // Always generate AI training dataset
+                args.push("--generate-dataset");
+                this.addConsoleLine(
+                    "Generazione dataset AI abilitata",
+                    "info",
+                );
 
                 this.addConsoleLine(
                     "Utilizzo impostazioni di default per tutti gli altri parametri",
@@ -925,8 +1069,105 @@ export default {
                 }
                 this.processing = false;
                 this.stopProgressPolling();
+                this.stopDebugDirWatcher(); // Stop watching debug images
                 this.loadProgress();
+
+                // Final load of all images with retry (files might still be writing)
+                console.log('[DEBUG GALLERY] Starting final image load with retry...');
+                await this.loadDebugImages();
+                // Retry after 1 second to catch any files still being written
+                setTimeout(async () => {
+                    console.log('[DEBUG GALLERY] Retry loading images...');
+                    await this.loadDebugImages();
+                }, 1000);
+                // One more retry after 3 seconds
+                setTimeout(async () => {
+                    console.log('[DEBUG GALLERY] Final retry loading images...');
+                    await this.loadDebugImages();
+                }, 3000);
             }
+        },
+        // Debug image gallery methods
+        async loadDebugImages() {
+            if (!this.outputDir) {
+                console.log('[DEBUG GALLERY] No output directory set');
+                return;
+            }
+
+            const debugDir = `${this.outputDir}/_AI_training/debug`;
+            console.log('[DEBUG GALLERY] Loading images from:', debugDir);
+
+            try {
+                if (window.electronAPI && window.electronAPI.listFiles) {
+                    const files = await window.electronAPI.listFiles(debugDir);
+                    console.log('[DEBUG GALLERY] Raw files:', files);
+
+                    // Filter for debug images (should end with _debug.jpg)
+                    const imageFiles = files
+                        .filter(f => f.endsWith('_debug.jpg'))
+                        .sort(); // Sort alphabetically
+
+                    const previousCount = this.debugImages.length;
+                    this.debugImages = imageFiles;
+
+                    console.log('[DEBUG GALLERY] Filtered debug images:', imageFiles.length, imageFiles);
+
+                    // Auto-scroll to latest if enabled and new images arrived
+                    if (this.autoScrollToLatest && imageFiles.length > previousCount) {
+                        this.selectedImageIndex = imageFiles.length - 1;
+                        console.log('[DEBUG GALLERY] Auto-scrolled to index:', this.selectedImageIndex);
+                    }
+                } else {
+                    console.error('[DEBUG GALLERY] electronAPI.listFiles not available');
+                }
+            } catch (error) {
+                // Debug directory doesn't exist yet or can't be read
+                console.log('[DEBUG GALLERY] Error loading images:', error);
+                this.debugImages = [];
+            }
+        },
+        startDebugDirWatcher() {
+            this.loadDebugImages();
+            if (this.debugDirWatcher) clearInterval(this.debugDirWatcher);
+            this.debugDirWatcher = setInterval(() => {
+                this.loadDebugImages();
+            }, 2000); // Poll every 2 seconds
+        },
+        stopDebugDirWatcher() {
+            if (this.debugDirWatcher) {
+                clearInterval(this.debugDirWatcher);
+                this.debugDirWatcher = null;
+            }
+        },
+        selectImage(index) {
+            if (index >= 0 && index < this.debugImages.length) {
+                this.selectedImageIndex = index;
+            }
+        },
+        nextImage() {
+            if (this.selectedImageIndex < this.debugImages.length - 1) {
+                this.selectedImageIndex++;
+            }
+        },
+        prevImage() {
+            if (this.selectedImageIndex > 0) {
+                this.selectedImageIndex--;
+            }
+        },
+        toggleZoom() {
+            this.imageZoomed = !this.imageZoomed;
+        },
+        getImagePath(filename) {
+            if (!this.outputDir || !filename) {
+                console.log('[DEBUG GALLERY] getImagePath: missing outputDir or filename');
+                return '';
+            }
+            const path = `${this.outputDir}/_AI_training/debug/${filename}`;
+            // Convert to file:// URL for img src
+            // Need to ensure proper file:// protocol format
+            const fileUrl = path.startsWith('/') ? `file://${path}` : `file:///${path}`;
+            console.log('[DEBUG GALLERY] getImagePath:', filename, '->', fileUrl);
+            return fileUrl;
         },
         async stopProcessing() {
             try {
@@ -948,6 +1189,7 @@ export default {
                 this.outputUnsubscribe();
                 this.outputUnsubscribe = null;
             }
+            this.stopDebugDirWatcher(); // Stop watching debug images
             this.processing = false;
         },
         goBack() {
@@ -963,6 +1205,9 @@ export default {
             this.outputUnsubscribe();
             this.outputUnsubscribe = null;
         }
+        // Clean up watchers
+        this.stopProgressPolling();
+        this.stopDebugDirWatcher();
     },
 };
 </script>

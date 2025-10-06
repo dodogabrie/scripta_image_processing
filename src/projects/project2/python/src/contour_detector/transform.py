@@ -249,6 +249,7 @@ def warp_image(
     Returns:
         cropped (np.ndarray): Immagine ritagliata e raddrizzata.
         crop_no_rotation (np.ndarray): Ritaglio rettangolare originale senza rotazione.
+        M (np.ndarray): Matrice di trasformazione affine (2x3) usata per la rotazione.
     """
 
     # Ottiene il rettangolo minimo che racchiude il contorno
@@ -453,4 +454,4 @@ def warp_image(
         else:
             show_image(cropped, "Rotated and Cropped")
 
-    return cropped, crop_no_rotation
+    return cropped, crop_no_rotation, M

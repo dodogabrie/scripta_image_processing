@@ -5,6 +5,15 @@ from skimage.draw import line as skimage_line
 
 from .utils import show_image
 
+# Import gradient scanner for debug mode
+try:
+    from .debug_gradient_scanner import debug_gradient_peak_scanner
+    GRADIENT_SCANNER_AVAILABLE = True
+except ImportError as e:
+    GRADIENT_SCANNER_AVAILABLE = False
+    print("[WARNING] debug_gradient_scanner not available")
+    print(f"Error: {e}")
+
 
 def plot_contour_side_distances(approx_contour):
     """
@@ -307,71 +316,100 @@ def contour_side_intensity(approx_contour, gray_image, show_plot=False):
         side_assoc,
     )
 
-
 def find_page_contour(thresh, show_step_by_step=False, original_image=None):
     """
-    Detect the largest contour that resembles a page.
+    Detect the largest contour that resembles a page or build one from gradient-based line detection.
 
     Parameters:
-        thresh (numpy.ndarray): A binary thresholded image where the contours will be detected.
-        show_step_by_step (bool): If True, intermediate images will be displayed for debugging purposes.
-        original_image (numpy.ndarray): Original colored image for overlay visualization.
+        thresh (numpy.ndarray): Binary thresholded image for backup contour detection.
+        show_step_by_step (bool): Enable debug visualization.
+        original_image (numpy.ndarray): Original BGR image (used by gradient scanner).
 
     Returns:
-        numpy.ndarray: An approximated polygonal contour of the detected page-like shape.
-
-    Raises:
-        ValueError: If no page-like contour is found in the image.
-
-    Steps:
-        1. Dilate the thresholded image to close small gaps in the contours.
-        2. Detect all external contours in the dilated image.
-        3. Sort the contours by area in descending order.
-        4. Approximate each contour to reduce the number of points.
-        5. Check if the approximated contour has at least four vertices, indicating a page-like shape.
-        6. If a suitable contour is found, return it. Otherwise, raise an error.
+        tuple: (approx_contour, estimated_angle)
     """
-    kernel = np.ones((5, 5), np.uint8)
-    dilated = cv2.dilate(thresh, kernel, iterations=2)
-    if show_step_by_step:
-        show_image(dilated, "Dilated")
+    def line_intersection(line1, line2):
+        """Compute intersection between two lines in ax+by+c=0 form."""
+        a1, b1, c1 = line1
+        a2, b2, c2 = line2
+        det = a1 * b2 - a2 * b1
+        if abs(det) < 1e-8:
+            return None
+        x = (b1 * c2 - b2 * c1) / det
+        y = (c1 * a2 - c2 * a1) / det
+        return np.array([x, y], dtype=np.float32)
 
-    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)
-    angle = None
+    gradient_points = None
     approx = None
-    for contour in contours:
-        epsilon = 0.02 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
-        if len(approx) >= 4:
-            rect = cv2.minAreaRect(contour)
-            minrect_box = cv2.boxPoints(rect)
-            minrect_box = np.int0(minrect_box)
-            if show_step_by_step:
-                if original_image is not None:
-                    overlay = original_image.copy()
-                    # Draw thick white border for approx
-                    cv2.drawContours(overlay, [approx], -1, (255, 255, 255), 15)
-                    # Draw thinner green for approx
-                    cv2.drawContours(overlay, [approx], -1, (0, 255, 0), 8)
-                    # Draw minAreaRect (red)
-                    cv2.drawContours(overlay, [minrect_box], -1, (0, 0, 255), 4)
-                    # Draw rectified (yellow)
-                    show_image(overlay, "Approx (green), MinAreaRect (red)")
-                else:
-                    temp_image = np.zeros_like(thresh)
-                    cv2.drawContours(temp_image, [approx], -1, (255, 255, 255), 3)
-                    show_image(temp_image, "Detected Contour")
+    angle = 0.0
 
-            gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-            angle, d_angle, _, _, _ = contour_side_intensity(
-                approx, gray, show_plot=show_step_by_step
+    # Try gradient-based detection first
+    if original_image is not None and GRADIENT_SCANNER_AVAILABLE:
+        print("\n[DEBUG] Running gradient peak scanner integration...")
+        try:
+            result = debug_gradient_peak_scanner(
+                original_image,
+                num_scanlines=15,
+                gradient_threshold=25,
+                debug_matplotlib=False,
+                debug_opencv=show_step_by_step
             )
-            if np.abs(angle) < np.abs(d_angle):  # noise
-                angle = 0
+            lines = result["lines"]
+            if all(lines.values()):
+                print("[DEBUG] Using gradient-based lines to build contour.")
+                top, bottom, left, right = lines["top"], lines["bottom"], lines["left"], lines["right"]
 
-            # Return the rectified rectangle as the best rectangle
-            return approx, angle
+                tl = line_intersection(top, left)
+                tr = line_intersection(top, right)
+                br = line_intersection(bottom, right)
+                bl = line_intersection(bottom, left)
 
-    # If no suitable contour is found, return None
+                intersections = [tl, tr, br, bl]
+                if all(pt is not None for pt in intersections):
+                    approx = np.array(intersections, dtype=np.int32).reshape(-1, 1, 2)
+                    gradient_points = approx
+        except Exception as e:
+            print(f"[DEBUG] Gradient scanner failed: {e}")
+
+    # Fallback: standard contour detection if gradient-based fails
+    if approx is None:
+        print("[DEBUG] Fallback: contour-based detection.")
+        kernel = np.ones((5, 5), np.uint8)
+        dilated = cv2.dilate(thresh, kernel, iterations=2)
+        if show_step_by_step:
+            show_image(dilated, "Dilated (fallback)")
+
+        contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        for contour in contours:
+            epsilon = 0.02 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            if len(approx) >= 4:
+                break
+                
+        # Validate: must have exactly 4 corners for a valid page
+        if approx is not None and len(approx) != 4:
+            print(f"[WARN] Fallback contour has {len(approx)} corners (expected 4) - rejecting as invalid")
+            approx = None
+
+    # If we got a valid contour, analyze it
+    if approx is not None and original_image is not None:
+        gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+        angle, d_angle, _, _, _ = contour_side_intensity(
+            approx, gray, show_plot=show_step_by_step
+        )
+        if np.abs(angle) < np.abs(d_angle):  # noise
+            angle = 0
+
+        if show_step_by_step:
+            overlay = original_image.copy()
+            cv2.drawContours(overlay, [approx], -1, (0, 255, 255), 4)
+            if gradient_points is not None:
+                cv2.drawContours(overlay, [gradient_points], -1, (0, 0, 255), 2)
+            show_image(overlay, "Final Contour (yellow) + Gradient (red)")
+
+        return approx, angle
+
+    print("[WARN] No contour found at all.")
     return None, None

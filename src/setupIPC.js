@@ -128,6 +128,17 @@ export function setupIPC(managers) {
       return result.filePaths[0];
     });
 
+    ipcMain.handle('files:listFiles', async (event, directory) => {
+      try {
+        if (!fs.existsSync(directory)) return [];
+        const files = fs.readdirSync(directory)
+          .filter(f => !fs.statSync(path.join(directory, f)).isDirectory());
+        return files; // Return just filenames, not full paths
+      } catch (e) {
+        return [];
+      }
+    });
+
     ipcMain.handle('files:listThumbs', async (event, thumbsDir) => {
       try {
         const dir = thumbsDir || path.join(process.cwd(), 'output', 'thumbs');

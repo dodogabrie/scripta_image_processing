@@ -98,6 +98,12 @@ def main():
         default=0.90,
         help="Skip contour processing if document covers this percentage of image (0.0-1.0, default: 0.90).",
     )
+    p.add_argument(
+        "--generate-dataset",
+        action="store_true",
+        default=False,
+        help="Generate AI training dataset (512x512 images + JSON labels + debug visualizations).",
+    )
     args = p.parse_args()
 
     # If fold_border not specified, use same value as contour_border
@@ -140,6 +146,17 @@ def main():
     if args.debug:
         debug_dir = base_path + "_debug"
 
+    # Initialize dataset writer if dataset generation is enabled
+    dataset_writer = None
+    if args.generate_dataset:
+        from src.dataset.dataset_writer import DatasetWriter
+        # Determine output directory (use parent directory of base_path)
+        output_dir = os.path.dirname(base_path) if base_path else os.path.dirname(args.input)
+        if not output_dir:
+            output_dir = "."
+        dataset_writer = DatasetWriter(output_dir)
+        print("[DATASET] AI training dataset generation ENABLED")
+
     side = "center" if args.side is None else args.side
 
     if side not in ("left", "right", "center"):
@@ -156,7 +173,7 @@ def main():
 
     # Apply page processing (contour detection for A3 landscape)
     print("Applying page detection...")
-    processed_img, was_processed, actual_border, is_a3 = process_page_if_needed(
+    processed_img, was_processed, actual_border, is_a3, page_contour, transform_M = process_page_if_needed(
         img,
         image_path=args.input,
         debug=args.debug,
@@ -216,6 +233,22 @@ def main():
 
     # Process and save results based on fold detection
     fold_detected = debug_info["x_fold"] is not None
+
+    # Generate dataset sample if dataset_writer enabled
+    if dataset_writer is not None:
+        try:
+            fold_x = debug_info.get("x_fold")
+            dataset_writer.add_sample(
+                original_img=img,
+                filename=os.path.basename(args.input),
+                page_corners_original=page_contour,
+                rectified_img=processed_img,
+                transformation_matrix=transform_M,
+                fold_x=fold_x,
+                fold_detected=fold_detected
+            )
+        except Exception as e:
+            print(f"[DATASET] Warning: Failed to generate dataset sample: {e}")
 
     if fold_detected:
         # Fold detection applied - save left and right sides with _left/_right suffix
@@ -303,6 +336,10 @@ def main():
                 original_path=args.input,
             )
             print(f"Thumbnail lato destro: {thumb_dir}")
+
+    # Finalize dataset generation
+    if dataset_writer is not None:
+        dataset_writer.finalize()
 
 
 if __name__ == "__main__":

@@ -585,28 +585,17 @@
                             <!-- Image viewer -->
                             <div v-else>
                                 <!-- Large preview -->
-                                <div class="mb-3 text-center position-relative" style="min-height: 400px; background: #f8f9fa; border-radius: 8px;">
+                                <div class="mb-3 text-center position-relative" style="min-height: 400px; max-height: 500px; background: #f8f9fa; border-radius: 8px; overflow: auto;">
                                     <img
                                         v-if="selectedImage"
                                         :src="getImagePath(selectedImage)"
-                                        :style="{
-                                            maxWidth: imageZoomed ? 'none' : '100%',
-                                            maxHeight: imageZoomed ? 'none' : '500px',
-                                            cursor: 'pointer'
-                                        }"
-                                        @click="toggleZoom"
+                                        style="max-width: 100%; max-height: 500px; border-radius: 4px;"
                                         class="img-fluid"
-                                        style="border-radius: 4px;"
                                     />
 
-                                    <!-- Image counter and zoom badge -->
+                                    <!-- Image counter -->
                                     <div class="position-absolute top-0 start-0 m-2">
                                         <span class="badge bg-dark">{{ imageCounter }}</span>
-                                    </div>
-                                    <div class="position-absolute top-0 end-0 m-2">
-                                        <span v-if="imageZoomed" class="badge bg-primary">
-                                            <i class="bi bi-zoom-in"></i> Zoom attivo
-                                        </span>
                                     </div>
 
                                     <!-- Filename -->
@@ -623,13 +612,6 @@
                                         :disabled="selectedImageIndex === 0"
                                     >
                                         <i class="bi bi-chevron-left"></i> Precedente
-                                    </button>
-                                    <button
-                                        class="btn btn-outline-secondary"
-                                        @click="toggleZoom"
-                                    >
-                                        <i :class="imageZoomed ? 'bi bi-zoom-out' : 'bi bi-zoom-in'"></i>
-                                        {{ imageZoomed ? 'Riduci' : 'Ingrandisci' }}
                                     </button>
                                     <button
                                         class="btn btn-outline-secondary"
@@ -699,10 +681,10 @@ export default {
             // Debug image gallery
             debugImages: [], // List of debug image filenames
             selectedImageIndex: 0, // Currently selected image index
-            imageZoomed: false, // Zoom state
             autoScrollToLatest: true, // Auto-select new images
             debugDirWatcher: null, // Interval for watching debug directory
             hasProcessedInSession: false, // Track if we've processed in this session
+            imageDataUrls: {}, // Cache for loaded image data URLs
         };
     },
     computed: {
@@ -920,6 +902,7 @@ export default {
                 this.debugImages = [];
                 this.selectedImageIndex = 0;
                 this.hasProcessedInSession = false;
+                this.imageDataUrls = {}; // Clear image cache
                 this.addConsoleLine(
                     "Cartella output selezionata: " + dir,
                     "success",
@@ -1117,6 +1100,9 @@ export default {
                         this.selectedImageIndex = imageFiles.length - 1;
                         console.log('[DEBUG GALLERY] Auto-scrolled to index:', this.selectedImageIndex);
                     }
+
+                    // Load all images for thumbnails
+                    this.loadAllImages();
                 } else {
                     console.error('[DEBUG GALLERY] electronAPI.listFiles not available');
                 }
@@ -1125,6 +1111,43 @@ export default {
                 console.log('[DEBUG GALLERY] Error loading images:', error);
                 this.debugImages = [];
             }
+        },
+
+        async preloadNearbyImages() {
+            if (this.debugImages.length === 0) return;
+
+            // Load current image and 2 images before/after
+            const indicesToLoad = [];
+            for (let i = -2; i <= 2; i++) {
+                const index = this.selectedImageIndex + i;
+                if (index >= 0 && index < this.debugImages.length) {
+                    indicesToLoad.push(index);
+                }
+            }
+
+            // Load images in parallel
+            await Promise.all(
+                indicesToLoad.map(index =>
+                    this.loadImageAsDataUrl(this.debugImages[index])
+                )
+            );
+        },
+
+        async loadAllImages() {
+            if (this.debugImages.length === 0) return;
+
+            console.log('[DEBUG GALLERY] Loading all images for thumbnails...');
+
+            // Load in batches of 5 to avoid overwhelming the system
+            const batchSize = 5;
+            for (let i = 0; i < this.debugImages.length; i += batchSize) {
+                const batch = this.debugImages.slice(i, i + batchSize);
+                await Promise.all(
+                    batch.map(filename => this.loadImageAsDataUrl(filename))
+                );
+            }
+
+            console.log('[DEBUG GALLERY] All images loaded');
         },
         startDebugDirWatcher() {
             this.loadDebugImages();
@@ -1142,32 +1165,63 @@ export default {
         selectImage(index) {
             if (index >= 0 && index < this.debugImages.length) {
                 this.selectedImageIndex = index;
+                this.preloadNearbyImages();
             }
         },
         nextImage() {
             if (this.selectedImageIndex < this.debugImages.length - 1) {
                 this.selectedImageIndex++;
+                this.preloadNearbyImages();
             }
         },
         prevImage() {
             if (this.selectedImageIndex > 0) {
                 this.selectedImageIndex--;
+                this.preloadNearbyImages();
             }
         },
-        toggleZoom() {
-            this.imageZoomed = !this.imageZoomed;
+        handleKeydown(event) {
+            if (this.debugImages.length === 0) return;
+
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                this.prevImage();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                this.nextImage();
+            }
         },
-        getImagePath(filename) {
+        async loadImageAsDataUrl(filename) {
             if (!this.outputDir || !filename) {
-                console.log('[DEBUG GALLERY] getImagePath: missing outputDir or filename');
-                return '';
+                console.log('[DEBUG GALLERY] loadImageAsDataUrl: missing outputDir or filename');
+                return null;
             }
+
+            // Check cache first
+            if (this.imageDataUrls[filename]) {
+                console.log('[DEBUG GALLERY] Using cached image:', filename);
+                return this.imageDataUrls[filename];
+            }
+
             const path = `${this.outputDir}/_AI_training/debug/${filename}`;
-            // Convert to file:// URL for img src
-            // Need to ensure proper file:// protocol format
-            const fileUrl = path.startsWith('/') ? `file://${path}` : `file:///${path}`;
-            console.log('[DEBUG GALLERY] getImagePath:', filename, '->', fileUrl);
-            return fileUrl;
+            console.log('[DEBUG GALLERY] Loading image:', filename, 'from', path);
+
+            try {
+                const dataUrl = await window.electronAPI.readImageAsDataUrl(path);
+                if (dataUrl) {
+                    this.imageDataUrls[filename] = dataUrl;
+                    console.log('[DEBUG GALLERY] Image loaded successfully:', filename);
+                }
+                return dataUrl;
+            } catch (error) {
+                console.error('[DEBUG GALLERY] Error loading image:', filename, error);
+                return null;
+            }
+        },
+
+        getImagePath(filename) {
+            // Return cached data URL or empty string
+            return this.imageDataUrls[filename] || '';
         },
         async stopProcessing() {
             try {
@@ -1197,9 +1251,13 @@ export default {
         },
     },
     mounted() {
-        // Initialize component
+        // Add keyboard listener for arrow keys
+        window.addEventListener('keydown', this.handleKeydown);
     },
     beforeUnmount() {
+        // Remove keyboard listener
+        window.removeEventListener('keydown', this.handleKeydown);
+
         // Clean up any active listeners
         if (this.outputUnsubscribe) {
             this.outputUnsubscribe();

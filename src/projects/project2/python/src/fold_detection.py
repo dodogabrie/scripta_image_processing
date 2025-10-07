@@ -404,4 +404,6 @@ def detect_fold_brightness_profile(img, side, debug=False, debug_dir=None):
     x_final, quality_score = find_fold_center(img=img)
 
     # Return quality score as confidence for compatibility
-    return x_final, 0.0, 0.0, 0.0, quality_score
+    # For vertical line at x=x_final: equation is x = 0*y + x_final
+    # So: angle=0, slope=0, intercept=x_final (NOT 0!)
+    return x_final, 0.0, 0.0, x_final, quality_score

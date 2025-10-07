@@ -7,6 +7,8 @@ import os
 import sys
 import time
 from datetime import datetime
+import cv2
+import numpy as np
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
@@ -96,7 +98,8 @@ def save_error_json(output_dir, error_data):
     print(f"[INFO] Salvato error.json con {len(error_data['Ricontrollare'])} file da ricontrollare")
 
 
-def update_cropped_files_mapping(info_data, original_path, cropped_files, output_base_dir):
+def update_cropped_files_mapping(info_data, original_path, cropped_files, output_base_dir,
+                                 debug_info=None, page_contour=None, transform_M=None, was_processed=False):
     """
     Aggiorna la mappa dei file croppati nell'info_data.
 
@@ -105,14 +108,27 @@ def update_cropped_files_mapping(info_data, original_path, cropped_files, output
         original_path (str): Percorso del file originale
         cropped_files (list): Lista dei file generati dal cropping
         output_base_dir (str): Directory base di output per i percorsi relativi
+        debug_info (dict): Debug info from processing (contains fold detection status, rotation, etc.)
+        page_contour (np.ndarray): Page contour if detected, None otherwise
+        transform_M (np.ndarray): Transformation matrix if perspective correction applied, None otherwise
+        was_processed (bool): True if perspective correction was applied
     """
     # Get just the filename (not full path) for original file
     original_filename = os.path.basename(original_path)
 
-    # Get relative paths for cropped files (relative to output_base_dir)
+    # Get relative paths and full paths for cropped files
     cropped_relative_paths = []
+    cropped_full_paths = []
+    cropped_filenames = []
+
     for f in cropped_files:
         if f:
+            # Store full absolute path
+            cropped_full_paths.append(f)
+
+            # Store just the filename
+            cropped_filenames.append(os.path.basename(f))
+
             # Convert absolute path to relative path from output_base_dir
             try:
                 relative_path = os.path.relpath(f, output_base_dir)
@@ -122,7 +138,18 @@ def update_cropped_files_mapping(info_data, original_path, cropped_files, output
                 cropped_relative_paths.append(os.path.basename(f))
 
     if cropped_relative_paths:
-        info_data["cropped"][original_filename] = cropped_relative_paths
+        # Create comprehensive metadata entry
+        metadata = {
+            "output_files": cropped_filenames,  # Just filenames for compatibility
+            "output_paths": cropped_full_paths,  # Full absolute paths
+            "output_relative_paths": cropped_relative_paths,  # Relative paths
+            "fold_detected": debug_info.get("x_fold") is not None if debug_info else False,
+            "page_detected": page_contour is not None,
+            "was_rotated": debug_info.get("rotation_applied", False) if debug_info else False,
+            "was_perspective_corrected": was_processed,
+        }
+
+        info_data["cropped"][original_filename] = metadata
 
 
 def get_file_size_gb(file_path):
@@ -324,6 +351,8 @@ def process_single_image(
                 debug_info["slope"],
                 debug_info["intercept"],
                 os.path.join(debug_dir, "fold_line_visualization.jpg"),
+                original_img=img,  # Original image before rectification
+                transformation_matrix=transform_M  # Transformation matrix from warp_image
             )
 
         # Salva i risultati
@@ -446,6 +475,9 @@ def process_single_image(
 
         debug_info["side"] = detected_side
         debug_info["saved_files"] = saved_files
+        debug_info["page_contour"] = page_contour
+        debug_info["transform_M"] = transform_M
+        debug_info["was_processed"] = was_processed
 
         # Generate dataset sample if dataset_writer provided
         if dataset_writer is not None:
@@ -454,6 +486,119 @@ def process_single_image(
                 fold_x = debug_info.get("x_fold")
                 fold_detected = fold_x is not None
 
+                # Calculate fold line endpoints in original image space
+                fold_p1_original = None
+                fold_p2_original = None
+
+                if fold_detected:
+                    # Get fold line parameters (equation: x = slope * y + intercept)
+                    slope = debug_info.get("slope", 0.0)
+                    intercept = debug_info.get("intercept", 0.0)
+                    x_fold = debug_info.get("x_fold")
+
+                    # Get height of image where fold was detected (processed_img)
+                    img_height = processed_img.shape[0]
+                    img_width = processed_img.shape[1]
+
+                    print(f"\n=== FOLD COORDINATE TRANSFORMATION DEBUG ===")
+                    print(f"Fold detection: x_fold={x_fold}, slope={slope}, intercept={intercept}")
+                    print(f"Rectified image size: {img_width}×{img_height}")
+                    print(f"Original image size: {img.shape[1]}×{img.shape[0]}")
+                    print(f"Border added to rectified image: {actual_border}px")
+
+                    # Calculate fold line endpoints in rectified space
+                    fold_p1_rect = (int(intercept), 0)
+                    fold_p2_rect = (int(slope * img_height + intercept), img_height)
+                    print(f"Fold in rectified space (with border): p1={fold_p1_rect}, p2={fold_p2_rect}")
+
+                    # Subtract border to get coordinates in borderless rectified space
+                    # (the space that M transforms from/to)
+                    fold_p1_no_border = (fold_p1_rect[0] - actual_border, fold_p1_rect[1] - actual_border)
+                    fold_p2_no_border = (fold_p2_rect[0] - actual_border, fold_p2_rect[1] - actual_border)
+                    print(f"Fold in rectified space (no border): p1={fold_p1_no_border}, p2={fold_p2_no_border}")
+
+                    # If image was rectified, inverse transform to original space
+                    if transform_M is not None:
+                        print(f"Transform M exists - applying inverse transformation")
+                        print(f"Transform M:\n{transform_M}")
+
+                        M_inv = cv2.invertAffineTransform(transform_M)
+                        print(f"Inverse M:\n{M_inv}")
+
+                        # Use borderless coordinates for transformation
+                        p1_h = np.array([fold_p1_no_border[0], fold_p1_no_border[1], 1.0], dtype=np.float32)
+                        p2_h = np.array([fold_p2_no_border[0], fold_p2_no_border[1], 1.0], dtype=np.float32)
+
+                        p1_orig_h = M_inv @ p1_h
+                        p2_orig_h = M_inv @ p2_h
+
+                        print(f"Fold in original space (float): p1=({p1_orig_h[0]:.2f}, {p1_orig_h[1]:.2f}), p2=({p2_orig_h[0]:.2f}, {p2_orig_h[1]:.2f})")
+
+                        fold_p1_original = (int(p1_orig_h[0]), int(p1_orig_h[1]))
+                        fold_p2_original = (int(p2_orig_h[0]), int(p2_orig_h[1]))
+
+                        print(f"Fold in original space (int): p1={fold_p1_original}, p2={fold_p2_original}")
+                    else:
+                        print(f"No transform M - fold already in original space")
+                        # No rectification - fold already in original space
+                        fold_p1_original = fold_p1_rect
+                        fold_p2_original = fold_p2_rect
+
+                    # Also show page contour for comparison
+                    if page_contour is not None:
+                        print(f"\nPage contour in original space:")
+                        contour_flat = page_contour.reshape(-1, 2)
+                        page_min_x = contour_flat[:, 0].min()
+                        page_max_x = contour_flat[:, 0].max()
+                        page_min_y = contour_flat[:, 1].min()
+                        page_max_y = contour_flat[:, 1].max()
+                        print(f"  Min X: {page_min_x:.2f}, Max X: {page_max_x:.2f}")
+                        print(f"  Min Y: {page_min_y:.2f}, Max Y: {page_max_y:.2f}")
+                        print(f"  Corners: {contour_flat[:4]}")
+
+                        # CRITICAL INSIGHT: The transform M is almost identity!
+                        # This means it's NOT mapping from full original image to warped.
+                        # Instead, it's mapping within a coordinate space that's already document-relative.
+                        # We need to add the document offset in original image!
+                        print(f"\n⚠️  CRITICAL: Transform M is near-identity!")
+                        print(f"  This means coordinates are document-relative, not full-image-relative")
+                        print(f"  Adding document offset in original image...")
+
+                        fold_p1_original = (
+                            fold_p1_original[0] + int(page_min_x),
+                            fold_p1_original[1] + int(page_min_y)
+                        )
+                        fold_p2_original = (
+                            fold_p2_original[0] + int(page_min_x),
+                            fold_p2_original[1] + int(page_min_y)
+                        )
+
+                        print(f"  Final fold in original space: p1={fold_p1_original}, p2={fold_p2_original}")
+
+                        # Verify fold is within page bounds
+                        print(f"\nVerification:")
+                        print(f"  Fold X range: {fold_p1_original[0]} to {fold_p2_original[0]}")
+                        print(f"  Page X range: {page_min_x:.0f} to {page_max_x:.0f}")
+                        print(f"  Fold Y range: {fold_p1_original[1]} to {fold_p2_original[1]}")
+                        print(f"  Page Y range: {page_min_y:.0f} to {page_max_y:.0f}")
+
+                        # Check if fold is within page bounds
+                        x_ok = page_min_x <= fold_p1_original[0] <= page_max_x
+                        y_ok = page_min_y <= fold_p1_original[1] <= page_max_y and page_min_y <= fold_p2_original[1] <= page_max_y
+
+                        if x_ok and y_ok:
+                            print(f"  ✅ Fold is WITHIN page bounds!")
+                        else:
+                            if not x_ok:
+                                print(f"  ⚠️  WARNING: Fold X is outside page bounds!")
+                            if not y_ok:
+                                if fold_p2_original[1] > page_max_y:
+                                    print(f"  ⚠️  WARNING: Fold extends {fold_p2_original[1] - page_max_y:.0f}px below page bottom!")
+                                if fold_p1_original[1] < page_min_y:
+                                    print(f"  ⚠️  WARNING: Fold extends {page_min_y - fold_p1_original[1]:.0f}px above page top!")
+
+                    print(f"=== END DEBUG ===\n")
+
                 # Call dataset writer with original (unprocessed) image
                 dataset_writer.add_sample(
                     original_img=img,  # Original image loaded at line 245
@@ -461,7 +606,8 @@ def process_single_image(
                     page_corners_original=page_contour,  # From process_page_if_needed
                     rectified_img=processed_img,  # Rectified image from process_page_if_needed
                     transformation_matrix=transform_M,  # From process_page_if_needed
-                    fold_x=fold_x,  # From debug_info
+                    fold_p1_original=fold_p1_original,  # Fold line endpoint 1 in original space
+                    fold_p2_original=fold_p2_original,  # Fold line endpoint 2 in original space
                     fold_detected=fold_detected
                 )
             except Exception as e:
@@ -688,7 +834,14 @@ def process_front_back_couples(
             # Track initial cropped files (before potential renaming)
             saved_files = debug_info.get("saved_files", [])
             if saved_files:
-                update_cropped_files_mapping(info_data, image_path, saved_files, output_dir)
+                # Note: These will be updated again in phases 3-4 with renamed files
+                update_cropped_files_mapping(
+                    info_data, image_path, saved_files, output_dir,
+                    debug_info=debug_info,
+                    page_contour=debug_info.get("page_contour"),
+                    transform_M=debug_info.get("transform_M"),
+                    was_processed=debug_info.get("was_processed", False)
+                )
 
             if debug_info.get("x_fold"):
                 print(f"  [OK] fold detected, {len(saved_files)} files renamed")
@@ -778,9 +931,25 @@ def process_front_back_couples(
 
                 # Update mapping for each original image with its specific pages
                 if first_files:
-                    info_data["cropped"][first_original_filename] = first_files
+                    # Get full paths for renamed files
+                    first_full_paths = [f for f in renamed_files if os.path.basename(f) in first_files]
+                    update_cropped_files_mapping(
+                        info_data, first_result['path'], first_full_paths, output_dir,
+                        debug_info=first_result['debug_info'],
+                        page_contour=first_result['debug_info'].get("page_contour"),
+                        transform_M=first_result['debug_info'].get("transform_M"),
+                        was_processed=first_result['debug_info'].get("was_processed", False)
+                    )
                 if second_files:
-                    info_data["cropped"][second_original_filename] = second_files
+                    # Get full paths for renamed files
+                    second_full_paths = [f for f in renamed_files if os.path.basename(f) in second_files]
+                    update_cropped_files_mapping(
+                        info_data, second_result['path'], second_full_paths, output_dir,
+                        debug_info=second_result['debug_info'],
+                        page_contour=second_result['debug_info'].get("page_contour"),
+                        transform_M=second_result['debug_info'].get("transform_M"),
+                        was_processed=second_result['debug_info'].get("was_processed", False)
+                    )
 
                 print(f"  [OK] Couple processed successfully - {len(renamed_files)} files renamed")
             else:
@@ -819,9 +988,13 @@ def process_front_back_couples(
                 renamed_count += len(renamed_files)
 
                 # Update cropped files mapping with final renamed files
-                single_original_filename = os.path.basename(single_result['path'])
-                renamed_filenames = [os.path.relpath(f, output_dir) for f in renamed_files]
-                info_data["cropped"][single_original_filename] = renamed_filenames
+                update_cropped_files_mapping(
+                    info_data, single_result['path'], renamed_files, output_dir,
+                    debug_info=single_result['debug_info'],
+                    page_contour=single_result['debug_info'].get("page_contour"),
+                    transform_M=single_result['debug_info'].get("transform_M"),
+                    was_processed=single_result['debug_info'].get("was_processed", False)
+                )
 
                 print(f"  [OK] Only first image cropped - {len(renamed_files)} files renamed to _4/_1 pattern")
             else:
@@ -1092,7 +1265,13 @@ def main(
                 # Track cropped files in info.json
                 saved_files = debug_info.get("saved_files", [])
                 if saved_files:
-                    update_cropped_files_mapping(info_data, input_path, saved_files, output_dir)
+                    update_cropped_files_mapping(
+                        info_data, input_path, saved_files, output_dir,
+                        debug_info=debug_info,
+                        page_contour=debug_info.get("page_contour"),
+                        transform_M=debug_info.get("transform_M"),
+                        was_processed=debug_info.get("was_processed", False)
+                    )
 
                 if verbose:
                     rotation_status = (

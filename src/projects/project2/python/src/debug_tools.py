@@ -52,13 +52,54 @@ def save_debug_visualization(filtered_profiles, mean_profile, std_profile, x_axi
     plt.close(fig)
 
 
-def save_debug_line_visualization(img, x_fold, angle, a, b, output_path):
+def save_debug_line_visualization(img, x_fold, angle, a, b, output_path,
+                                   original_img=None, transformation_matrix=None):
     """
     Salva un'immagine con la linea della piega visualizzata per debug.
+
+    Args:
+        img: Image where fold was detected (rectified)
+        x_fold: X coordinate of fold
+        angle: Angle of fold
+        a: Slope of fold line (x = a*y + b)
+        b: Intercept of fold line
+        output_path: Where to save visualization
+        original_img: Original image before rectification (optional)
+        transformation_matrix: Transformation matrix M from warp_image (optional)
+
+    If transformation_matrix and original_img are provided, the fold line will be
+    inverse-transformed and drawn on the original image. Otherwise, it's drawn on
+    the rectified image.
     """
+    # Calculate fold line endpoints in the space where fold was detected
     h = img.shape[0]
-    vis = img.copy()
-    x0_line = int(a * 0 + b)
-    x1_line = int(a * h + b)
-    cv2.line(vis, (x0_line, 0), (x1_line, h), (0, 0, 255), 2)
+    fold_p1_rect = (int(b), 0)  # Top: x = b when y=0
+    fold_p2_rect = (int(a * h + b), h)  # Bottom: x = a*h + b when y=h
+
+    # Determine which image to draw on and transform coordinates if needed
+    if transformation_matrix is not None and original_img is not None:
+        # Inverse transform fold line from rectified to original space
+        import numpy as np
+
+        # Compute inverse transformation matrix
+        M_inv = cv2.invertAffineTransform(transformation_matrix)
+
+        # Transform fold endpoints
+        p1_h = np.array([fold_p1_rect[0], fold_p1_rect[1], 1.0], dtype=np.float32)
+        p2_h = np.array([fold_p2_rect[0], fold_p2_rect[1], 1.0], dtype=np.float32)
+
+        p1_orig_h = M_inv @ p1_h
+        p2_orig_h = M_inv @ p2_h
+
+        fold_p1_orig = (int(p1_orig_h[0]), int(p1_orig_h[1]))
+        fold_p2_orig = (int(p2_orig_h[0]), int(p2_orig_h[1]))
+
+        # Draw on original image
+        vis = original_img.copy()
+        cv2.line(vis, fold_p1_orig, fold_p2_orig, (0, 0, 255), 2)
+    else:
+        # Draw on rectified image (fallback)
+        vis = img.copy()
+        cv2.line(vis, fold_p1_rect, fold_p2_rect, (0, 0, 255), 2)
+
     cv2.imwrite(output_path, vis)

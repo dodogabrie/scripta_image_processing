@@ -50,11 +50,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         console.log('Chiamata listThumbs dal preload:', thumbsDir);
         return ipcRenderer.invoke('project1:listThumbs', thumbsDir);
     },
-
-    listFiles: (directory) => {
-        console.log('Chiamata listFiles dal preload:', directory);
-        return ipcRenderer.invoke('files:listFiles', directory);
-    }
 });
 
 console.log('Project preload script caricato');

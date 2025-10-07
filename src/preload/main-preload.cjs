@@ -91,6 +91,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
         console.log('Chiamata runProjectScriptStreaming dal preload:', projectId, scriptName, args);
         return ipcRenderer.invoke('projects:runScriptStreaming', projectId, scriptName, args);
     },
+    
+    listFiles: (directory) => {
+        console.log('Chiamata listFiles dal preload:', directory);
+        return ipcRenderer.invoke('files:listFiles', directory);
+    },
+
+    readImageAsDataUrl: (filePath) => {
+        console.log('Chiamata readImageAsDataUrl dal preload:', filePath);
+        return ipcRenderer.invoke('files:readImageAsDataUrl', filePath);
+    },
 
     // Listen for real-time output from Python scripts
     onPythonOutput: (callback) => {

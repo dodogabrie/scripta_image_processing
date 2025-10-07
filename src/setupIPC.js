@@ -139,6 +139,18 @@ export function setupIPC(managers) {
       }
     });
 
+    ipcMain.handle('files:readImageAsDataUrl', async (event, filePath) => {
+      try {
+        if (!fs.existsSync(filePath)) return null;
+        const ext = path.extname(filePath).slice(1);
+        const mime = `image/${ext}`;
+        const base64 = fs.readFileSync(filePath).toString('base64');
+        return `data:${mime};base64,${base64}`;
+      } catch (e) {
+        return null;
+      }
+    });
+
     ipcMain.handle('files:listThumbs', async (event, thumbsDir) => {
       try {
         const dir = thumbsDir || path.join(process.cwd(), 'output', 'thumbs');

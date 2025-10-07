@@ -96,7 +96,8 @@ class DatasetWriter:
         page_corners_original=None,
         rectified_img=None,
         transformation_matrix=None,
-        fold_x=None,
+        fold_p1_original=None,
+        fold_p2_original=None,
         fold_detected=False
     ):
         """
@@ -112,7 +113,8 @@ class DatasetWriter:
                                                  in original pixel coords, or None
             rectified_img (np.ndarray): Warped/rectified image or None
             transformation_matrix (np.ndarray): M (2×3) from warp_image or None
-            fold_x (int): X coordinate of fold in rectified space or None
+            fold_p1_original (tuple): (x, y) for fold line point 1 in original image space, or None
+            fold_p2_original (tuple): (x, y) for fold line point 2 in original image space, or None
             fold_detected (bool): True if fold was detected
 
         Returns:
@@ -121,7 +123,7 @@ class DatasetWriter:
         Processing Steps:
             1. Resize original image to 512×512 with letterbox
             2. Transform page corners to 512×512 space
-            3. If fold detected, inverse transform and scale to 512×512
+            3. If fold detected, transform fold line points to 512×512 space
             4. Generate JSON label
             5. Save 512×512 image to dataset/
             6. Generate and save debug visualization to debug/
@@ -149,34 +151,17 @@ class DatasetWriter:
             fold_p1_512 = None
             fold_p2_512 = None
 
-            if fold_detected and fold_x is not None and rectified_img is not None:
-                if transformation_matrix is not None:
-                    # Case 1: Image was rectified - use full pipeline (rectified -> original -> 512x512)
-                    fold_p1_512, fold_p2_512 = compute_fold_line_full_pipeline(
-                        fold_x,
-                        rectified_img,
-                        transformation_matrix,
-                        scale,
-                        offset_x,
-                        offset_y
-                    )
-                else:
-                    # Case 2: No rectification applied - fold is already in original image space
-                    # Just transform directly from original to 512x512
-                    from .coordinate_transform import transform_fold_to_512
+            if fold_detected and fold_p1_original is not None and fold_p2_original is not None:
+                # Transform fold line endpoints from original image space to 512×512 space
+                from .coordinate_transform import transform_fold_to_512
 
-                    # Fold line is vertical at x=fold_x in original image
-                    img_height = rectified_img.shape[0]
-                    fold_p1_orig = (fold_x, 0)
-                    fold_p2_orig = (fold_x, img_height)
-
-                    fold_p1_512, fold_p2_512 = transform_fold_to_512(
-                        fold_p1_orig,
-                        fold_p2_orig,
-                        scale,
-                        offset_x,
-                        offset_y
-                    )
+                fold_p1_512, fold_p2_512 = transform_fold_to_512(
+                    fold_p1_original,
+                    fold_p2_original,
+                    scale,
+                    offset_x,
+                    offset_y
+                )
 
             # Step 4: Generate JSON label
             # Prepare filename without extension for paths

@@ -57,6 +57,7 @@
     ],
     "asarUnpack": [
       "src/projects/**/*.py",
+      "src/projects/**/*.json",
       "src/projects/project4/rust/space_media_optimizer/target/release/media-optimizer*",
       "requirements.txt",
       "src/python-embed/vips-bin/vips-dev-8.17/bin/*",

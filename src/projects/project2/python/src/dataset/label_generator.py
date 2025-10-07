@@ -37,10 +37,10 @@ def create_label_dict(
         filename (str): Image filename (e.g., "IMG_00123.jpg")
         filepath (str): Relative path to image in dataset (e.g., "_AI_training/dataset/IMG_00123.jpg")
         page_present (bool): True if page contour was detected
-        page_corners_512 (list): List of 4 [x, y] corners in 512×512 space, or None
+        page_corners_512 (list): List of 4 [x, y] corners in 512x512 space, or None
         fold_present (bool): True if fold line was detected
-        fold_p1_512 (list): [x, y] for fold point 1 in 512×512 space, or None
-        fold_p2_512 (list): [x, y] for fold point 2 in 512×512 space, or None
+        fold_p1_512 (list): [x, y] for fold point 1 in 512x512 space, or None
+        fold_p2_512 (list): [x, y] for fold point 2 in 512x512 space, or None
         original_width (int): Original image width in pixels
         original_height (int): Original image height in pixels
         scale (float): Scaling factor applied during resize
@@ -304,7 +304,7 @@ if __name__ == "__main__":
     )
     print(json.dumps(label1, indent=2))
     validate_label_schema(label1)
-    print("✅ Full detection label valid")
+    print("Full detection label valid")
 
     # Test case 2: Page only (no fold)
     print("\n[Test 2] Page only (no fold)")
@@ -324,7 +324,7 @@ if __name__ == "__main__":
     )
     print(json.dumps(label2, indent=2))
     validate_label_schema(label2)
-    print("✅ Page-only label valid")
+    print("Page-only label valid")
 
     # Test case 3: No detection
     print("\n[Test 3] No detection")
@@ -344,7 +344,7 @@ if __name__ == "__main__":
     )
     print(json.dumps(label3, indent=2))
     validate_label_schema(label3)
-    print("✅ No-detection label valid")
+    print("No-detection label valid")
 
     # Test case 4: Metadata summary
     print("\n[Test 4] Metadata summary")
@@ -353,6 +353,6 @@ if __name__ == "__main__":
         "_AI_training/dataset"
     )
     print(json.dumps(metadata, indent=2))
-    print("✅ Metadata summary valid")
+    print("Metadata summary valid")
 
-    print("\n✅ All label generation tests passed!")
+    print("\nAll label generation tests passed!")

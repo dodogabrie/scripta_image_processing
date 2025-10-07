@@ -49,7 +49,7 @@ class DatasetWriter:
     Main class for generating AI training dataset during image processing.
 
     Coordinates all dataset generation steps:
-    1. Resize original images to 512×512 with letterbox
+    1. Resize original images to 512x512 with letterbox
     2. Transform coordinates to dataset space
     3. Generate JSON labels
     4. Create debug visualizations
@@ -73,8 +73,8 @@ class DatasetWriter:
 
         Creates directory structure:
             {output_base_dir}/_AI_training/
-            ├── dataset/
-            └── debug/
+            - dataset/
+            - debug/
         """
         self.ai_training_dir = os.path.join(output_base_dir, "_AI_training")
         self.dataset_dir = os.path.join(self.ai_training_dir, dataset_subdir)
@@ -112,7 +112,7 @@ class DatasetWriter:
             page_corners_original (np.ndarray): (4,2) or (4,1,2) array of corners
                                                  in original pixel coords, or None
             rectified_img (np.ndarray): Warped/rectified image or None
-            transformation_matrix (np.ndarray): M (2×3) from warp_image or None
+            transformation_matrix (np.ndarray): M (2x3) from warp_image or None
             fold_p1_original (tuple): (x, y) for fold line point 1 in original image space, or None
             fold_p2_original (tuple): (x, y) for fold line point 2 in original image space, or None
             fold_detected (bool): True if fold was detected
@@ -121,16 +121,16 @@ class DatasetWriter:
             bool: True if sample generated successfully
 
         Processing Steps:
-            1. Resize original image to 512×512 with letterbox
-            2. Transform page corners to 512×512 space
-            3. If fold detected, transform fold line points to 512×512 space
+            1. Resize original image to 512x512 with letterbox
+            2. Transform page corners to 512x512 space
+            3. If fold detected, transform fold line points to 512x512 space
             4. Generate JSON label
-            5. Save 512×512 image to dataset/
+            5. Save 512x512 image to dataset/
             6. Generate and save debug visualization to debug/
             7. Track sample in metadata
         """
         try:
-            # Step 1: Resize original image to 512×512 with letterbox
+            # Step 1: Resize original image to 512x512 with letterbox
             img_512, scale, offset_x, offset_y = resize_with_letterbox(original_img, target_size=512)
 
             original_height, original_width = original_img.shape[:2]
@@ -152,7 +152,7 @@ class DatasetWriter:
             fold_p2_512 = None
 
             if fold_detected and fold_p1_original is not None and fold_p2_original is not None:
-                # Transform fold line endpoints from original image space to 512×512 space
+                # Transform fold line endpoints from original image space to 512x512 space
                 from .coordinate_transform import transform_fold_to_512
 
                 fold_p1_512, fold_p2_512 = transform_fold_to_512(
@@ -187,7 +187,7 @@ class DatasetWriter:
                 target_size=512
             )
 
-            # Step 5: Save 512×512 image to dataset/
+            # Step 5: Save 512x512 image to dataset/
             img_output_path = os.path.join(self.dataset_dir, filename)
             cv2.imwrite(img_output_path, img_512, [cv2.IMWRITE_JPEG_QUALITY, 95])
 
@@ -223,14 +223,14 @@ class DatasetWriter:
             # Log success
             status_str = []
             if page_present:
-                status_str.append("page✓")
+                status_str.append("page")
             else:
-                status_str.append("page✗")
+                status_str.append("page")
 
             if fold_detected:
-                status_str.append("fold✓")
+                status_str.append("fold")
             else:
-                status_str.append("fold✗")
+                status_str.append("fold")
 
             print(f"[DATASET] Added sample: {filename} ({', '.join(status_str)})")
 
@@ -366,5 +366,5 @@ if __name__ == "__main__":
     print("\n[Test 4] Finalizing dataset")
     metadata = writer.finalize()
 
-    print("\n✅ All DatasetWriter tests completed!")
+    print("\nAll DatasetWriter tests completed!")
     print(f"Check output at: {test_output_dir}/_AI_training/")

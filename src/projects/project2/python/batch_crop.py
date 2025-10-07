@@ -81,7 +81,7 @@ def process_single_image(args_tuple):
         # Restore sys.argv
         sys.argv = sys_argv_backup
 
-        return f"✓ Processed: {input_filename}"
+        return f"Processed: {input_filename}"
 
     except Exception as e:
         # Restore sys.argv in case of error

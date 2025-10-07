@@ -12,13 +12,13 @@ The CV pipeline detects:
 - Fold lines in double-page scans
 
 This module captures these detections and creates:
-- 512×512 letterbox-resized images from original scans
+- 512x512 letterbox-resized images from original scans
 - JSON labels with transformed coordinates
 - Debug visualizations showing detections
 
 Modules:
 --------
-- resize_utils: Letterbox resize to 512×512 with black padding
+- resize_utils: Letterbox resize to 512x512 with black padding
 - coordinate_transform: Transform coordinates between image spaces
 - label_generator: Create JSON label files
 - debug_visualizer: Generate debug images with overlays

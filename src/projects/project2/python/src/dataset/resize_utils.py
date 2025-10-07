@@ -17,7 +17,7 @@ import numpy as np
 
 def resize_with_letterbox(img, target_size=512):
     """
-    Resize image to target_size×target_size with letterbox padding.
+    Resize image to target_size x target_size with letterbox padding.
 
     Preserves aspect ratio by scaling to fit within target dimensions,
     then adds black padding to create a square image. This maintains
@@ -35,10 +35,10 @@ def resize_with_letterbox(img, target_size=512):
             - offset_y (int): Vertical padding offset (top padding in pixels)
 
     Example:
-        >>> img = cv2.imread("scan.jpg")  # 4000×3000
+        >>> img = cv2.imread("scan.jpg")  # 4000x3000
         >>> resized, scale, ox, oy = resize_with_letterbox(img, 512)
         >>> # resized.shape = (512, 512, 3)
-        >>> # scale ≈ 0.128 (512/4000)
+        >>> # scale ~ 0.128 (512/4000)
         >>> # ox = 0, oy = 64 (centered padding)
 
     Algorithm:
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # Test case 1: Landscape image
     landscape = np.random.randint(0, 255, (3000, 4000, 3), dtype=np.uint8)
     resized, scale, ox, oy = resize_with_letterbox(landscape, 512)
-    print(f"\nLandscape 4000×3000:")
+    print(f"\nLandscape 4000x3000:")
     print(f"  Output shape: {resized.shape}")
     print(f"  Scale: {scale:.4f}")
     print(f"  Offsets: x={ox}, y={oy}")
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     # Test case 2: Portrait image
     portrait = np.random.randint(0, 255, (4000, 3000, 3), dtype=np.uint8)
     resized, scale, ox, oy = resize_with_letterbox(portrait, 512)
-    print(f"\nPortrait 3000×4000:")
+    print(f"\nPortrait 3000x4000:")
     print(f"  Output shape: {resized.shape}")
     print(f"  Scale: {scale:.4f}")
     print(f"  Offsets: x={ox}, y={oy}")
@@ -160,10 +160,10 @@ if __name__ == "__main__":
     # Test case 3: Square image
     square = np.random.randint(0, 255, (3000, 3000, 3), dtype=np.uint8)
     resized, scale, ox, oy = resize_with_letterbox(square, 512)
-    print(f"\nSquare 3000×3000:")
+    print(f"\nSquare 3000x3000:")
     print(f"  Output shape: {resized.shape}")
     print(f"  Scale: {scale:.4f}")
     print(f"  Offsets: x={ox}, y={oy}")
     validate_resize_params(scale, ox, oy)
 
-    print("\n✅ All tests passed!")
+    print("\nAll tests passed!")

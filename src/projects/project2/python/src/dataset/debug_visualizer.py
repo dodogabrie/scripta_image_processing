@@ -5,7 +5,7 @@ Debug Visualization Generator
 ==============================
 
 Creates debug images showing detected page corners and fold lines
-overlaid on 512×512 letterboxed images. Useful for validating
+    overlaid on 512x512 letterboxed images. Useful for validating
 coordinate transformations and detection quality.
 
 Color coding:
@@ -28,7 +28,7 @@ def draw_debug_visualization(
     filename=""
 ):
     """
-    Draw detection overlays on 512×512 image for debugging.
+    Draw detection overlays on 512x512 image for debugging.
 
     Creates a visual representation of all detections with clear color coding.
     Page corners are shown as green circles with labels, fold line as red line.
@@ -305,7 +305,7 @@ def add_grid_overlay(img_512, grid_size=64):
 if __name__ == "__main__":
     print("Testing debug visualization...")
 
-    # Create a test image (512×512 with some content)
+    # Create a test image (512x512 with some content)
     test_img = np.ones((512, 512, 3), dtype=np.uint8) * 200  # Light gray background
 
     # Add some fake content
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         filename="IMG_001.jpg"
     )
     print(f"Debug image shape: {debug_img_1.shape}")
-    print("✅ Full detection visualization created")
+    print("Full detection visualization created")
 
     # Test case 2: Page only
     print("\n[Test 2] Page only (no fold)")
@@ -340,7 +340,7 @@ if __name__ == "__main__":
         fold_present=False,
         filename="IMG_002.jpg"
     )
-    print("✅ Page-only visualization created")
+    print("Page-only visualization created")
 
     # Test case 3: No detection
     print("\n[Test 3] No detection")
@@ -353,18 +353,18 @@ if __name__ == "__main__":
         fold_present=False,
         filename="IMG_003.jpg"
     )
-    print("✅ No-detection visualization created")
+    print("No-detection visualization created")
 
     # Test case 4: Side-by-side comparison
     print("\n[Test 4] Side-by-side comparison")
     comparison = create_side_by_side_comparison(test_img, debug_img_1)
     print(f"Comparison image shape: {comparison.shape}")
-    print("✅ Side-by-side comparison created")
+    print("Side-by-side comparison created")
 
     # Test case 5: Grid overlay
     print("\n[Test 5] Grid overlay")
     grid_img = add_grid_overlay(test_img)
     print(f"Grid image shape: {grid_img.shape}")
-    print("✅ Grid overlay created")
+    print("Grid overlay created")
 
-    print("\n✅ All debug visualization tests passed!")
+    print("\nAll debug visualization tests passed!")

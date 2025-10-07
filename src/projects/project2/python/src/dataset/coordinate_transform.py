@@ -5,9 +5,9 @@ Coordinate Transformation Utilities
 ====================================
 
 Handles transformation of detection coordinates between different image spaces:
-- Original image space (variable size, e.g., 4000×3000)
+- Original image space (variable size, e.g., 4000x3000)
 - Rectified image space (after perspective warp)
-- Dataset image space (512×512 letterbox)
+- Dataset image space (512x512 letterbox)
 
 Critical for maintaining geometric accuracy when converting CV detections
 to neural network training labels.
@@ -19,7 +19,7 @@ import numpy as np
 
 def transform_page_corners(corners_original, scale, offset_x, offset_y):
     """
-    Transform page corners from original image space to 512×512 dataset space.
+    Transform page corners from original image space to 512x512 dataset space.
 
     Args:
         corners_original (np.ndarray): Array of shape (4, 2) or (4, 1, 2)
@@ -29,16 +29,16 @@ def transform_page_corners(corners_original, scale, offset_x, offset_y):
         offset_y (int): Vertical offset from resize_with_letterbox
 
     Returns:
-        list: List of 4 [x, y] coordinate pairs in 512×512 space
+        list: List of 4 [x, y] coordinate pairs in 512x512 space
 
     Example:
         >>> corners_orig = np.array([[100, 150], [3900, 140], [3920, 2860], [80, 2880]])
         >>> corners_512 = transform_page_corners(corners_orig, 0.128, 0, 64)
-        >>> # corners_512 ≈ [[13, 83], [499, 82], [502, 430], [10, 432]]
+        >>> # corners_512 ~ [[13, 83], [499, 82], [502, 430], [10, 432]]
 
     Formula:
-        x_512 = x_original × scale + offset_x
-        y_512 = y_original × scale + offset_y
+        x_512 = x_original * scale + offset_x
+        y_512 = y_original * scale + offset_y
     """
     # Handle different input shapes (4,2) or (4,1,2)
     if corners_original.ndim == 3:
@@ -70,7 +70,7 @@ def inverse_transform_fold_to_original(x_fold, img_height_rectified, M):
     Args:
         x_fold (int): X coordinate of vertical fold line in rectified image
         img_height_rectified (int): Height of rectified image in pixels
-        M (np.ndarray): Affine transformation matrix (2×3) from warp_image()
+        M (np.ndarray): Affine transformation matrix (2x3) from warp_image()
 
     Returns:
         tuple: (fold_point1, fold_point2)
@@ -80,7 +80,7 @@ def inverse_transform_fold_to_original(x_fold, img_height_rectified, M):
     Example:
         >>> M = np.array([[0.99, -0.05, 12], [0.05, 0.99, -8]])
         >>> p1, p2 = inverse_transform_fold_to_original(256, 1000, M)
-        >>> # p1 ≈ (243, 12), p2 ≈ (293, 1002)  <- Notice inclination!
+        >>> # p1 ~ (243, 12), p2 ~ (293, 1002)  <- Notice inclination!
 
     Algorithm:
         1. Define fold line in rectified space as vertical line:
@@ -88,8 +88,8 @@ def inverse_transform_fold_to_original(x_fold, img_height_rectified, M):
            - point2_rect = (x_fold, img_height_rectified) <- bottom
 
         2. Apply inverse transformation M^(-1):
-           For affine transform: [x', y', 1]^T = M × [x, y, 1]^T
-           Inverse: [x, y, 1]^T = M^(-1) × [x', y', 1]^T
+           For affine transform: [x', y', 1]^T = M * [x, y, 1]^T
+           Inverse: [x, y, 1]^T = M^(-1) * [x', y', 1]^T
 
         3. Return transformed points in original image coordinates
     """
@@ -106,8 +106,8 @@ def inverse_transform_fold_to_original(x_fold, img_height_rectified, M):
     M_inv = cv2.invertAffineTransform(M)
 
     # Apply inverse transformation to both points
-    # For affine: [x', y'] = M × [x, y, 1]
-    # Inverse: [x, y] = M_inv × [x', y', 1]
+    # For affine: [x', y'] = M * [x, y, 1]
+    # Inverse: [x, y] = M_inv * [x', y', 1]
 
     # Convert to homogeneous coordinates
     point1_rect_h = np.array([point1_rect[0], point1_rect[1], 1.0], dtype=np.float32)
@@ -126,7 +126,7 @@ def inverse_transform_fold_to_original(x_fold, img_height_rectified, M):
 
 def transform_fold_to_512(fold_p1_original, fold_p2_original, scale, offset_x, offset_y):
     """
-    Transform fold line points from original image space to 512×512 dataset space.
+    Transform fold line points from original image space to 512x512 dataset space.
 
     Args:
         fold_p1_original (tuple): (x, y) for point 1 in original coordinates
@@ -137,18 +137,18 @@ def transform_fold_to_512(fold_p1_original, fold_p2_original, scale, offset_x, o
 
     Returns:
         tuple: (fold_p1_512, fold_p2_512)
-            - fold_p1_512: [x, y] list for point 1 in 512×512 space
-            - fold_p2_512: [x, y] list for point 2 in 512×512 space
+            - fold_p1_512: [x, y] list for point 1 in 512x512 space
+            - fold_p2_512: [x, y] list for point 2 in 512x512 space
 
     Example:
         >>> p1_orig = (245, 15)
         >>> p2_orig = (290, 2985)
         >>> p1_512, p2_512 = transform_fold_to_512(p1_orig, p2_orig, 0.128, 0, 64)
-        >>> # p1_512 ≈ [31, 66], p2_512 ≈ [37, 446]
+        >>> # p1_512 ~ [31, 66], p2_512 ~ [37, 446]
 
     Formula (same as page corners):
-        x_512 = x_original × scale + offset_x
-        y_512 = y_original × scale + offset_y
+        x_512 = x_original * scale + offset_x
+        y_512 = y_original * scale + offset_y
     """
     x1, y1 = fold_p1_original
     x2, y2 = fold_p2_original
@@ -172,7 +172,7 @@ def transform_fold_to_512(fold_p1_original, fold_p2_original, scale, offset_x, o
 
 def compute_fold_line_full_pipeline(x_fold, rectified_img, M, scale, offset_x, offset_y):
     """
-    Complete pipeline: Transform fold from rectified space to 512×512 dataset space.
+    Complete pipeline: Transform fold from rectified space to 512x512 dataset space.
 
     This is a convenience function that combines inverse transformation and
     resizing transformation into a single call.
@@ -180,18 +180,18 @@ def compute_fold_line_full_pipeline(x_fold, rectified_img, M, scale, offset_x, o
     Args:
         x_fold (int): X coordinate of fold in rectified image
         rectified_img (np.ndarray): Rectified image (to get height)
-        M (np.ndarray): Transformation matrix (2×3) from warp_image
+        M (np.ndarray): Transformation matrix (2x3) from warp_image
         scale (float): Scaling factor for resize
         offset_x (int): Horizontal offset for resize
         offset_y (int): Vertical offset for resize
 
     Returns:
         tuple: (fold_p1_512, fold_p2_512)
-            Two [x, y] lists defining fold line in 512×512 space
+            Two [x, y] lists defining fold line in 512x512 space
 
     Pipeline:
-        1. Rectified space → Original space (inverse M)
-        2. Original space → 512×512 space (scale + offset)
+        1. Rectified space -> Original space (inverse M)
+        2. Original space -> 512x512 space (scale + offset)
     """
     # Step 1: Inverse transform from rectified to original
     img_height_rect = rectified_img.shape[0]
@@ -199,7 +199,7 @@ def compute_fold_line_full_pipeline(x_fold, rectified_img, M, scale, offset_x, o
         x_fold, img_height_rect, M
     )
 
-    # Step 2: Transform from original to 512×512
+    # Step 2: Transform from original to 512x512
     fold_p1_512, fold_p2_512 = transform_fold_to_512(
         fold_p1_orig, fold_p2_orig, scale, offset_x, offset_y
     )
@@ -249,7 +249,7 @@ if __name__ == "__main__":
     print(f"Original corners shape: {corners_orig.shape}")
     print(f"Transformed corners: {corners_512}")
     validate_coordinates_in_range(corners_512)
-    print("✅ Page corners transformation valid")
+    print("Page corners transformation valid")
 
     # Test case 2: Fold line inverse transformation
     print("\n[Test 2] Fold line inverse transformation")
@@ -264,15 +264,15 @@ if __name__ == "__main__":
     )
     print(f"Fold in rectified space: x={x_fold}, top=(x,0), bottom=(x,{img_height_rect})")
     print(f"Fold in original space: top={fold_p1_orig}, bottom={fold_p2_orig}")
-    print("✅ Inverse transformation completed")
+    print("Inverse transformation completed")
 
-    # Test case 3: Fold transformation to 512×512
-    print("\n[Test 3] Fold transformation to 512×512")
+    # Test case 3: Fold transformation to 512x512
+    print("\n[Test 3] Fold transformation to 512x512")
     fold_p1_512, fold_p2_512 = transform_fold_to_512(
         fold_p1_orig, fold_p2_orig, scale, offset_x, offset_y
     )
-    print(f"Fold in 512×512 space: point1={fold_p1_512}, point2={fold_p2_512}")
+    print(f"Fold in 512x512 space: point1={fold_p1_512}, point2={fold_p2_512}")
     validate_coordinates_in_range([fold_p1_512, fold_p2_512])
-    print("✅ Fold transformation to 512×512 valid")
+    print("Fold transformation to 512x512 valid")
 
-    print("\n✅ All coordinate transformation tests passed!")
+    print("\nAll coordinate transformation tests passed!")

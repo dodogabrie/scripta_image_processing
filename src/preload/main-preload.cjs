@@ -106,13 +106,39 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPythonOutput: (callback) => {
         const subscription = (event, data) => callback(data);
         ipcRenderer.on('python:output', subscription);
-        
+
         // Return unsubscribe function
         return () => {
             ipcRenderer.removeListener('python:output', subscription);
         };
     },
-    
+
+    // Update-related APIs
+    checkForUpdates: () => {
+        console.log('Chiamata checkForUpdates dal preload');
+        return ipcRenderer.invoke('update:check');
+    },
+
+    getUpdateStatus: () => {
+        console.log('Chiamata getUpdateStatus dal preload');
+        return ipcRenderer.invoke('update:getStatus');
+    },
+
+    quitAndInstall: () => {
+        console.log('Chiamata quitAndInstall dal preload');
+        return ipcRenderer.invoke('update:quitAndInstall');
+    },
+
+    onUpdateDownloaded: (callback) => {
+        const subscription = (event, info) => callback(info);
+        ipcRenderer.on('update:downloaded', subscription);
+
+        // Return unsubscribe function
+        return () => {
+            ipcRenderer.removeListener('update:downloaded', subscription);
+        };
+    },
+
 });
 
 console.log('Main preload script caricato');

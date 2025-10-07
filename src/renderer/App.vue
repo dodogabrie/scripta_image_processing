@@ -29,6 +29,18 @@
       </div>
     </nav>
 
+    <!-- Update Notification -->
+    <div v-if="updateAvailable" class="alert alert-info m-0 rounded-0 d-flex justify-content-between align-items-center" role="alert">
+      <div>
+        <i class="fas fa-download me-2"></i>
+        <strong>Aggiornamento disponibile!</strong> Versione {{ updateInfo.version }} pronta per l'installazione.
+      </div>
+      <button class="btn btn-sm btn-primary" @click="installUpdate">
+        <i class="fas fa-sync-alt me-1"></i>
+        Riavvia e Aggiorna
+      </button>
+    </div>
+
     <!-- Home View -->
     <div v-if="!currentProject" class="container-fluid flex-grow-1 p-4">
       <!-- Projects Grid -->
@@ -126,6 +138,8 @@ export default {
         isReady: false,
       },
       currentProjectComponent: null,
+      updateAvailable: false,
+      updateInfo: null,
     };
   },
   methods: {
@@ -146,8 +160,10 @@ export default {
       const component = (await loader()).default;
       this.currentProject = projectId;
       this.currentProjectComponent = markRaw(component);
+    },
+    installUpdate() {
+      window.electronAPI.quitAndInstall();
     }
-
   },
   mounted() {
     window.electronAPI.getProjects().then(async projects => {
@@ -158,6 +174,13 @@ export default {
       this.projects = projects;
       this.projectsLoaded = true;
       this.appStatus.isReady = true;
+    });
+
+    // Listen for update notifications
+    window.electronAPI.onUpdateDownloaded((info) => {
+      console.log('Update downloaded:', info);
+      this.updateAvailable = true;
+      this.updateInfo = info;
     });
   }
 

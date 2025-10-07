@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-
+sys.path.append(str(Path(__file__)))
 
 def load_maglib_commands():
     """Load maglib commands from JSON configuration file"""

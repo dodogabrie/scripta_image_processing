@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow, dialog } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
-export function setupIPC(managers) {
+export function setupIPC(managers, autoUpdater) {
     const { pythonManager, projectManager, windowManager, logger } = managers;
     console.log('Configurazione IPC handlers...');
 
@@ -194,6 +194,37 @@ export function setupIPC(managers) {
 
     ipcMain.on('log:fromRenderer', (event, msg) => {
       logger.info('Log from renderer:', msg);
+    });
+
+    // Update-related IPC handlers
+    ipcMain.handle('update:check', async () => {
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          return { success: false, error: 'Updates disabled in development mode' };
+        }
+        const result = await autoUpdater.checkForUpdates();
+        return { success: true, updateInfo: result.updateInfo };
+      } catch (error) {
+        logger.error('Error checking for updates:', error);
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle('update:getStatus', () => {
+      return {
+        version: autoUpdater.currentVersion,
+        isCheckingForUpdate: autoUpdater.isUpdaterActive()
+      };
+    });
+
+    ipcMain.handle('update:quitAndInstall', () => {
+      try {
+        autoUpdater.quitAndInstall(false, true);
+        return { success: true };
+      } catch (error) {
+        logger.error('Error quitting and installing:', error);
+        return { success: false, error: error.message };
+      }
     });
 
     // Pipeline-specific IPC handlers

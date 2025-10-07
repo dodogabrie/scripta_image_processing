@@ -6,12 +6,48 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { setupIPC } from './setupIPC.js';
 import Logger from './utils/Logger.js';
+import pkg from 'electron-updater';
+const { autoUpdater } = pkg;
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const logger = new Logger();
 const managers = initializeManagers(); // Inizializza i manager
+
+// Configure auto-updater
+autoUpdater.logger = logger;
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  logger.info('Checking for updates...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  logger.info('Update available:', info.version);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  logger.info('Update not available. Current version:', info.version);
+});
+
+autoUpdater.on('error', (err) => {
+  logger.error('Error in auto-updater:', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  logger.info(`Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  logger.info('Update downloaded. Version:', info.version);
+  // Notify all windows that update is ready
+  BrowserWindow.getAllWindows().forEach(win => {
+    win.webContents.send('update:downloaded', info);
+  });
+});
 
 logger.info('App avviata, managers inizializzati');
 
@@ -29,8 +65,14 @@ app.on('ready', async () => {
 
 
   logger.info('App ready event');
-  setupIPC(managers); // Passa i manager agli handler IPC
-  await initializeApp({ ...managers, logger }); 
+  setupIPC(managers, autoUpdater); // Passa i manager e autoUpdater agli handler IPC
+  await initializeApp({ ...managers, logger });
+
+  // Check for updates only in production
+  if (process.env.NODE_ENV !== 'development') {
+    logger.info('Checking for updates...');
+    autoUpdater.checkForUpdatesAndNotify();
+  }
 });
 
 // Kill any active Python process before the app quits

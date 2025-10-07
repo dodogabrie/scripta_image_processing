@@ -6,8 +6,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { setupIPC } from './setupIPC.js';
 import Logger from './utils/Logger.js';
-import pkg from 'electron-updater';
-const { autoUpdater } = pkg;
+import { autoUpdater } from 'electron-updater';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);

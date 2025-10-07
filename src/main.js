@@ -6,10 +6,10 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { setupIPC } from './setupIPC.js';
 import Logger from './utils/Logger.js';
-import { autoUpdater } from 'electron-updater';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
+const { autoUpdater } = require('electron-updater');
 
 const logger = new Logger();
 const managers = initializeManagers(); // Inizializza i manager

@@ -86,7 +86,7 @@ def process_single_image(args_tuple):
     except Exception as e:
         # Restore sys.argv in case of error
         sys.argv = sys_argv_backup
-        return f"✗ Error processing {Path(input_file).name}: {str(e)}"
+        return f"[ERROR] Error processing {Path(input_file).name}: {str(e)}"
 
 def main():
     """Main function for batch processing."""
@@ -161,7 +161,7 @@ def main():
             result = future.result()
             print(result)
 
-            if result.startswith("✓"):
+            if result.startswith("Processed:"):
                 processed_count += 1
             else:
                 error_count += 1

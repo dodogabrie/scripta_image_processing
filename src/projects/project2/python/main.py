@@ -560,7 +560,7 @@ def process_single_image(
                         # This means it's NOT mapping from full original image to warped.
                         # Instead, it's mapping within a coordinate space that's already document-relative.
                         # We need to add the document offset in original image!
-                        print(f"\n⚠️  CRITICAL: Transform M is near-identity!")
+                        print(f"\n[CRITICAL] Transform M is near-identity!")
                         print(f"  This means coordinates are document-relative, not full-image-relative")
                         print(f"  Adding document offset in original image...")
 
@@ -587,15 +587,15 @@ def process_single_image(
                         y_ok = page_min_y <= fold_p1_original[1] <= page_max_y and page_min_y <= fold_p2_original[1] <= page_max_y
 
                         if x_ok and y_ok:
-                            print(f"  ✅ Fold is WITHIN page bounds!")
+                            print(f"  [OK] Fold is WITHIN page bounds!")
                         else:
                             if not x_ok:
-                                print(f"  ⚠️  WARNING: Fold X is outside page bounds!")
+                                print(f"  [WARNING] Fold X is outside page bounds!")
                             if not y_ok:
                                 if fold_p2_original[1] > page_max_y:
-                                    print(f"  ⚠️  WARNING: Fold extends {fold_p2_original[1] - page_max_y:.0f}px below page bottom!")
+                                    print(f"  [WARNING] Fold extends {fold_p2_original[1] - page_max_y:.0f}px below page bottom!")
                                 if fold_p1_original[1] < page_min_y:
-                                    print(f"  ⚠️  WARNING: Fold extends {page_min_y - fold_p1_original[1]:.0f}px above page top!")
+                                    print(f"  [WARNING] Fold extends {page_min_y - fold_p1_original[1]:.0f}px above page top!")
 
                     print(f"=== END DEBUG ===\n")
 

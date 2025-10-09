@@ -38,7 +38,7 @@ class MagResourcePath(object):
     _path_regex = re.compile(
         r"^(?:\./)?([^/]+)/(?i)(tiff|jpeg\d*|thumbs|pdf)/"
         r"(([^/]+?_)?(\d+(?:[a-z]{1,2}\d*)?))\.(tif|jpg|pdf)$",
-        re.VERBOSE,
+        re.VERBOSE | re.IGNORECASE,
     )
 
     def __init__(self, path):

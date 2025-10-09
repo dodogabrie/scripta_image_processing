@@ -6,7 +6,13 @@ import logging
 import os
 import re
 import shutil
+import sys
 from os.path import basename, join, normpath, splitext
+
+maglib_dir = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+sys.path.append(maglib_dir)
 
 from maglib.script.common import (
     MagOperation,
@@ -232,11 +238,7 @@ class AdaptFs(MagOperation):
         origpath = file_el.href.value
         extension = origpath.split(".")[-1].lower()
         subfolder = (
-            "tiff"
-            if "tiff" in origpath
-            else "jpeg300"
-            if "jpeg300" in origpath
-            else ""
+            "tiff" if "tiff" in origpath else "jpeg300" if "jpeg300" in origpath else ""
         )
 
         newpath = self._build_iccd_path(
@@ -461,7 +463,7 @@ class AdaptFs(MagOperation):
         """
         if not crop_sequence:
             return []
-        parts = crop_sequence.split('-')
+        parts = crop_sequence.split("-")
         return [int(p) for p in parts]
 
     def _get_progressive_number(self, document_type):

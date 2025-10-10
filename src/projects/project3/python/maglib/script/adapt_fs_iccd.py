@@ -123,6 +123,8 @@ class AdaptFs(MagOperation):
         self._document_type_counters = {}  # Counts S, A, F, P within object groups
         self._page_counters = {}  # Page numbers within documents
         self._crop_mapping = {}  # Mapping for crop sequences (e.g., "4-1" → [4, 1])
+        self._images_found = 0  # Counter for images found
+        self._images_not_found = 0  # Counter for images not found
 
         if self._json_analysis:
             self._transporter = JsonAnalysisTransporter(self._base_src_dir)
@@ -210,6 +212,7 @@ class AdaptFs(MagOperation):
                         page_number,
                         img.file[0],
                         crop_sequence,
+                        nomenclature,
                     )
 
                 prev_fascicolo = fascicolo
@@ -225,6 +228,12 @@ class AdaptFs(MagOperation):
         # Save crop mapping if any crop sequences were detected
         self._save_crop_mapping_json()
 
+        # Print image statistics
+        total_images = self._images_found + self._images_not_found
+        print(f"[INFO] Total images processed: {total_images}")
+        print(f"[INFO] Images found: {self._images_found}")
+        print(f"[INFO] Images not found: {self._images_not_found}")
+
     def _do_iccd_file_element(
         self,
         object_number,
@@ -234,6 +243,7 @@ class AdaptFs(MagOperation):
         page_number,
         file_el,
         crop_sequence=None,
+        nomenclature=None,
     ):
         origpath = file_el.href.value
         extension = origpath.split(".")[-1].lower()
@@ -282,9 +292,16 @@ class AdaptFs(MagOperation):
         src = normpath(join(self._base_src_dir, clean_origpath))
         dst = normpath(join(self._base_dst_dir, newpath))
 
+        # Check if file exists and update counters
+        file_exists = os.path.isfile(src)
+        if file_exists:
+            self._images_found += 1
+        else:
+            self._images_not_found += 1
+
         # Pass original and target paths to transporter
         if self._json_analysis:
-            self._transporter.transport_with_paths(origpath, newpath, src, dst)
+            self._transporter.transport_with_paths(origpath, newpath, src, dst, nomenclature)
         else:
             self._transporter.transport(src, dst)
 
@@ -431,21 +448,40 @@ class AdaptFs(MagOperation):
 
         Examples:
             'Pagina: 1' → (1, None)
-            'Pagina: 1 4-1' → (1, '4-1')
-            'Carta: 2 2-3' → (2, '2-3')
+            'Pagina: 1 4-1' → (1, '4-1')    # Explicit page + crop
+            'Pagina: 4-1' → (1, '4-1')      # Crop-only, use minimum as page
+            'Carta: 2-3' → (2, '2-3')        # Crop-only, use minimum as page
 
         Returns:
             tuple: (page_number, crop_sequence) where crop_sequence is None if not present
         """
-        # Extract page number (existing logic)
+        # Try format: "Pagina: 1 4-1" (page + space + crop)
+        crop_with_page = re.search(r":\s*(\d+)\s+(\d+-\d+)", nomenclature)
+        if crop_with_page:
+            page_number = int(crop_with_page.group(1))
+            crop_sequence = crop_with_page.group(2)
+            return page_number, crop_sequence
+
+        # Try format: "Pagina: 4-1" (crop only, no explicit page)
+        crop_only = re.search(r":\s*(\d+)-(\d+)", nomenclature)
+        if crop_only:
+            num1 = int(crop_only.group(1))
+            num2 = int(crop_only.group(2))
+            # Use MINIMUM number as page number
+            page_number = min(num1, num2)
+            crop_sequence = f"{num1}-{num2}"
+            return page_number, crop_sequence
+
+        # Regular format: "Pagina: 1"
         match = re.search(r":\s*(\d+)", nomenclature)
-        page_number = int(match.group(1)) if match else 1
+        if match:
+            page_number = int(match.group(1))
+            return page_number, None
 
-        # Extract optional crop sequence (e.g., "4-1" or "2-3")
-        crop_match = re.search(r":\s*\d+\s+(\d+-\d+)", nomenclature)
-        crop_sequence = crop_match.group(1) if crop_match else None
-
-        return page_number, crop_sequence
+        # NO MATCH FOUND - Warning
+        log.warning(f"Nomenclatura non riconosciuta: '{nomenclature}' - usando valori di default (page=1)")
+        print(f"[WARNING] Nomenclatura non riconosciuta: '{nomenclature}' - usando valori di default (page=1)")
+        return 1, None
 
     def _parse_crop_sequence(self, crop_sequence):
         """
@@ -586,7 +622,7 @@ class JsonAnalysisTransporter(FileTransporter):
         pass
 
     def transport_with_paths(
-        self, original_path, target_path, full_source_path, full_target_path
+        self, original_path, target_path, full_source_path, full_target_path, nomenclature=None
     ):
         """Transport method for JSON analysis with original and target paths"""
         # Extract fascicolo from target_path (e.g., "ICCD_FSC01351/tiff/...")
@@ -614,6 +650,7 @@ class JsonAnalysisTransporter(FileTransporter):
             "original_path": original_path,
             "target_path": target_path,
             "image_found": file_exists,
+            "nomenclature": nomenclature,
         }
 
     def get_mapping(self):

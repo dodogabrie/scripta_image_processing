@@ -430,6 +430,28 @@
                                                         }}</strong
                                                     >
                                                 </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span>Immagini trovate:</span>
+                                                    <strong
+                                                        class="text-success"
+                                                        >{{
+                                                            processingSummary.imagesFound
+                                                        }}</strong
+                                                    >
+                                                </div>
+                                                <div
+                                                    class="d-flex justify-content-between"
+                                                >
+                                                    <span>Immagini non trovate:</span>
+                                                    <strong
+                                                        class="text-danger"
+                                                        >{{
+                                                            processingSummary.imagesNotFound
+                                                        }}</strong
+                                                    >
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div
@@ -525,6 +547,8 @@ export default {
                 successful: 0,
                 errors: 0,
                 warnings: 0,
+                imagesFound: 0,
+                imagesNotFound: 0,
             },
             outputUnsubscribe: null,
             activeTab: "results", // Default to results tab
@@ -677,6 +701,16 @@ export default {
                 this.processingSummary.totalProcessed++;
             } else if (line.includes("WARNING")) {
                 this.processingSummary.warnings++;
+            } else if (line.includes("Images found:")) {
+                const match = line.match(/Images found: (\d+)/);
+                if (match) {
+                    this.processingSummary.imagesFound = parseInt(match[1]);
+                }
+            } else if (line.includes("Images not found:")) {
+                const match = line.match(/Images not found: (\d+)/);
+                if (match) {
+                    this.processingSummary.imagesNotFound = parseInt(match[1]);
+                }
             } else if (line.includes("PROCESSING SUMMARY")) {
                 this.currentProcessingStage = "Generando resoconto finale...";
             } else if (line.includes("Setup")) {
@@ -758,6 +792,8 @@ export default {
                 successful: 0,
                 errors: 0,
                 warnings: 0,
+                imagesFound: 0,
+                imagesNotFound: 0,
             };
 
             try {

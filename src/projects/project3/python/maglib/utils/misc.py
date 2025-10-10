@@ -36,7 +36,7 @@ class MagResourcePath(object):
     accedere alle sue componenti"""
 
     _path_regex = re.compile(
-        r"^(?:\./)?([^/]+)/(?i)(tiff|jpeg\d*|thumbs|pdf)/"
+        r"(?i)^(?:\./)?([^/]+)/(tiff|jpeg\d*|thumbs|pdf)/"
         r"(([^/]+?_)?(\d+(?:[a-z]{1,2}\d*)?))\.(tif|jpg|pdf)$",
         re.VERBOSE | re.IGNORECASE,
     )
